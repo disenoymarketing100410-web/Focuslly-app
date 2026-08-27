@@ -1,0 +1,6 @@
+{
+  "name": "Focusly",
+  "description": "Focusly is a personal discipline and digital detox app featuring challenges, productivity coaches, focus timers, habit tracking, and leaderboards.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
