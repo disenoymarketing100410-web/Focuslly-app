@@ -36,7 +36,8 @@ import {
   Search,
   CheckCircle2,
   Filter,
-  Award
+  Award,
+  Smartphone
 } from 'lucide-react';
 import { InteractiveCalendar } from './InteractiveCalendar';
 import { AppIcon } from './AppIcon';
@@ -163,6 +164,7 @@ export const DesktopLayout = ({
   setLang,
   isLight,
   toggleMode,
+  toggleDeviceMode,
   onOpenLanding,
   onSignOut,
   onLinkAccount,
@@ -433,6 +435,20 @@ export const DesktopLayout = ({
                 </div>
               </div>
             </div>
+
+            {/* Switch to Mobile Mode */}
+            {toggleDeviceMode && (
+              <button
+                onClick={toggleDeviceMode}
+                className={`p-2.5 rounded-xl border transition-all hover:scale-105 flex items-center gap-1.5 ${
+                  isLight ? 'bg-white hover:bg-zinc-50 border-zinc-200 text-zinc-700 shadow-sm' : 'bg-white/5 hover:bg-white/10 border-white/10 text-white'
+                }`}
+                title="Cambiar a vista móvil"
+              >
+                <Smartphone size={16} />
+                <span className="hidden xl:inline text-[10px] font-bold uppercase tracking-wider">Móvil</span>
+              </button>
+            )}
 
             {/* Theme Toggle */}
             <button

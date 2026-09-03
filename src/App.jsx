@@ -2392,23 +2392,23 @@ const AuthScreen = ({ onBack, onContinue, lang = 'es', initialIsLogin = false, i
       initial={{ opacity: 0 }} 
       animate={{ opacity: 1 }} 
       exit={{ opacity: 0 }} 
-      className={`absolute inset-0 z-40 overflow-hidden flex flex-col font-['Inter',sans-serif] transition-colors duration-500 ${
+      className={`w-full h-full relative overflow-hidden flex flex-col font-['Inter',sans-serif] transition-colors duration-500 ${
         isLight ? 'bg-[#FAFAFA] text-neutral-900' : 'bg-[#000000] text-white'
       }`}
     >
       <div className={`absolute top-[-10%] left-1/2 -translate-x-1/2 w-[150%] h-[50%] blur-[120px] rounded-[100%] pointer-events-none ${
         isLight ? 'bg-neutral-900/[0.04]' : 'bg-white/5'
       }`} />
-      <div className="relative z-10 flex flex-col h-full px-8 pt-14 pb-8">
+      <div className="relative z-10 flex flex-col h-full overflow-y-auto custom-scroll px-6 sm:px-8 pt-6 sm:pt-10 pb-8">
         {/* Header with Back button and Theme Toggle button */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4 shrink-0">
           <button 
             onClick={onBack} 
             className={`flex items-center gap-1 transition-opacity -ml-2 w-max cursor-pointer ${
               isLight ? 'text-black/60 hover:text-black' : 'text-white/60 hover:text-white'
             }`}
           >
-            <ChevronLeft size={24} />
+            <ChevronLeft size={22} />
             <span className="text-xs font-bold uppercase tracking-wider">Volver</span>
           </button>
           {toggleMode && (
@@ -2416,40 +2416,42 @@ const AuthScreen = ({ onBack, onContinue, lang = 'es', initialIsLogin = false, i
           )}
         </div>
 
-        <motion.div variants={staggerContainer} initial="hidden" animate="show" className="flex flex-col flex-1">
-          {/* Logo Header Banner inside Auth */}
-          <motion.div 
-            variants={staggerItem} 
-            className={`flex items-center gap-3 mb-4 p-2.5 rounded-2xl border backdrop-blur-md w-max ${
-              isLight 
-                ? 'bg-black/[0.04] border-black/10' 
-                : 'bg-white/5 border-white/10'
-            }`}
-          >
-            <img src={focuslyIcon} alt="Focusly Icon" className="w-7 h-7 rounded-xl object-contain shadow-md" />
-            <img 
-              src={focuslyWordmark} 
-              alt="Focusly" 
-              className={`h-4 object-contain ${
-                isLight ? 'filter brightness-0 contrast-200 opacity-90' : 'filter brightness-125'
-              }`} 
-            />
-          </motion.div>
+        <motion.div variants={staggerContainer} initial="hidden" animate="show" className="flex flex-col flex-1 min-h-0 justify-between">
+          {/* Main Inputs Area */}
+          <div>
+            {/* Logo Header Banner inside Auth */}
+            <motion.div 
+              variants={staggerItem} 
+              className={`flex items-center gap-3 mb-4 p-2.5 rounded-2xl border backdrop-blur-md w-max ${
+                isLight 
+                  ? 'bg-black/[0.04] border-black/10' 
+                  : 'bg-white/5 border-white/10'
+              }`}
+            >
+              <img src={focuslyIcon} alt="Focusly Icon" className="w-7 h-7 rounded-xl object-contain shadow-md" />
+              <img 
+                src={focuslyWordmark} 
+                alt="Focusly" 
+                className={`h-4 object-contain ${
+                  isLight ? 'filter brightness-0 contrast-200 opacity-90' : 'filter brightness-125'
+                }`} 
+              />
+            </motion.div>
 
-          <motion.div variants={staggerItem} className="mb-4">
-            <h1 className={`text-2xl font-black tracking-tight uppercase mb-1 leading-[1.1] ${
-              isLight ? 'text-neutral-900' : 'text-white'
-            }`}>
-              {isLogin ? t.loginTitle : (isLinking ? 'Vincular Cuenta' : t.authTitle)}
-            </h1>
-            <p className={`text-[10px] tracking-[0.25em] font-black uppercase italic ${
-              isLight ? 'text-neutral-500' : 'text-white/40'
-            }`}>
-              {isLogin ? t.loginSub : (isLinking ? 'Guarda tu progreso en la nube de forma segura' : t.authSub)}
-            </p>
-          </motion.div>
-          
-          <div className="flex-1 overflow-y-auto custom-scroll space-y-3 pb-3 px-1">
+            <motion.div variants={staggerItem} className="mb-4">
+              <h1 className={`text-2xl font-black tracking-tight uppercase mb-1 leading-[1.1] ${
+                isLight ? 'text-neutral-900' : 'text-white'
+              }`}>
+                {isLogin ? t.loginTitle : (isLinking ? 'Vincular Cuenta' : t.authTitle)}
+              </h1>
+              <p className={`text-[10px] tracking-[0.25em] font-black uppercase italic ${
+                isLight ? 'text-neutral-500' : 'text-white/40'
+              }`}>
+                {isLogin ? t.loginSub : (isLinking ? 'Guarda tu progreso en la nube de forma segura' : t.authSub)}
+              </p>
+            </motion.div>
+            
+            <div className="space-y-3 pb-3 px-1">
             {!isLogin && !isLinking && (
               <motion.div variants={staggerItem} className="relative group">
                 <div className={`absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition-colors ${
@@ -2556,6 +2558,7 @@ const AuthScreen = ({ onBack, onContinue, lang = 'es', initialIsLogin = false, i
                   Política de Privacidad
                 </button>.
               </p>
+            </div>
             </div>
           </div>
 
@@ -3709,7 +3712,7 @@ const LOG_ICONS = {
   Megaphone
 };
 
-const ProfileView = ({ inventory, setInventory, userXP, username, onOpenItem, completedCount, activityLog, selectedApps, setSelectedApps, lang, setLang, userEmail, isAnonymous, onSignOut, onLinkAccount, onOpenStats, loginStreak, isLight, toggleMode, onOpenLanding, calendarTasks = [], onOpenPrivacy, onOpenTerms }) => {
+const ProfileView = ({ inventory, setInventory, userXP, username, onOpenItem, completedCount, activityLog, selectedApps, setSelectedApps, lang, setLang, userEmail, isAnonymous, onSignOut, onLinkAccount, onOpenStats, loginStreak, isLight, toggleMode, toggleDeviceMode, onOpenLanding, calendarTasks = [], onOpenPrivacy, onOpenTerms }) => {
   const [activeProfileTab, setActiveProfileTab] = useState('estado');
   const [activeTab, setActiveTab] = useState('avatars');
   const [showAppSelector, setShowAppSelector] = useState(false);
@@ -3871,14 +3874,20 @@ const ProfileView = ({ inventory, setInventory, userXP, username, onOpenItem, co
                   <ChevronDown size={20} className={`text-white/50 transition-transform duration-300 ${showAppSelector ? 'rotate-180' : ''}`} />
                 </button>
                 <div className="flex gap-2 shrink-0">
-                  <button onClick={() => setLang(lang === 'es' ? 'en' : 'es')} className="w-16 bg-white/5 hover:bg-white/10 transition-colors backdrop-blur-sm rounded-[20px] border border-white/10 shadow-lg flex flex-col items-center justify-center shrink-0">
+                  <button onClick={() => setLang(lang === 'es' ? 'en' : 'es')} className="w-14 bg-white/5 hover:bg-white/10 transition-colors backdrop-blur-sm rounded-[20px] border border-white/10 shadow-lg flex flex-col items-center justify-center shrink-0" title="Cambiar idioma">
                     <span className="text-[8px] text-white/50 font-bold uppercase tracking-widest mb-1">Idioma</span>
-                    <span className="text-sm font-black uppercase text-white">{lang}</span>
+                    <span className="text-xs font-black uppercase text-white">{lang}</span>
                   </button>
                   {toggleMode && (
-                    <button onClick={toggleMode} className="w-16 bg-white/5 hover:bg-white/10 transition-colors backdrop-blur-sm rounded-[20px] border border-white/10 shadow-lg flex flex-col items-center justify-center shrink-0">
+                    <button onClick={toggleMode} className="w-14 bg-white/5 hover:bg-white/10 transition-colors backdrop-blur-sm rounded-[20px] border border-white/10 shadow-lg flex flex-col items-center justify-center shrink-0" title="Cambiar tema">
                       <span className="text-[8px] text-white/50 font-bold uppercase tracking-widest mb-1">Tema</span>
-                      {isLight ? <Sun size={18} className="text-yellow-400" /> : <Moon size={18} className="text-white" />}
+                      {isLight ? <Sun size={16} className="text-yellow-400" /> : <Moon size={16} className="text-white" />}
+                    </button>
+                  )}
+                  {toggleDeviceMode && (
+                    <button onClick={toggleDeviceMode} className="w-14 bg-white/5 hover:bg-white/10 transition-colors backdrop-blur-sm rounded-[20px] border border-white/10 shadow-lg flex flex-col items-center justify-center shrink-0" title="Ver en modo computador">
+                      <span className="text-[8px] text-white/50 font-bold uppercase tracking-widest mb-1">PC</span>
+                      <Laptop size={16} className="text-white" />
                     </button>
                   )}
                 </div>
@@ -6194,18 +6203,36 @@ function App() {
     setUnlockedBadgeCelebration(null);
   };
 
-  // Detección 100% automática del dispositivo (computador vs celular)
+  // Detección 100% automática y reactiva del tamaño de la pantalla (con persistencia si el usuario alterna manualmente)
   const [isDesktopDevice, setIsDesktopDevice] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    return window.innerWidth >= 1024 && !isMobileUA;
+    if (typeof window === 'undefined') return true;
+    try {
+      const saved = localStorage.getItem('focusly_device_mode');
+      if (saved === 'desktop') return true;
+      if (saved === 'mobile') return false;
+    } catch {}
+    return window.innerWidth >= 768;
   });
+
+  const toggleDeviceMode = () => {
+    setIsDesktopDevice(prev => {
+      const next = !prev;
+      try {
+        localStorage.setItem('focusly_device_mode', next ? 'desktop' : 'mobile');
+      } catch {}
+      return next;
+    });
+  };
 
   useEffect(() => {
     const handleResize = () => {
-      const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      setIsDesktopDevice(window.innerWidth >= 1024 && !isMobileUA);
+      try {
+        const saved = localStorage.getItem('focusly_device_mode');
+        if (saved) return;
+      } catch {}
+      setIsDesktopDevice(window.innerWidth >= 768);
     };
+    handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -6706,8 +6733,164 @@ function App() {
     setSelectedInventoryItem(item);
   };
 
-  // Detección 100% automática: si el usuario está en computador (pantalla >= 1024px no móvil) muestra la vista Desktop
-  if (step === 'main' && isDesktopDevice) {
+  // Renderizar la página de inicio completa (Landing Page)
+  if (step === 'landing') {
+    return (
+      <div className="fixed inset-0 z-[500] bg-[#03050d] overflow-y-auto">
+        <LandingPage onFinish={() => setStep('main')} />
+      </div>
+    );
+  }
+
+  // Si está en computador/desktop, renderizar las vistas fluidas y adaptadas para escritorio
+  if (isDesktopDevice) {
+    if (step === 'splash') {
+      return (
+        <div className="fixed inset-0 z-[500] bg-black">
+          <Splash 
+            key="desktop-splash" 
+            isLight={isLight}
+            toggleMode={toggleMode}
+            onComplete={() => {
+              if (onboardingDone) {
+                setStep('main');
+              } else {
+                setStep('logoReveal');
+              }
+            }} 
+          />
+        </div>
+      );
+    }
+
+    if (step === 'logoReveal' || step === 'onboarding') {
+      return (
+        <div className="fixed inset-0 z-[500] bg-black">
+          <LogoReveal 
+            key="desktop-logoReveal" 
+            isLight={isLight}
+            toggleMode={toggleMode}
+            onContinue={() => setStep('auth')} 
+            onBack={() => setStep('splash')} 
+          />
+        </div>
+      );
+    }
+
+    if (step === 'auth' && authReturnStep !== 'main') {
+      return (
+        <div className={`fixed inset-0 z-[500] flex items-center justify-center p-4 sm:p-6 transition-colors duration-500 ${isLight ? 'bg-zinc-100' : 'bg-[#050505]'}`}>
+          <div className={`w-full max-w-md max-h-[92vh] rounded-3xl overflow-hidden border shadow-2xl relative flex flex-col ${
+            isLight ? 'bg-[#FAFAFA] border-black/10 text-neutral-900 shadow-xl' : 'bg-[#0c0c0c] border-white/10 text-white shadow-[0_0_80px_rgba(0,0,0,0.8)]'
+          }`}>
+            <AuthScreen 
+              key="desktop-auth-onboarding" 
+              lang={lang} 
+              isLight={isLight}
+              toggleMode={toggleMode}
+              initialIsLogin={authInitialIsLogin}
+              isLinking={false}
+              onOpenPrivacy={() => setShowPrivacyModal(true)}
+              onOpenTerms={() => setShowTermsModal(true)}
+              onBack={() => setStep('logoReveal')} 
+              onContinue={async (name, gender) => {
+                await handleOnboardingComplete(name, gender);
+              }} 
+            />
+          </div>
+        </div>
+      );
+    }
+
+    if (step === 'apps') {
+      return (
+        <div className={`fixed inset-0 z-[500] flex items-center justify-center p-4 sm:p-6 transition-colors duration-500 ${isLight ? 'bg-zinc-100 text-black' : 'bg-[#050505] text-white'}`}>
+          <div className={`w-full max-w-2xl max-h-[90vh] rounded-3xl overflow-hidden border shadow-2xl relative flex flex-col p-6 sm:p-10 ${
+            isLight ? 'bg-white border-black/10' : 'bg-[#0c0c0c] border-white/10'
+          }`}>
+            <div className="flex items-center justify-between mb-6">
+              <button onClick={() => setStep('auth')} className="flex items-center gap-1 opacity-60 hover:opacity-100 transition-opacity cursor-pointer"><ChevronLeft size={22} /><span className="text-xs font-bold uppercase tracking-wider">Volver</span></button>
+              <span className="text-xs font-black uppercase tracking-widest text-indigo-400">Paso 1 de 2</span>
+            </div>
+            <h1 className="text-3xl font-black uppercase tracking-tight mb-2">Elige tus Apps a Bloquear</h1>
+            <p className="text-xs opacity-60 uppercase tracking-wider mb-6">Selecciona las aplicaciones que más te distraen.</p>
+            <div className="flex-1 overflow-y-auto custom-scroll pr-2 grid grid-cols-3 sm:grid-cols-4 gap-4 mb-6">
+              {APPS.map(app => {
+                const isSelected = selectedApps.includes(app.id);
+                return (
+                  <button key={app.id} onClick={() => setSelectedApps(p => p.includes(app.id) ? p.filter(x => x !== app.id) : [...p, app.id])} className={`p-4 rounded-2xl border transition-all flex flex-col items-center gap-2 relative cursor-pointer ${
+                    isSelected 
+                      ? (isLight ? 'bg-black/5 border-black text-black' : 'bg-white/10 border-white text-white shadow-lg') 
+                      : (isLight ? 'bg-black/[0.02] border-black/10 text-black/60 hover:border-black/30' : 'bg-white/5 border-white/5 text-white/50 hover:border-white/20')
+                  }`}>
+                    <AppIcon id={app.id} fallbackSrc={app.icon} alt={app.name} className="w-10 h-10" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-center">{app.name}</span>
+                    {isSelected && (
+                      <div className="absolute top-2 right-2 w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center text-white"><Check size={10} strokeWidth={3} /></div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+            <button onClick={() => setStep('levels')} className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all cursor-pointer ${
+              isLight ? 'bg-black text-white hover:bg-zinc-800' : 'bg-white text-black hover:bg-zinc-200'
+            }`}>
+              Continuar al Reto
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    if (step === 'levels') {
+      return (
+        <div className={`fixed inset-0 z-[500] flex items-center justify-center p-4 sm:p-6 transition-colors duration-500 ${isLight ? 'bg-zinc-100 text-black' : 'bg-[#050505] text-white'}`}>
+          <div className={`w-full max-w-2xl max-h-[90vh] rounded-3xl overflow-hidden border shadow-2xl relative flex flex-col p-6 sm:p-10 ${
+            isLight ? 'bg-white border-black/10' : 'bg-[#0c0c0c] border-white/10'
+          }`}>
+            <div className="flex items-center justify-between mb-6">
+              <button onClick={() => setStep('apps')} className="flex items-center gap-1 opacity-60 hover:opacity-100 transition-opacity cursor-pointer"><ChevronLeft size={22} /><span className="text-xs font-bold uppercase tracking-wider">Volver</span></button>
+              <span className="text-xs font-black uppercase tracking-widest text-indigo-400">Paso 2 de 2</span>
+            </div>
+            <h1 className="text-3xl font-black uppercase tracking-tight mb-2">Elige tu Desafío</h1>
+            <p className="text-xs opacity-60 uppercase tracking-wider mb-6">Define tu nivel inicial de desintoxicación digital.</p>
+            <div className="flex-1 overflow-y-auto custom-scroll pr-2 space-y-3 mb-6">
+              {LEVELS.map(l => {
+                const Icon = l.icon;
+                const isSelected = selectedLevel === l.id;
+                return (
+                  <div key={l.id} onClick={() => setSelectedLevel(l.id)} className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
+                    isSelected 
+                      ? (isLight ? 'bg-black/5 border-black' : 'bg-white/10 border-white shadow-lg') 
+                      : (isLight ? 'bg-black/[0.02] border-black/10 opacity-70 hover:opacity-100' : 'bg-white/5 border-white/5 opacity-70 hover:opacity-100')
+                  }`}>
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${l.hex}20` }}>
+                        <Icon size={20} color={l.hex} />
+                      </div>
+                      <div>
+                        <span className={`text-[9px] font-black tracking-widest ${l.color}`}>{l.tag}</span>
+                        <h4 className="text-sm font-black uppercase">{l.title}</h4>
+                        <p className="text-xs opacity-60">{l.desc}</p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-black px-2.5 py-1 rounded-lg border uppercase" style={{ borderColor: `${l.hex}40`, color: l.hex }}>Nivel {l.id}</span>
+                  </div>
+                );
+              })}
+            </div>
+            <button onClick={handleLevelConfirm} disabled={!selectedLevel} className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${
+              selectedLevel 
+                ? (isLight ? 'bg-black text-white hover:bg-zinc-800 cursor-pointer' : 'bg-white text-black hover:bg-zinc-200 cursor-pointer')
+                : 'bg-zinc-500/20 text-zinc-500 cursor-not-allowed'
+            }`}>
+              Confirmar y Comenzar
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className={`w-full min-h-screen relative selection:bg-white selection:text-black transition-colors duration-500 ${isLight ? 'bg-zinc-100' : 'bg-black'}`}>
         <style dangerouslySetInnerHTML={{
@@ -6716,7 +6899,7 @@ function App() {
           .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
           .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 999px; }
           .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-          body { background-color: #000000; color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+          body { background-color: #000000; color: white; font-family: 'Inter', sans-serif; }
           input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.5; cursor: pointer; }
         `}} />
 
@@ -6741,6 +6924,7 @@ function App() {
           setLang={setLang}
           isLight={isLight}
           toggleMode={toggleMode}
+          toggleDeviceMode={toggleDeviceMode}
           onOpenLanding={() => setStep('landing')}
           onOpenPrivacy={() => setShowPrivacyModal(true)}
           onOpenTerms={() => setShowTermsModal(true)}
@@ -6796,6 +6980,33 @@ function App() {
 
         {/* Global Modals for Desktop Mode */}
         <AnimatePresence>
+          {step === 'auth' && (
+            <div className="fixed inset-0 z-[600] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+              <div className={`w-full max-w-md h-[88vh] rounded-3xl overflow-hidden border shadow-2xl relative flex flex-col ${
+                isLight ? 'bg-[#FAFAFA] border-black/10 text-neutral-900' : 'bg-[#000000] border-white/10 text-white'
+              }`}>
+                <AuthScreen 
+                  key="desktop-auth-modal" 
+                  lang={lang} 
+                  isLight={isLight}
+                  toggleMode={toggleMode}
+                  initialIsLogin={authInitialIsLogin}
+                  isLinking={authReturnStep === 'main'}
+                  onOpenPrivacy={() => setShowPrivacyModal(true)}
+                  onOpenTerms={() => setShowTermsModal(true)}
+                  onBack={() => setStep('main')}
+                  onContinue={async (name, gender) => {
+                    if (authReturnStep === 'main') {
+                      setStep('main');
+                    } else {
+                      await handleOnboardingComplete(name, gender);
+                      setStep('main');
+                    }
+                  }} 
+                />
+              </div>
+            </div>
+          )}
           {showChallengeDetail && (
             <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
               <div className="w-full max-w-lg">
@@ -6975,19 +7186,18 @@ function App() {
   }
 
   return (
-    <div className={`flex items-center justify-center min-h-screen selection:bg-red-500 selection:text-white transition-colors duration-1000 ${isLight ? 'bg-slate-100' : 'bg-[#000]'}`}>
+    <div className={`flex items-center justify-center min-h-[100dvh] w-full selection:bg-red-500 selection:text-white transition-colors duration-700 ${isLight ? 'bg-slate-100' : 'bg-[#000]'}`}>
       <style dangerouslySetInnerHTML={{
         __html: `
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         .custom-scroll::-webkit-scrollbar { width: 0px; display: none; }
-        body { background-color: #000; color: white; font-family: 'Inter', sans-serif; overflow: hidden; }
+        body { background-color: #000; color: white; font-family: 'Inter', sans-serif; }
         input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.5; cursor: pointer; }
       `}} />
 
-      <div className={`w-full h-screen sm:w-[390px] sm:h-[844px] sm:rounded-[60px] sm:border-[10px] sm:border-[#1a1a1a] relative overflow-hidden shadow-[0_0_150px_rgba(0,0,0,1)] transition-all duration-1000 ${(BACKGROUNDS[inventory.equippedBg] || BACKGROUNDS['bg_default']).css} ${isLight ? 'theme-light' : ''}`}>
+      <div className={`w-full max-w-md min-h-[100dvh] h-[100dvh] relative overflow-hidden flex flex-col transition-all duration-700 ${(BACKGROUNDS[inventory.equippedBg] || BACKGROUNDS['bg_default']).css} ${isLight ? 'theme-light' : ''}`}>
         <GlobalThemeEffects themeId={inventory.equippedBg} />
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay pointer-events-none z-0"></div>
-        <div className="hidden sm:block absolute top-0 left-1/2 -translate-x-1/2 w-32 h-7 bg-[#1a1a1a] rounded-b-[2rem] z-[110]" />
 
         <AnimatePresence mode="wait">
           {step === 'splash' && (
@@ -7179,6 +7389,7 @@ function App() {
                           loginStreak={loginStreak}
                           isLight={isLight}
                           toggleMode={toggleMode}
+                          toggleDeviceMode={toggleDeviceMode}
                           onOpenLanding={() => setStep('landing')}
                           onOpenPrivacy={() => setShowPrivacyModal(true)}
                           onOpenTerms={() => setShowTermsModal(true)}
