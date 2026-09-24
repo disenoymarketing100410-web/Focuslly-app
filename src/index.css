@@ -15,34 +15,70 @@ img {
   image-rendering: crisp-edges;
 }
 
+:root, html {
+  color-scheme: dark;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+html {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
 body {
   background-color: #000;
   color: white;
   font-family: 'Inter', sans-serif;
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: auto !important;
+  max-width: 100vw;
   min-height: 100vh;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
   transition: background-color 1000ms ease;
+}
+
+/* Ocultar barra de desplazamiento universalmente (vertical y horizontal) */
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+*::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+  -webkit-appearance: none !important;
+}
+
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-corner {
+  display: none !important;
+  background: transparent !important;
+  border: none !important;
 }
 
 body.theme-light-active {
   background-color: #f1f5f9;
 }
 
-/* Scrollbar personalizada */
-.custom-scroll::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+/* Scrollbar personalizada oculta pero funcional */
+.custom-scroll,
+.no-scrollbar,
+.scrollbar-none {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
 }
-.custom-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-.custom-scroll::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 9999px;
-}
-.custom-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+.custom-scroll::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar,
+.scrollbar-none::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
 }
 input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active { -webkit-box-shadow: 0 0 0 30px #0c0c0c inset !important; -webkit-text-fill-color: white !important; transition: background-color 5000s ease-in-out 0s; }
 
@@ -155,13 +191,12 @@ input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:foc
   color: #0f172a !important;
 }
 
-/* Scrollbar adjustment */
-.theme-light .custom-scroll::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.12) !important;
-}
-
-.theme-light .custom-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.25) !important;
+/* Scrollbar adjustment - always hidden */
+.theme-light .custom-scroll::-webkit-scrollbar,
+.theme-light *::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 /* Light mode: only remove colored glows on glow-specific elements */

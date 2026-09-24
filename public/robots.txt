@@ -1,0 +1,9 @@
+# Robots.txt for Focusly
+# https://ais-pre-rtaadb6u3dcag6l57ekglp-188665010574.us-east5.run.app
+
+User-agent: *
+Allow: /
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://ais-pre-rtaadb6u3dcag6l57ekglp-188665010574.us-east5.run.app/sitemap.xml

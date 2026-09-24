@@ -11,6 +11,7 @@ import silenceLightImg from './assets/images/silence_light_1787499949073.jpg';
 import driveLightImg from './assets/images/drive_light_1787499961243.jpg';
 import strengthLightImg from './assets/images/strength_light_1787499971927.jpg';
 import LandingPage from './LandingPage';
+import { SeoManager } from './components/SeoManager';
 import { InteractiveCalendar } from './components/InteractiveCalendar';
 import { AICalendarAssistant } from './components/AICalendarAssistant';
 import { DesktopLayout } from './components/DesktopLayout';
@@ -20,11 +21,39 @@ import { BadgesView } from './components/BadgesView';
 import { BadgeUnlockModal } from './components/BadgeUnlockModal';
 import { BadgeDetailModal } from './components/BadgeDetailModal';
 import { PrivacyPolicyModal, TermsModal } from './components/LegalModals';
+import { 
+  ScreenAdaptationProvider, 
+  useScreenAdaptation 
+} from './components/ScreenAdaptationSystem';
 import { MASTERIES_DATA } from './data/masteries';
 import { MasteryCourseModal } from './components/MasteryCourseModal';
-const focuslyWordmark = '/focusly-logo-wordmark.png';
-const focuslyIcon = '/focusly-logo-icon.png';
-const focuslySlogan = '/focusly-logo-slogan.png';
+import { MasteriesSectionView } from './components/mastery/MasteriesSectionView';
+import { GlobalThemeEffects } from './components/GlobalThemeEffects';
+import { FocuslyIcon, FocuslyLogo } from './components/FocuslyLogo';
+import { CharacterPurchaseModal } from './components/CharacterPurchaseModal';
+import { EquipmentDetailModal } from './components/EquipmentDetailModal';
+import { 
+  OUTFITS, 
+  ACCESSORIES, 
+  ENVIRONMENTS, 
+  TITLES, 
+  CHARACTER_PERSONAS,
+  loadSavedInventory, 
+  saveInventoryToStorage, 
+  sanitizeInventory 
+} from './data/focuslyCustomization';
+import {
+  MinigameReflex,
+  MinigameMemory,
+  MinigameMillionaire,
+  MinigameMath,
+  MinigameSequence,
+  MinigameWhack,
+  MinigameStoic
+} from './components/FocuslyMinigames';
+const focuslyWordmark = '/focusly-wordmark.svg';
+const focuslyIcon = '/focusly-icon.svg';
+const focuslySlogan = '/focusly-slogan.svg';
 import {
   Bell, Users, Mail, ChevronLeft, Plus, Heart, MessageCircle, Megaphone,
   Home, ShoppingBag, User, Check, Search, Settings, ArrowLeft, Sprout,
@@ -55,80 +84,9 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-const UI_TEXT = {
-  es: {
-    authTitle: 'Forja tu Destino',
-    authSub: 'La disciplina empieza aquí.',
-    loginTitle: 'Acceso',
-    loginSub: 'Retoma tu enfoque.',
-    btnStart: 'Comenzar Viaje',
-    btnLogin: 'Iniciar Sesión',
-    btnSwitchToLogin: '¿Ya tienes una cuenta? Inicia sesión',
-    btnSwitchToReg: '¿No tienes cuenta? Regístrate',
-    loading: 'Cargando...',
-    forum: 'Foro',
-    rankings: 'Ranking',
-    home: 'Inicio',
-    shop: 'Tienda',
-    profile: 'Perfil',
-    challenge: 'Desafíate',
-    organize: 'Organízate',
-    grow: 'Crece',
-    aiRec: 'IA te recomienda',
-    weeklyGoal: 'Meta Semanal',
-    activeChallenge: 'Desafío Activo',
-    noChallengeYet: 'Sin desafío activo',
-    startChallenge: 'Empezar Desafío',
-    completeDay: 'Completar Día',
-    days: 'días',
-    myTasks: 'Mis Tareas',
-    addTask: 'Añadir tarea...',
-    aiAssistant: 'Asistente IA',
-    syncSchedules: 'Sincroniza tus horarios',
-    thisWeek: 'Esta Semana',
-    blocker: 'Bloqueador',
-    focusTips: 'Consejos de Enfoque',
-    chooseCoach: 'Elige tu Coach',
-    studyMethods: 'Métodos de Estudio',
-    language: 'Idioma'
-  },
-  en: {
-    authTitle: 'Forge your Destiny',
-    authSub: 'Discipline starts here.',
-    loginTitle: 'Access',
-    loginSub: 'Regain your focus.',
-    btnStart: 'Start Journey',
-    btnLogin: 'Sign In',
-    btnSwitchToLogin: 'Already have an account? Sign in',
-    btnSwitchToReg: 'No account? Sign up',
-    loading: 'Loading...',
-    forum: 'Forum',
-    rankings: 'Rankings',
-    home: 'Home',
-    shop: 'Shop',
-    profile: 'Profile',
-    challenge: 'Challenge',
-    organize: 'Organize',
-    grow: 'Grow',
-    aiRec: 'AI recommends',
-    weeklyGoal: 'Weekly Goal',
-    activeChallenge: 'Active Challenge',
-    noChallengeYet: 'No active challenge',
-    startChallenge: 'Start Challenge',
-    completeDay: 'Complete Day',
-    days: 'days',
-    myTasks: 'My Tasks',
-    addTask: 'Add task...',
-    aiAssistant: 'AI Assistant',
-    syncSchedules: 'Sync your schedules',
-    thisWeek: 'This Week',
-    blocker: 'Blocker',
-    focusTips: 'Focus Tips',
-    chooseCoach: 'Choose your Coach',
-    studyMethods: 'Study Methods',
-    language: 'Language'
-  }
-};
+import { TRANSLATIONS, t as translate } from './data/translations';
+
+const UI_TEXT = TRANSLATIONS;
 
 // --- DATA ---
 const SLIDES = [
@@ -256,6 +214,8 @@ const BACKGROUNDS = {
   bg_ocean: { id: 'bg_ocean', name: 'Abismo Oceánico', css: 'bg-gradient-to-b from-[#000b18] to-[#000000]', themeProps: { navBg: 'bg-[#001429]', navBorder: 'border-cyan-500/30', navGlow: 'shadow-[0_0_25px_rgba(6,182,212,0.2)]' }, img: 'animated', rarity: 'epic', price: 450, desc: 'La presión de las profundidades forja diamantes. Ideal para concentración extrema.' },
   bg_nebula: { id: 'bg_nebula', name: 'Nebulosa Cósmica', css: 'bg-gradient-to-br from-[#120524] to-[#000000]', themeProps: { navBg: 'bg-[#1a0b2e]', navBorder: 'border-purple-500/40', navGlow: 'shadow-[0_0_25px_rgba(168,85,247,0.2)]' }, img: 'animated', rarity: 'legendary', price: 800, desc: 'Un viaje por las estrellas oscuras. Tu disciplina expande la galaxia. Activa el campo estelar.' },
   bg_inferno: { id: 'bg_inferno', name: 'Foso Infernal', css: 'bg-gradient-to-t from-[#2a0000] to-[#000000]', themeProps: { navBg: 'bg-[#2a0000]', navBorder: 'border-red-500/50', navGlow: 'shadow-[0_0_30px_rgba(239,68,68,0.3)]', isAgresive: true }, img: 'animated', rarity: 'mythic', price: 1500, desc: 'Solo para voluntades forjadas en el fuego más intenso. El entorno reacciona con llamas a tu progreso.' },
+  bg_aurora: { id: 'bg_aurora', name: 'Aurora Boreal', css: 'bg-gradient-to-b from-[#020d1a] to-[#000307]', themeProps: { navBg: 'bg-[#021324]', navBorder: 'border-emerald-500/40', navGlow: 'shadow-[0_0_25px_rgba(52,211,153,0.2)]' }, img: 'animated', rarity: 'legendary', price: 950, desc: 'Las luces del norte iluminan tu camino. Ondas electromagnéticas de pura concentración polar.' },
+  bg_hyperdrive: { id: 'bg_hyperdrive', name: 'Hiperespacio', css: 'bg-[#01020a]', themeProps: { navBg: 'bg-[#03091e]', navBorder: 'border-cyan-500/50', navGlow: 'shadow-[0_0_30px_rgba(34,211,238,0.3)]' }, img: 'animated', rarity: 'mythic', price: 1800, desc: 'Velocidad de curvatura. Salto relativista al hiperespacio para erradicar cualquier atisbo de distracción.' },
   bg_light: { id: 'bg_light', name: 'Luz Diurna', css: 'bg-gradient-to-b from-[#f8fafc] to-[#e2e8f0]', themeProps: { navBg: 'bg-white/80', navBorder: 'border-black/5', navGlow: 'shadow-[0_10px_30px_rgba(0,0,0,0.05)]', isLight: true }, img: 'animated', rarity: 'common', price: 0, desc: 'Claridad mental pura. Un entorno diurno manteniendo la oscuridad en tu centro de operaciones. ¡Gratis!' }
 };
 
@@ -287,13 +247,13 @@ const ALL_SKINS = [
 
 // --- MINIJUEGOS Y TRIVIAS DATA ---
 const MINIGAMES_BANK = [
-  { id: 'mg_1', type: 'reflex', title: 'Reflejos Zen', subtitle: '3 Niveles de Atención', desc: 'Prueba de velocidad neuronal. Supera 3 niveles seguidos para ganar la recompensa completa.', icon: Zap, color: 'from-yellow-500 to-orange-600', rewardXP: 30, rewardDia: 10 },
-  { id: 'mg_2', type: 'memory', title: 'Memoriza', subtitle: 'Progresión Visual', desc: 'Encuentra las parejas ocultas. La dificultad (cantidad de cartas) aumenta tras cada victoria.', icon: LayoutGrid, color: 'from-blue-500 to-cyan-600', rewardXP: 45, rewardDia: 15 },
-  { id: 'mg_3', type: 'millionaire', title: 'Mente Maestra', subtitle: 'Prueba de 5 Preguntas', desc: 'Demuestra tu cultura general. Responde 5 preguntas seguidas sin margen de error.', icon: Brain, color: 'from-purple-500 to-indigo-600', rewardXP: 60, rewardDia: 20 },
-  { id: 'mg_4', type: 'math', title: 'Genio Matemático', subtitle: 'Agilidad Numérica', desc: 'Resuelve operaciones matemáticas. Fomenta la inteligencia y la rapidez mental.', icon: Activity, color: 'from-green-500 to-emerald-600', rewardXP: 40, rewardDia: 10 },
-  { id: 'mg_5', type: 'sequence', title: 'Secuencia Lógica', subtitle: 'Orden y Enfoque', desc: 'Toca los números en orden ascendente. Entrena tu concentración y memoria de trabajo.', icon: LayoutGrid, color: 'from-indigo-500 to-purple-600', rewardXP: 35, rewardDia: 10 },
-  { id: 'mg_6', type: 'whack', title: 'Destructor', subtitle: 'Caza de Distracciones', desc: 'Destruye los iconos de distracciones antes de que desaparezcan, pero NO toques los de trabajo.', icon: Target, color: 'from-red-500 to-pink-600', rewardXP: 50, rewardDia: 15 },
-  { id: 'mg_7', type: 'stoic', title: 'Sabiduría Estoica', subtitle: 'Ordena la frase', desc: 'Ordena las palabras para formar famosas frases de pensadores estoicos.', icon: BookOpen, color: 'from-slate-500 to-gray-700', rewardXP: 40, rewardDia: 15 }
+  { id: 'mg_1', type: 'reflex', title: 'Reflejos Zen', subtitle: '5 Niveles de Velocidad', desc: 'Prueba de velocidad neuronal con trampas rojas de inhibición de impulsos. Supera los 5 niveles.', icon: Zap, color: 'from-yellow-500 to-orange-600', rewardXP: 50, rewardDia: 20 },
+  { id: 'mg_2', type: 'memory', title: 'Memoriza', subtitle: '5 Niveles de Matriz', desc: 'Encuentra las parejas en cuadrículas progresivas desde 6 hasta 20 cartas con racha de combo.', icon: LayoutGrid, color: 'from-blue-500 to-cyan-600', rewardXP: 60, rewardDia: 25 },
+  { id: 'mg_3', type: 'millionaire', title: 'Mente Maestra', subtitle: 'Trivia de 8 Preguntas', desc: 'Preguntas de ciencia, neurociencia y filosofía con comodines estratégicos 50:50 y Pista del Sabio.', icon: Brain, color: 'from-purple-500 to-indigo-600', rewardXP: 80, rewardDia: 30 },
+  { id: 'mg_4', type: 'math', title: 'Genio Matemático', subtitle: '5 Niveles Contrarreloj', desc: 'Aritmética, operaciones combinadas, álgebra visual y secuencias lógicas con 12s por ronda.', icon: Activity, color: 'from-green-500 to-emerald-600', rewardXP: 60, rewardDia: 20 },
+  { id: 'mg_5', type: 'sequence', title: 'Secuencia Lógica', subtitle: '5 Niveles Cognitivos', desc: 'Orden ascendente, números negativos, descenso inverso y el Test Chimpancé de memoria espacial.', icon: LayoutGrid, color: 'from-indigo-500 to-purple-600', rewardXP: 60, rewardDia: 20 },
+  { id: 'mg_6', type: 'whack', title: 'Destructor', subtitle: '3 Oleadas de Enfoque', desc: 'Destruye distracciones digitales, evita libros de estudio y no toques las bombas de dopamina.', icon: Target, color: 'from-red-500 to-pink-600', rewardXP: 70, rewardDia: 25 },
+  { id: 'mg_7', type: 'stoic', title: 'Sabiduría Estoica', subtitle: '5 Máximas Filosóficas', desc: 'Ordena citas de Epicteto, Marco Aurelio, Séneca y Viktor Frankl descartando palabras distractoras.', icon: BookOpen, color: 'from-slate-500 to-gray-700', rewardXP: 60, rewardDia: 20 }
 ];
 
 const FOCUS_TIPS_VIDEOS = [
@@ -928,6 +888,30 @@ const BgPreviewLight = () => (
   </div>
 );
 
+const BgPreviewAurora = () => (
+  <div className="w-full h-full bg-[#020912] rounded-xl border border-emerald-500/30 overflow-hidden relative flex items-center justify-center">
+    <motion.div animate={{ skewX: [-15, 15, -15], opacity: [0.4, 0.7, 0.4] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }} className="absolute top-0 w-full h-[60%] bg-gradient-to-b from-emerald-400/40 via-teal-400/20 to-transparent blur-md" />
+    <motion.div animate={{ skewX: [15, -15, 15], opacity: [0.3, 0.6, 0.3] }} transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }} className="absolute top-0 w-full h-[50%] bg-gradient-to-b from-purple-500/30 via-cyan-400/20 to-transparent blur-md" />
+    <div className="absolute bottom-0 w-full h-4 bg-[#00050a]" style={{ clipPath: 'polygon(0% 100%, 25% 30%, 50% 80%, 75% 20%, 100% 70%, 100% 100%)' }} />
+    {Array.from({ length: 5 }).map((_, i) => (
+      <motion.div key={i} animate={{ opacity: [0.2, 1, 0.2] }} transition={{ duration: 2 + i * 0.4, repeat: Infinity }} className="absolute w-0.5 h-0.5 bg-white rounded-full" style={{ left: `${15 + i * 18}%`, top: `${15 + (i % 2) * 20}%` }} />
+    ))}
+  </div>
+);
+
+const BgPreviewHyperdrive = () => (
+  <div className="w-full h-full bg-[#01020a] rounded-xl border border-cyan-500/30 overflow-hidden relative flex items-center justify-center">
+    <motion.div animate={{ scale: [0.2, 2.5], opacity: [0, 0.8, 0] }} transition={{ duration: 2, repeat: Infinity, ease: "easeIn" }} className="absolute w-12 h-12 rounded-full border border-cyan-400 shadow-[0_0_10px_#22d3ee]" />
+    {Array.from({ length: 8 }).map((_, i) => {
+      const angle = (i / 8) * 360;
+      return (
+        <motion.div key={i} animate={{ scaleX: [0.2, 2], opacity: [0, 1, 0] }} transition={{ duration: 1.5, repeat: Infinity, delay: (i % 3) * 0.3 }} className="absolute w-6 h-[1.5px] bg-white origin-left" style={{ transform: `rotate(${angle}deg)` }} />
+      );
+    })}
+    <div className="w-2 h-2 rounded-full bg-white shadow-[0_0_6px_white] z-10" />
+  </div>
+);
+
 const MascotOrb = () => (
   <div className="relative w-full h-full flex flex-col items-center justify-center">
     <motion.div animate={{ scale: [1, 1.2, 1], rotate: 360 }} transition={{ duration: 4, repeat: Infinity, ease: "linear" }} className="w-[60%] aspect-square rounded-full bg-gradient-to-tr from-blue-600 via-cyan-300 to-white flex items-center justify-center shadow-[0_0_30px_#67e8f9]">
@@ -1150,6 +1134,136 @@ const MascotPegasus = () => (
   </div>
 );
 
+// --- NEW ELEGANT AVATAR MASCOTS ---
+
+const MascotSamurai = () => (
+  <div className="relative w-full h-full flex flex-col items-center justify-center">
+    <motion.div animate={{ y: [-3, 3, -3] }} transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }} className="w-[62%] h-[68%] relative flex flex-col items-center justify-center">
+      <motion.div animate={{ scale: [1, 1.04, 1] }} transition={{ duration: 2, repeat: Infinity }} className="w-[70%] h-5 relative flex justify-between items-end">
+        <div className="w-2.5 h-5 bg-gradient-to-t from-amber-600 to-amber-300 rounded-tl-full transform -rotate-12 border-l border-amber-200" />
+        <div className="w-3 h-3 bg-amber-400 rotate-45 border border-amber-200" />
+        <div className="w-2.5 h-5 bg-gradient-to-t from-amber-600 to-amber-300 rounded-tr-full transform rotate-12 border-r border-amber-200" />
+      </motion.div>
+      <div className="w-[75%] h-[60%] bg-zinc-900 border-2 border-amber-500/60 rounded-t-2xl relative shadow-md flex flex-col items-center justify-center overflow-hidden">
+        <div className="w-full h-1 bg-amber-500/40 my-1" />
+        <div className="flex gap-4 items-center">
+          <div className="w-3 h-1.5 bg-white rounded-sm rotate-6 shadow-sm" />
+          <div className="w-3 h-1.5 bg-white rounded-sm -rotate-6 shadow-sm" />
+        </div>
+        <div className="w-[60%] h-3 bg-zinc-950 rounded-b-md mt-1 border-t border-zinc-700" />
+      </div>
+      <div className="w-full flex justify-between -mt-2 z-10 px-1">
+        <div className="w-4 h-5 bg-zinc-800 border border-amber-500/40 rounded-sm" />
+        <div className="w-4 h-5 bg-zinc-800 border border-amber-500/40 rounded-sm" />
+      </div>
+    </motion.div>
+  </div>
+);
+
+const MascotAlchemist = () => (
+  <div className="relative w-full h-full flex flex-col items-center justify-center">
+    <motion.div animate={{ y: [-4, 4, -4] }} transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }} className="w-[55%] h-[65%] relative flex flex-col items-center justify-center">
+      <div className="w-4 h-3 bg-stone-700 border border-amber-600/60 rounded-t-sm" />
+      <div className="w-6 h-1.5 bg-amber-600/80 rounded-full" />
+      <div className="w-[85%] aspect-square rounded-full bg-zinc-950/90 border-2 border-amber-500/50 relative overflow-hidden shadow-md flex items-center justify-center">
+        <motion.div
+          animate={{ height: ['45%', '55%', '45%'] }}
+          transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute bottom-0 w-full bg-gradient-to-t from-amber-700 via-amber-500 to-amber-300/60"
+        />
+        <motion.div
+          animate={{ scale: [0.8, 1.2, 0.8], opacity: [0.6, 1, 0.6] }}
+          transition={{ duration: 1.8, repeat: Infinity }}
+          className="w-4 h-4 bg-white rounded-full shadow-sm z-10"
+        />
+        <div className="absolute inset-1 rounded-full border border-dashed border-amber-400/30 pointer-events-none" />
+      </div>
+    </motion.div>
+  </div>
+);
+
+const MascotValkyrie = () => (
+  <div className="relative w-full h-full flex flex-col items-center justify-center">
+    <motion.div animate={{ y: [-3, 3, -3] }} transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }} className="w-[65%] h-[65%] relative flex items-center justify-center">
+      <motion.div animate={{ rotate: [-8, 8, -8] }} transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }} className="absolute -left-2 w-6 h-12 bg-gradient-to-tr from-slate-400 to-white rounded-tl-full origin-bottom-right opacity-90 border-l border-slate-200" />
+      <motion.div animate={{ rotate: [8, -8, 8] }} transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }} className="absolute -right-2 w-6 h-12 bg-gradient-to-tl from-slate-400 to-white rounded-tr-full origin-bottom-left opacity-90 border-r border-slate-200" />
+      <div className="w-[50%] h-[75%] bg-slate-900 border-2 border-slate-300 rounded-2xl relative z-10 flex flex-col items-center justify-center shadow-md">
+        <div className="w-4 h-4 rotate-45 bg-gradient-to-tr from-sky-400 to-white rounded-sm mb-1 shadow-sm" />
+        <div className="flex gap-2">
+          <div className="w-2.5 h-1 bg-sky-200 rounded-full" />
+          <div className="w-2.5 h-1 bg-sky-200 rounded-full" />
+        </div>
+      </div>
+    </motion.div>
+  </div>
+);
+
+const MascotAstronomer = () => (
+  <div className="relative w-full h-full flex flex-col items-center justify-center">
+    <div className="relative w-[60%] aspect-square flex items-center justify-center">
+      <motion.div animate={{ rotate: 360 }} transition={{ duration: 12, repeat: Infinity, ease: "linear" }} className="absolute inset-0 rounded-full border-2 border-amber-400/50 shadow-sm" />
+      <motion.div animate={{ rotate: -360 }} transition={{ duration: 8, repeat: Infinity, ease: "linear" }} className="absolute inset-2 rounded-full border border-dashed border-sky-400/40" />
+      <motion.div animate={{ rotate: 180 }} transition={{ duration: 16, repeat: Infinity, ease: "linear" }} className="absolute inset-4 rounded-full border border-amber-300/30" />
+      <div className="w-5 h-5 bg-zinc-950 rounded-full border border-amber-400 flex items-center justify-center z-10">
+        <div className="w-2 h-2 bg-amber-300 rounded-full shadow-sm" />
+      </div>
+    </div>
+  </div>
+);
+
+const MascotMonk = () => (
+  <div className="relative w-full h-full flex flex-col items-center justify-center">
+    <motion.div animate={{ y: [-2, 2, -2] }} transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }} className="w-[55%] h-[65%] relative flex flex-col items-center justify-center">
+      <motion.div animate={{ rotate: 360 }} transition={{ duration: 24, repeat: Infinity, ease: "linear" }} className="absolute inset-0 rounded-full border-2 border-stone-400/40 border-t-transparent pointer-events-none" />
+      <div className="w-7 h-4 bg-stone-500 rounded-full border border-stone-400/60 shadow-sm z-30 mb-0.5" />
+      <div className="w-10 h-5 bg-stone-600 rounded-full border border-stone-500/60 shadow-sm z-20 mb-0.5" />
+      <div className="w-13 h-6 bg-stone-700 rounded-full border border-stone-600/60 shadow-sm z-10" />
+      <div className="w-2 h-2 bg-amber-600 rounded-full shadow-sm mt-1 z-30" />
+    </motion.div>
+  </div>
+);
+
+const MascotArchitect = () => (
+  <div className="relative w-full h-full flex flex-col items-center justify-center">
+    <motion.div animate={{ rotate: [0, 6, -6, 0] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }} className="w-[55%] aspect-square relative flex items-center justify-center">
+      <div className="absolute inset-0 border border-zinc-600 rounded-sm bg-zinc-950/70" />
+      <div className="absolute inset-2 border border-dashed border-amber-500/50 rounded-sm" />
+      <div className="w-1 h-12 bg-amber-400 rotate-25 origin-top rounded-full shadow-sm" />
+      <div className="w-1 h-12 bg-amber-400 -rotate-25 origin-top rounded-full shadow-sm" />
+      <div className="w-3 h-3 bg-white rounded-full border border-amber-500 z-10 -mt-10" />
+    </motion.div>
+  </div>
+);
+
+const MascotNatureSpirit = () => (
+  <div className="relative w-full h-full flex flex-col items-center justify-center">
+    <motion.div animate={{ y: [-3, 3, -3], scale: [1, 1.03, 1] }} transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }} className="w-[60%] aspect-square relative flex items-center justify-center">
+      <div className="absolute inset-0 rounded-full border-2 border-emerald-500/40 border-b-transparent" />
+      <motion.div
+        animate={{ scale: [0.9, 1.15, 0.9], opacity: [0.7, 1, 0.7] }}
+        transition={{ duration: 2, repeat: Infinity }}
+        className="w-7 h-9 bg-gradient-to-t from-emerald-600 to-emerald-300 rounded-t-full rounded-b-2xl shadow-sm border border-emerald-200/50 flex items-center justify-center"
+      >
+        <div className="w-2 h-2 bg-white rounded-full mb-2 opacity-80" />
+      </motion.div>
+    </motion.div>
+  </div>
+);
+
+const MascotCyberdoc = () => (
+  <div className="relative w-full h-full flex flex-col items-center justify-center">
+    <motion.div animate={{ y: [-3, 3, -3] }} transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }} className="w-[60%] aspect-square relative flex items-center justify-center">
+      <div className="absolute inset-1 rounded-full border-2 border-slate-400 bg-slate-950/80 shadow-sm" />
+      <motion.div
+        animate={{ width: ['20%', '80%', '20%'] }}
+        transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+        className="h-1 bg-sky-400 rounded-full z-10 shadow-sm"
+      />
+      <div className="w-3 h-3 bg-white rounded-full z-20 shadow-sm" />
+    </motion.div>
+  </div>
+);
+
 const ANIMATED_AVATARS = {
   'a_base': MascotBase,
   'a_bot': MascotBot,
@@ -1163,6 +1277,16 @@ const ANIMATED_AVATARS = {
   'a_atlas': MascotAtlas,
   'a_vento': MascotVento,
   
+  // Expanded variety
+  'a_samurai': MascotSamurai,
+  'a_alchemist': MascotAlchemist,
+  'a_valkyrie': MascotValkyrie,
+  'a_astronomer': MascotAstronomer,
+  'a_monk': MascotMonk,
+  'a_architect': MascotArchitect,
+  'a_nature_spirit': MascotNatureSpirit,
+  'a_cyberdoc': MascotCyberdoc,
+
   'a_orb': MascotOrb,
   'a_prism': MascotPrism,
   'a_eye': MascotEye,
@@ -1191,6 +1315,8 @@ const ANIMATED_AVATARS = {
   'bg_ocean': BgPreviewOcean,
   'bg_nebula': BgPreviewNebula,
   'bg_inferno': BgPreviewInferno,
+  'bg_aurora': BgPreviewAurora,
+  'bg_hyperdrive': BgPreviewHyperdrive,
   'bg_light': BgPreviewLight,
 };
 
@@ -1261,6 +1387,16 @@ const SHOP_ITEMS = [
   { id: 'a_phoenix', category: 'avatar', name: 'FÉNIX NEON', price: 1300, rarity: 'legendary', img: 'animated', desc: 'Renace de las cenizas del cansancio con energía renovada e inquebrantable.' },
   { id: 'a_pegasus', category: 'avatar', name: 'CONSTELACIÓN PEGASO', price: 2200, rarity: 'mythic', img: 'animated', desc: 'La mítica constelación de Pegaso que guía tu mente por encima de lo terrenal.' },
 
+  // Nuevos Avatares de Élite y Estilo
+  { id: 'a_monk', category: 'avatar', name: 'MONJE ZEN', price: 350, rarity: 'rare', img: 'animated', desc: 'Paz mental y quietud absoluta. Apaga el ruido de mil notificaciones.' },
+  { id: 'a_nature_spirit', category: 'avatar', name: 'ESPÍRITU DEL BOSQUE', price: 400, rarity: 'rare', img: 'animated', desc: 'Corona de laurel y serenidad botánica para un ritmo orgánico y sosegado.' },
+  { id: 'a_samurai', category: 'avatar', name: 'RONIN DE DISCIPLINA', price: 650, rarity: 'epic', img: 'animated', desc: 'Maestro del Bushido. Corta de tajo cualquier impulso de distracción.' },
+  { id: 'a_architect', category: 'avatar', name: 'ARQUITECTO', price: 700, rarity: 'epic', img: 'animated', desc: 'Geometría sagrada y compás áureo para estructurar tus jornadas con precisión.' },
+  { id: 'a_alchemist', category: 'avatar', name: 'EL ALQUIMISTA', price: 750, rarity: 'epic', img: 'animated', desc: 'Transmuta el tiempo disperso en oro de alta productividad y conocimiento.' },
+  { id: 'a_astronomer', category: 'avatar', name: 'CARTÓGRAFO ASTRAL', price: 850, rarity: 'epic', img: 'animated', desc: 'Navega el firmamento del pensamiento guiado por el astrolabe celestial.' },
+  { id: 'a_cyberdoc', category: 'avatar', name: 'NEURO-ARQUITECTO', price: 950, rarity: 'legendary', img: 'animated', desc: 'Visor de titanio y diagnóstico cognitivo para optimizar tu flujo mental.' },
+  { id: 'a_valkyrie', category: 'avatar', name: 'VALKIRIA DEL ALBA', price: 1100, rarity: 'legendary', img: 'animated', desc: 'Corona alada y armadura de platino que custodia tu concentración total.' },
+
   // Avatares Mentores IA (5)
   { id: 'a_vento', category: 'avatar', name: 'VENTO', price: 800, rarity: 'rare', img: 'animated', desc: 'Dragón de Papel. Fluye con gracia sobre la procrastinación.' },
   { id: 'a_crono', category: 'avatar', name: 'CRONO', price: 1000, rarity: 'epic', img: 'animated', desc: 'Vigilante de Arena. Domina el flujo del tiempo y tu enfoque absoluto.' },
@@ -1270,437 +1406,40 @@ const SHOP_ITEMS = [
 
   // Fondos
   ...Object.values(BACKGROUNDS).filter(bg => bg.id !== 'bg_light').map(bg => ({
-    id: bg.id, category: 'background', name: bg.name, price: bg.price, rarity: bg.rarity, img: bg.img, desc: bg.desc
+    id: bg.id, category: 'background', type: 'background', name: bg.name, price: bg.price, rarity: bg.rarity, img: bg.img, desc: bg.desc
+  })),
+
+  // Trajes y Ropa
+  ...(OUTFITS || []).map(o => ({
+    ...o,
+    category: 'outfit',
+    type: 'outfit'
+  })),
+
+  // Accesorios Holo
+  ...(ACCESSORIES || []).map(a => ({
+    ...a,
+    category: 'accessory',
+    type: 'accessory'
+  })),
+
+  // Entornos de Concentración
+  ...(ENVIRONMENTS || []).map(e => ({
+    ...e,
+    category: 'background',
+    type: 'background'
+  })),
+
+  // Títulos de Maestría
+  ...(TITLES || []).map(t => ({
+    ...t,
+    category: 'title',
+    type: 'title'
   }))
 ];
 
 const staggerContainer = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
 const staggerItem = { hidden: { opacity: 0, y: 20, scale: 0.9 }, show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 300, damping: 24 } } };
-
-// --- ANIMACIONES DE TEMAS GLOBALES ---
-const GlobalThemeEffects = ({ themeId }) => {
-  if (themeId === 'bg_light') {
-    return (
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-gradient-to-b from-[#f8fafc] to-[#e2e8f0]">
-        <motion.div 
-          animate={{ y: [-20, 20, -20], opacity: [0.4, 0.7, 0.4] }} 
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }} 
-          className="absolute top-[-20%] right-[-10%] w-[150%] h-[150%] bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.9)_0%,transparent_70%)]" 
-        />
-        {Array.from({ length: 15 }).map((_, i) => (
-          <motion.div 
-            key={`light-${i}`} 
-            initial={{ y: '110vh', x: `${Math.random() * 100}vw`, opacity: 0 }} 
-            animate={{ 
-              y: '-10vh', 
-              opacity: [0, 0.6, 0]
-            }} 
-            transition={{ 
-              duration: Math.random() * 6 + 5, 
-              repeat: Infinity, 
-              ease: 'linear', 
-              delay: Math.random() * 5 
-            }} 
-            className="absolute w-2 h-2 bg-white rounded-full blur-[1px] shadow-[0_0_10px_white]" 
-          />
-        ))}
-      </div>
-    );
-  }
-
-  if (themeId === 'bg_inferno') {
-    return (
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-gradient-to-t from-[#100000] via-[#200000] to-[#000000]">
-        {/* Heat shimmer distortion backdrop */}
-        <motion.div 
-          animate={{ opacity: [0.3, 0.5, 0.3], scale: [1, 1.03, 1] }} 
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} 
-          className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(239,68,68,0.25)_0%,transparent_60%)]" 
-        />
-        
-        {/* High-fidelity Vector SVG Waving Flames at the base */}
-        <div className="absolute bottom-[-10px] left-[-10px] right-[-10px] h-[25vh] z-10 opacity-70">
-          <svg viewBox="0 0 400 100" preserveAspectRatio="none" className="w-full h-full">
-            {/* Dark flame backing */}
-            <motion.path 
-              d="M0,80 Q20,30 40,80 T80,80 T120,80 T160,80 T200,80 T240,80 T280,80 T320,80 T360,80 T400,80 L400,100 L0,100 Z" 
-              fill="rgba(185, 28, 28, 0.3)" 
-              animate={{ 
-                d: [
-                  "M0,80 Q20,35 40,75 T80,85 T120,70 T160,82 T200,75 T240,85 T280,72 T320,80 T360,75 T400,80 L400,100 L0,100 Z",
-                  "M0,85 Q20,25 40,85 T80,75 T120,80 T160,72 T200,85 T240,70 T280,82 T320,75 T360,85 T400,85 L400,100 L0,100 Z",
-                  "M0,80 Q20,35 40,75 T80,85 T120,70 T160,82 T200,75 T240,85 T280,72 T320,80 T360,75 T400,80 L400,100 L0,100 Z"
-                ] 
-              }}
-              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-            />
-            {/* Midground orange flame */}
-            <motion.path 
-              d="M0,90 Q30,50 60,90 T120,90 T180,90 T240,90 T300,90 T360,90 T400,90 L400,100 L0,100 Z" 
-              fill="rgba(249, 115, 22, 0.4)" 
-              animate={{ 
-                d: [
-                  "M0,90 Q30,45 60,85 T120,92 T180,80 T240,95 T300,85 T360,92 T400,90 L400,100 L0,100 Z",
-                  "M0,92 Q30,55 60,95 T120,80 T180,92 T240,85 T300,95 T360,82 T400,92 L400,100 L0,100 Z",
-                  "M0,90 Q30,45 60,85 T120,92 T180,80 T240,95 T300,85 T360,92 T400,90 L400,100 L0,100 Z"
-                ] 
-              }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-            />
-            {/* Foreground bright yellow/orange flame */}
-            <motion.path 
-              d="M0,95 Q40,70 80,95 T160,95 T240,95 T320,95 T400,95 L400,100 L0,100 Z" 
-              fill="rgba(234, 179, 8, 0.5)" 
-              animate={{ 
-                d: [
-                  "M0,95 Q40,65 80,92 T160,97 T240,90 T320,96 T400,93 L400,100 L0,100 Z",
-                  "M0,96 Q40,75 80,98 T160,90 T240,97 T320,90 T400,97 L400,100 L0,100 Z",
-                  "M0,95 Q40,65 80,92 T160,97 T240,90 T320,96 T400,93 L400,100 L0,100 Z"
-                ] 
-              }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-            />
-          </svg>
-        </div>
-
-        {/* Rising spark fire embers */}
-        {Array.from({ length: 30 }).map((_, i) => {
-          const size = Math.random() * 5 + 2;
-          return (
-            <motion.div 
-              key={`fire-${i}`} 
-              initial={{ y: '110vh', x: `${Math.random() * 100}vw`, opacity: 0 }} 
-              animate={{ 
-                y: '-10vh', 
-                x: `${Math.random() * 100 + (Math.random() * 20 - 10)}vw`, 
-                opacity: [0, 0.9, 0],
-                scale: [0.8, 1.2, 0.5]
-              }} 
-              transition={{ 
-                duration: Math.random() * 4 + 3, 
-                repeat: Infinity, 
-                ease: 'easeIn', 
-                delay: Math.random() * 4 
-              }} 
-              className="absolute rounded-full bg-gradient-to-t from-red-500 to-yellow-400 blur-[0.5px] shadow-[0_0_12px_rgba(249,115,22,0.8)] z-20" 
-              style={{ width: size, height: size, bottom: 0 }} 
-            />
-          );
-        })}
-      </div>
-    );
-  }
-
-  if (themeId === 'bg_ocean') {
-    return (
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-gradient-to-b from-[#000d22] via-[#000511] to-[#000000]">
-        {/* Dynamic Water Caustic Shimmer Sun rays from top */}
-        <motion.div 
-          animate={{ rotate: [-2, 2, -2], opacity: [0.3, 0.5, 0.3] }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-0 left-[-20%] w-[140%] h-[60vh] bg-gradient-to-b from-cyan-500/10 via-cyan-400/5 to-transparent blur-[60px] transform -skew-x-12" 
-        />
-        <motion.div 
-          animate={{ rotate: [2, -2, 2], opacity: [0.2, 0.4, 0.2] }}
-          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-          className="absolute top-0 left-[20%] w-[50%] h-[70vh] bg-gradient-to-b from-blue-400/10 to-transparent blur-[50px] transform rotate-12" 
-        />
-
-        {/* Fauna Marina 1: Slow Majestic Giant Manta Ray Silhouette */}
-        <motion.div 
-          initial={{ x: '-40vw', y: '30vh', opacity: 0 }}
-          animate={{ 
-            x: '140vw', 
-            y: ['25vh', '35vh', '25vh'],
-            opacity: [0, 0.25, 0.25, 0] 
-          }}
-          transition={{ 
-            duration: 32, 
-            repeat: Infinity, 
-            ease: "linear",
-            delay: 2 
-          }}
-          className="absolute w-24 h-12 bg-cyan-400/10 blur-[1px] z-10 flex items-center justify-center"
-          style={{ clipPath: 'polygon(0% 50%, 35% 0%, 50% 10%, 100% 50%, 50% 90%, 35% 100%)' }}
-        >
-          {/* wing flap animation */}
-          <motion.div 
-            animate={{ scaleY: [1, 0.5, 1] }} 
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} 
-            className="w-full h-full bg-cyan-400/10 rounded-full" 
-          />
-        </motion.div>
-
-        {/* Fauna Marina 2: Speedy deep-water fish group (2 fishes) */}
-        {Array.from({ length: 3 }).map((_, i) => (
-          <motion.div 
-            key={`fish-${i}`}
-            initial={{ x: '120vw', y: `${45 + i * 12}vh`, opacity: 0 }}
-            animate={{ 
-              x: '-40vw', 
-              y: [`${45 + i * 12}vh`, `${42 + i * 12}vh`, `${45 + i * 12}vh`],
-              opacity: [0, 0.15, 0.15, 0] 
-            }}
-            transition={{ 
-              duration: 15 + i * 3, 
-              repeat: Infinity, 
-              ease: "linear",
-              delay: i * 4 
-            }}
-            className="absolute w-6 h-3 bg-cyan-300/10 blur-[0.5px] z-5 pointer-events-none"
-            style={{ clipPath: 'polygon(0% 50%, 60% 0%, 100% 50%, 60% 100%)' }}
-          />
-        ))}
-
-        {/* Dynamic wobbling bubbles */}
-        {Array.from({ length: 30 }).map((_, i) => {
-          const size = Math.random() * 18 + 5;
-          return (
-            <motion.div 
-              key={`bubble-${i}`} 
-              initial={{ y: '110vh', x: 0, opacity: 0 }} 
-              animate={{ 
-                y: '-10vh', 
-                x: [0, Math.random() * 40 - 20, 0], 
-                opacity: [0, 0.55, 0],
-                scale: [0.8, 1.1, 0.8]
-              }} 
-              transition={{ 
-                duration: Math.random() * 9 + 7, 
-                repeat: Infinity, 
-                ease: 'linear', 
-                delay: Math.random() * 6 
-              }} 
-              className="absolute rounded-full border border-cyan-300/40 bg-cyan-200/5 backdrop-blur-[0.5px] shadow-[inset_0_2px_4px_rgba(255,255,255,0.2)] z-10" 
-              style={{ width: size, height: size, left: `${Math.random() * 100}%` }} 
-            />
-          );
-        })}
-      </div>
-    );
-  }
-
-  if (themeId === 'bg_zen') {
-    return (
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-gradient-to-b from-[#010e07] via-[#000603] to-[#000000]">
-        <motion.div animate={{ opacity: [0.1, 0.25, 0.1] }} transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }} className="absolute inset-0 bg-emerald-950/20" />
-        
-        {/* Calm Water Drop Zen Ripples (4 points) */}
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={`ripple-container-${i}`} className="absolute" style={{ left: `${15 + i * 23}%`, top: `${25 + (i % 2) * 35}%` }}>
-            <motion.div 
-              animate={{ 
-                scale: [0, 5], 
-                opacity: [0, 0.35, 0] 
-              }} 
-              transition={{ 
-                duration: 6, 
-                repeat: Infinity, 
-                ease: "easeOut", 
-                delay: i * 2.2 
-              }} 
-              className="w-10 h-10 border border-emerald-400/30 rounded-full flex items-center justify-center"
-            >
-              <div className="w-[60%] h-[60%] border border-emerald-500/20 rounded-full" />
-            </motion.div>
-          </div>
-        ))}
-
-        {/* 3D Falling forest leaves */}
-        {Array.from({ length: 14 }).map((_, i) => (
-          <motion.div 
-            key={`leaf-${i}`} 
-            initial={{ y: '-10vh', x: `${Math.random() * 100}vw`, rotateY: 0, rotate: 0, opacity: 0 }} 
-            animate={{ 
-              y: '110vh', 
-              x: `${Math.random() * 100 + 30}vw`, 
-              rotateY: 720, 
-              rotate: 360, 
-              opacity: [0, 0.65, 0] 
-            }} 
-            transition={{ 
-              duration: Math.random() * 12 + 10, 
-              repeat: Infinity, 
-              ease: 'linear', 
-              delay: Math.random() * 8 
-            }} 
-            className="absolute w-4 h-2 bg-emerald-500/20 rounded-full blur-[0.5px] border border-emerald-400/20 z-10" 
-            style={{ borderTopRightRadius: '12px', borderBottomLeftRadius: '12px' }} 
-          />
-        ))}
-
-        {/* Glowing Fireflies */}
-        {Array.from({ length: 12 }).map((_, i) => (
-          <motion.div 
-            key={`fly-${i}`} 
-            animate={{ 
-              y: ['0vh', '-15vh', '10vh', '0vh'], 
-              x: ['0vw', '8vw', '-6vw', '0vw'], 
-              opacity: [0, 0.9, 0],
-              scale: [0.7, 1.2, 0.7] 
-            }} 
-            transition={{ 
-              duration: Math.random() * 9 + 8, 
-              repeat: Infinity, 
-              ease: 'easeInOut', 
-              delay: Math.random() * 6 
-            }} 
-            className="absolute w-2 h-2 rounded-full bg-emerald-300 shadow-[0_0_12px_#34d399] z-20" 
-            style={{ bottom: `${15 + Math.random() * 50}%`, left: `${Math.random() * 100}%` }} 
-          />
-        ))}
-      </div>
-    );
-  }
-
-  if (themeId === 'bg_nebula') {
-    return (
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-[#020006]">
-        {/* Sharp shining background stars */}
-        {Array.from({ length: 45 }).map((_, i) => (
-          <motion.div 
-            key={`star-d-${i}`} 
-            animate={{ opacity: [0.15, 0.9, 0.15] }} 
-            transition={{ 
-              duration: Math.random() * 4 + 2, 
-              repeat: Infinity, 
-              ease: 'easeInOut',
-              delay: Math.random() * 3
-            }} 
-            className="absolute rounded-full bg-white shadow-[0_0_4px_white]" 
-            style={{ top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%`, width: '1.5px', height: '1.5px' }} 
-          />
-        ))}
-
-        {/* Space Constellation vector mapping */}
-        <svg className="absolute inset-0 w-full h-full opacity-10 z-5">
-          <motion.path 
-            d="M 50,150 L 120,80 L 220,130 L 300,60" 
-            stroke="cyan" strokeWidth="0.5" fill="none"
-            animate={{ opacity: [0.2, 0.7, 0.2] }}
-            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <motion.path 
-            d="M 80,400 L 150,480 L 280,420 L 320,530" 
-            stroke="purple" strokeWidth="0.5" fill="none"
-            animate={{ opacity: [0.3, 0.8, 0.3] }}
-            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-          />
-        </svg>
-
-        {/* Zooming Shooting stars / comets */}
-        {Array.from({ length: 3 }).map((_, i) => (
-          <motion.div 
-            key={`shooting-${i}`}
-            initial={{ x: '-150px', y: `${10 + i * 20}vh`, opacity: 0 }}
-            animate={{ 
-              x: '110vw', 
-              y: `${25 + i * 20}vh`,
-              opacity: [0, 1, 1, 0] 
-            }}
-            transition={{ 
-              duration: 2.2, 
-              repeat: Infinity, 
-              ease: "easeInOut",
-              delay: i * 6 + 1 
-            }}
-            className="absolute w-24 h-0.5 bg-gradient-to-r from-cyan-400 to-transparent blur-[0.5px] transform rotate-[15deg] z-10" 
-          />
-        ))}
-
-        {/* Dual Rotating massive cosmic cloud formations */}
-        <motion.div 
-          animate={{ rotate: 360, scale: [1, 1.1, 1], opacity: [0.25, 0.4, 0.25] }} 
-          transition={{ duration: 60, repeat: Infinity, ease: 'linear' }} 
-          className="absolute -top-[40%] -left-[40%] w-[180%] h-[180%] bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.18)_0%,transparent_60%)] mix-blend-screen z-1" 
-        />
-        <motion.div 
-          animate={{ rotate: -360, scale: [1.1, 1, 1.1], opacity: [0.2, 0.35, 0.2] }} 
-          transition={{ duration: 80, repeat: Infinity, ease: 'linear' }} 
-          className="absolute -bottom-[40%] -right-[40%] w-[180%] h-[180%] bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.18)_0%,transparent_60%)] mix-blend-screen z-1" 
-        />
-      </div>
-    );
-  }
-
-  if (themeId === 'bg_grid') {
-    return (
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-[#000308] perspective-[400px]">
-        {/* Horizon glowing base */}
-        <div className="absolute top-[35%] left-0 right-0 h-[25vh] bg-gradient-to-b from-blue-600/10 via-cyan-500/5 to-transparent blur-[40px] z-5" />
-        
-        {/* Futuristic Laser Scanner Bar */}
-        <motion.div 
-          animate={{ y: ['-10%', '110%'] }} 
-          transition={{ duration: 4.5, repeat: Infinity, ease: 'linear' }} 
-          className="absolute left-0 right-0 h-[1.5px] bg-cyan-400/60 shadow-[0_0_15px_#22d3ee] z-20" 
-        />
-
-        {/* 3D Flying Grid perspective floor */}
-        <motion.div 
-          animate={{ backgroundPositionY: ['0px', '40px'] }}
-          transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}
-          className="absolute bottom-0 left-[-50%] right-[-50%] h-[55vh] z-10 opacity-30 origin-top bg-[linear-gradient(rgba(59,130,246,0.15)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.15)_1px,transparent_1px)] bg-[size:20px_20px]"
-          style={{ transform: 'rotateX(75deg)' }}
-        />
-
-        {/* Falling cyber data binary code packets */}
-        {Array.from({ length: 18 }).map((_, i) => (
-          <motion.div 
-            key={`stream-${i}`} 
-            initial={{ y: '-20vh', opacity: 0 }} 
-            animate={{ 
-              y: '120vh', 
-              opacity: [0, 0.75, 0],
-              scaleY: [1, 1.5, 1] 
-            }} 
-            transition={{ 
-              duration: Math.random() * 3 + 2, 
-              repeat: Infinity, 
-              ease: 'linear', 
-              delay: Math.random() * 4 
-            }} 
-            className="absolute w-[1px] h-28 bg-gradient-to-b from-transparent via-cyan-400 to-transparent shadow-[0_0_8px_#22d3ee] z-10" 
-            style={{ left: `${(i + 1) * 5.3}%` }} 
-          />
-        ))}
-      </div>
-    );
-  }
-
-  // default / el vacio
-  return (
-    <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-[#050505]">
-      {/* Slow-breathing Void orb in the center */}
-      <motion.div 
-        animate={{ 
-          scale: [0.92, 1.08, 0.92], 
-          opacity: [0.12, 0.22, 0.12] 
-        }} 
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }} 
-        className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.06)_0%,transparent_60%)] z-1" 
-      />
-      {/* Slow falling calm particles */}
-      {Array.from({ length: 10 }).map((_, i) => (
-        <motion.div 
-          key={`calm-${i}`}
-          animate={{ 
-            y: ['-5vh', '105vh'],
-            x: [`${10 + i * 8}vw`, `${13 + i * 8}vw`],
-            opacity: [0, 0.4, 0] 
-          }}
-          transition={{ 
-            duration: 18 + i * 3, 
-            repeat: Infinity, 
-            ease: "linear",
-            delay: i * 2.5 
-          }}
-          className="absolute w-0.5 h-0.5 bg-white/30 rounded-full z-10"
-        />
-      ))}
-    </div>
-  );
-};
 
 // --- THEME TOGGLE PILL (APPLE-STYLE ULTRA MINIMALIST) ---
 const ThemeTogglePill = ({ isLight, toggleMode, className = "" }) => (
@@ -1753,7 +1492,7 @@ const Splash = ({ onComplete, isLight = false, toggleMode }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (onComplete) onComplete();
-    }, 2400);
+    }, 2800);
     return () => clearTimeout(timer);
   }, [onComplete]);
 
@@ -1761,99 +1500,135 @@ const Splash = ({ onComplete, isLight = false, toggleMode }) => {
     <motion.div 
       initial={{ opacity: 0 }} 
       animate={{ opacity: 1 }} 
-      exit={{ opacity: 0, scale: 0.98, filter: 'blur(8px)' }} 
-      transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-      className={`fixed inset-0 z-[300] flex flex-col items-center justify-between py-12 px-6 font-['Inter',sans-serif] select-none overflow-hidden transition-colors duration-500 ${
-        isLight ? 'bg-[#FFFFFF] text-neutral-900' : 'bg-[#000000] text-white'
+      exit={{ opacity: 0, scale: 0.96, filter: 'blur(12px)' }} 
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      className={`fixed inset-0 z-[600] flex flex-col items-center justify-between py-10 sm:py-14 px-6 font-['Inter',sans-serif] select-none overflow-hidden transition-colors duration-500 ${
+        isLight ? 'bg-white text-black' : 'bg-black text-white'
       }`}
     >
-      {/* Top Bar with theme toggle */}
-      <div className="w-full flex items-center justify-end z-30 pt-2">
+      {/* Top Bar with theme toggle & skip button */}
+      <div className="w-full max-w-2xl flex items-center justify-between z-30 pt-2 px-2">
+        <button 
+          onClick={onComplete}
+          className={`text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border transition-all cursor-pointer ${
+            isLight ? 'border-zinc-200 text-zinc-400 hover:text-black hover:border-black' : 'border-white/10 text-zinc-500 hover:text-white hover:border-white/30'
+          }`}
+        >
+          Saltar →
+        </button>
         {toggleMode && (
           <ThemeTogglePill isLight={isLight} toggleMode={toggleMode} />
         )}
       </div>
 
-      {/* Subtle, soft ambient backlight */}
+      {/* Radiant Concentric Light Waves */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.6 }}
+          animate={{ 
+            opacity: isLight ? [0.08, 0.16, 0.08] : [0.15, 0.3, 0.15], 
+            scale: [0.9, 1.15, 0.9] 
+          }}
+          transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+          className={`w-96 h-96 rounded-full blur-[100px] ${
+            isLight ? 'bg-zinc-400' : 'bg-white'
+          }`} 
+        />
         <motion.div 
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ 
-            opacity: isLight ? [0.03, 0.06, 0.03] : [0.04, 0.08, 0.04], 
-            scale: [0.95, 1.05, 0.95] 
+            opacity: [0.1, 0.25, 0.1], 
+            scale: [1, 1.3, 1] 
           }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-          className={`w-80 h-80 rounded-full blur-[120px] ${
-            isLight ? 'bg-neutral-900' : 'bg-white'
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+          className={`w-[450px] h-[450px] rounded-full blur-[140px] ${
+            isLight ? 'bg-zinc-300' : 'bg-white/40'
           }`} 
         />
       </div>
 
-      {/* Centerpiece: Clean, Crisp Logo & Wordmark */}
-      <div className="relative z-10 flex flex-col items-center justify-center space-y-6 my-auto">
-        {/* App Icon */}
+      {/* Centerpiece: Clean, Crisp 3D Logo, Wordmark & Slogan */}
+      <div className="relative z-10 flex flex-col items-center justify-center space-y-7 my-auto">
+        {/* App Icon with Spring Pop & Specular Gleam */}
         <motion.div 
-          initial={{ opacity: 0, scale: 0.9, y: 10, filter: 'blur(6px)' }}
+          initial={{ opacity: 0, scale: 0.75, y: 25, rotate: -4, filter: 'blur(10px)' }}
           animate={{ 
             opacity: 1, 
             scale: 1, 
             y: 0, 
+            rotate: 0,
             filter: 'blur(0px)' 
           }} 
-          transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }} 
-          className={`w-28 h-28 sm:w-32 sm:h-32 rounded-[28px] p-0.5 border flex items-center justify-center overflow-hidden relative transition-all duration-500 ${
+          transition={{ type: "spring", stiffness: 300, damping: 22, delay: 0.15 }} 
+          className={`w-32 h-32 sm:w-36 sm:h-36 rounded-[34px] p-1 border-2 flex items-center justify-center overflow-hidden relative shadow-2xl transition-all duration-500 group ${
             isLight 
-              ? 'bg-neutral-50 bg-gradient-to-b from-neutral-200 via-neutral-100 to-white border-black/10 shadow-[0_16px_40px_rgba(0,0,0,0.08)]' 
-              : 'bg-black bg-gradient-to-b from-white/20 via-white/5 to-transparent border-white/15 shadow-[0_16px_50px_rgba(0,0,0,0.9)]'
+              ? 'bg-white border-black/15 shadow-[0_20px_50px_rgba(0,0,0,0.12)]' 
+              : 'bg-black border-white/25 shadow-[0_20px_60px_rgba(255,255,255,0.12)]'
           }`}
         >
-          <img 
-            src={focuslyIcon} 
-            alt="Focusly" 
-            className="w-full h-full object-cover rounded-[26px]" 
-          />
+          {/* Subtle Corner Light Sweep */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent pointer-events-none" />
+          
+          <FocuslyIcon size={120} className="w-full h-full object-cover rounded-[30px]" />
         </motion.div>
 
-        {/* Wordmark */}
+        {/* Wordmark with Gleam Reveal */}
         <motion.div 
-          initial={{ opacity: 0, y: 8 }} 
-          animate={{ opacity: 1, y: 0 }} 
-          transition={{ delay: 0.25, duration: 0.6, ease: [0.16, 1, 0.3, 1] }} 
-          className="flex flex-col items-center"
+          initial={{ opacity: 0, y: 14, filter: 'blur(6px)' }} 
+          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} 
+          transition={{ delay: 0.45, duration: 0.7, ease: [0.16, 1, 0.3, 1] }} 
+          className="flex flex-col items-center space-y-2"
         >
-          <img 
-            src={focuslyWordmark} 
-            alt="Focusly" 
-            className={`h-8 sm:h-9 object-contain transition-all duration-500 ${
-              isLight 
-                ? 'filter brightness-0 contrast-200 drop-shadow-[0_2px_12px_rgba(0,0,0,0.08)] opacity-90' 
-                : 'filter brightness-150 contrast-110 drop-shadow-[0_2px_16px_rgba(255,255,255,0.3)]'
-            }`} 
-          />
+          <span className={`text-3xl sm:text-4xl font-black tracking-[0.16em] uppercase leading-none transition-all duration-500 ${
+            isLight 
+              ? 'text-zinc-950 drop-shadow-[0_2px_12px_rgba(0,0,0,0.08)]' 
+              : 'text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]'
+          }`}>
+            FOCUSLY
+          </span>
+
+          {/* Slogan Pill */}
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7, duration: 0.6 }}
+            className="pt-1"
+          >
+            <div className={`px-4 py-1.5 rounded-full border text-[9px] sm:text-[10px] font-black uppercase tracking-[0.25em] ${
+              isLight ? 'bg-black text-white border-black shadow-md' : 'bg-white/10 text-white border-white/25 shadow-lg'
+            }`}>
+              More Action! Less Distraction
+            </div>
+          </motion.div>
         </motion.div>
       </div>
 
-      {/* Minimalist Micro Progress Line */}
+      {/* Minimalist Apple Micro Progress Line */}
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.35, duration: 0.4 }}
-        className="relative z-10 flex flex-col items-center space-y-3"
+        transition={{ delay: 0.5, duration: 0.4 }}
+        className="relative z-10 flex flex-col items-center space-y-3 pb-2"
       >
-        <div className={`w-24 h-[1.5px] rounded-full overflow-hidden relative ${
-          isLight ? 'bg-black/10' : 'bg-white/10'
+        <div className={`w-36 h-[2px] rounded-full overflow-hidden relative ${
+          isLight ? 'bg-black/10' : 'bg-white/15'
         }`}>
           <motion.div 
             initial={{ width: '0%' }}
             animate={{ width: '100%' }}
-            transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+            transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
             className={`h-full rounded-full ${
               isLight 
-                ? 'bg-black/85 shadow-[0_0_6px_rgba(0,0,0,0.12)]' 
-                : 'bg-white/90 shadow-[0_0_6px_#ffffff]'
+                ? 'bg-black shadow-[0_0_8px_rgba(0,0,0,0.2)]' 
+                : 'bg-white shadow-[0_0_12px_#ffffff]'
             }`}
           />
         </div>
+        <span className={`text-[8px] font-black uppercase tracking-[0.3em] ${
+          isLight ? 'text-zinc-400' : 'text-zinc-500'
+        }`}>
+          Iniciando Sistema
+        </span>
       </motion.div>
     </motion.div>
   );
@@ -2161,11 +1936,7 @@ const MobileIntroSlider = ({ onContinue, onBack, isLight = false, toggleMode }) 
                       : 'bg-black bg-gradient-to-b from-white/35 via-white/10 to-transparent border-white/30 shadow-[0_24px_60px_rgba(0,0,0,0.95)]'
                   }`}
                 >
-                  <img 
-                    src={focuslyIcon} 
-                    alt="Focusly" 
-                    className="w-full h-full object-cover rounded-[24px]" 
-                  />
+                  <FocuslyIcon size={96} className="w-full h-full" />
                   {/* Subtle glass reflection overlay */}
                   <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/15 to-transparent pointer-events-none" />
                 </motion.div>
@@ -2177,15 +1948,13 @@ const MobileIntroSlider = ({ onContinue, onBack, isLight = false, toggleMode }) 
                   transition={{ duration: 1, delay: 0.35, ease: [0.19, 1, 0.22, 1] }} 
                   className="flex flex-col items-center justify-center w-full"
                 >
-                  <img 
-                    src={focuslyWordmark} 
-                    alt="Focusly" 
-                    className={`h-16 sm:h-20 w-auto max-w-[88vw] object-contain transition-all duration-500 ${
-                      isLight
-                        ? 'filter brightness-0 contrast-200 drop-shadow-[0_3px_16px_rgba(0,0,0,0.16)] opacity-95'
-                        : 'filter brightness-150 contrast-110 drop-shadow-[0_4px_30px_rgba(255,255,255,0.45)]'
-                    }`} 
-                  />
+                  <span className={`text-4xl sm:text-5xl font-black tracking-[0.16em] uppercase leading-none transition-all duration-500 ${
+                    isLight
+                      ? 'text-zinc-950 drop-shadow-[0_3px_16px_rgba(0,0,0,0.16)]'
+                      : 'text-white drop-shadow-[0_4px_30px_rgba(255,255,255,0.45)]'
+                  }`}>
+                    FOCUSLY
+                  </span>
                 </motion.div>
               </div>
 
@@ -2198,15 +1967,13 @@ const MobileIntroSlider = ({ onContinue, onBack, isLight = false, toggleMode }) 
                   transition={{ duration: 1, delay: 0.9, ease: [0.19, 1, 0.22, 1] }} 
                   className="flex flex-col items-center justify-center w-full px-2"
                 >
-                  <img 
-                    src={focuslySlogan} 
-                    alt="More Action! Less Distraction" 
-                    className={`h-18 sm:h-22 w-auto max-w-[94vw] object-contain transition-all duration-500 ${
-                      isLight
-                        ? 'filter brightness-0 contrast-200 drop-shadow-[0_3px_16px_rgba(0,0,0,0.18)] opacity-100'
-                        : 'filter brightness-150 contrast-150 drop-shadow-[0_3px_26px_rgba(255,255,255,0.6)]'
-                    }`} 
-                  />
+                  <div className="px-5 py-2.5 rounded-full border border-white/15 bg-white/5 backdrop-blur-md">
+                    <p className={`text-xs sm:text-sm font-bold tracking-[0.25em] uppercase text-center transition-all duration-500 ${
+                      isLight ? 'text-zinc-800' : 'text-zinc-300'
+                    }`}>
+                      MORE ACTION <span className="text-white mx-1">•</span> LESS DISTRACTION
+                    </p>
+                  </div>
                 </motion.div>
 
                 {/* Continue Button: Pops up ~3 seconds later with a luxury spring & glow entrance */}
@@ -2428,14 +2195,7 @@ const AuthScreen = ({ onBack, onContinue, lang = 'es', initialIsLogin = false, i
                   : 'bg-white/5 border-white/10'
               }`}
             >
-              <img src={focuslyIcon} alt="Focusly Icon" className="w-7 h-7 rounded-xl object-contain shadow-md" />
-              <img 
-                src={focuslyWordmark} 
-                alt="Focusly" 
-                className={`h-4 object-contain ${
-                  isLight ? 'filter brightness-0 contrast-200 opacity-90' : 'filter brightness-125'
-                }`} 
-              />
+              <FocuslyLogo size="sm" isLight={isLight} showBadge={false} />
             </motion.div>
 
             <motion.div variants={staggerItem} className="mb-4">
@@ -2786,7 +2546,7 @@ const BackgroundDetailModal = ({ item, userDiamonds, onClose, onAction, inventor
   return (
     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.05 }} className={`absolute inset-0 z-[100] ${bgStyle} flex flex-col overflow-hidden text-white`}>
       <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent z-0"></div>
-      <GlobalThemeEffects themeId={item.id} />
+      <GlobalThemeEffects themeId={item.id} isDesktop={false} isLight={false} />
       <div className="relative z-10 flex flex-col h-full px-6 pt-16 pb-8">
         <button onClick={onClose} className="absolute top-16 left-6 p-2 bg-[#111]/80 backdrop-blur-md border border-white/10 text-white z-50 transform -skew-x-12 hover:bg-white/10 transition-colors"><ChevronLeft size={20} className="skew-x-12" /></button>
         <div className="flex-1 flex flex-col items-center justify-center relative mt-10">
@@ -2835,8 +2595,36 @@ const BackgroundDetailModal = ({ item, userDiamonds, onClose, onAction, inventor
 }
 
 const UniversalDetailModal = (props) => {
-  if (props.item.category === 'avatar') return <ClashCardModal {...props} />;
-  return <BackgroundDetailModal {...props} />;
+  if (!props.item) return null;
+  const cat = props.item.category || props.item.type;
+
+  if (cat === 'avatar') {
+    return (
+      <CharacterPurchaseModal 
+        {...props} 
+        allSkins={ALL_SKINS} 
+        AvatarDisplay={AvatarDisplay} 
+      />
+    );
+  }
+
+  if (cat === 'outfit' || cat === 'accessory' || cat === 'title' || props.item.atmosphere || props.item.code) {
+    return (
+      <EquipmentDetailModal
+        {...props}
+      />
+    );
+  }
+
+  if (cat === 'background' && props.item.css) {
+    return <BackgroundDetailModal {...props} />;
+  }
+
+  return (
+    <EquipmentDetailModal
+      {...props}
+    />
+  );
 };
 
 const ChallengeDetail = ({ challenge, onClose, onStart }) => (
@@ -2938,10 +2726,10 @@ const ChatView = ({ person, onBack, activeChatsHistory, setActiveChatsHistory })
 
   // Persist messages to global history
   useEffect(() => {
-    if (setActiveChatsHistory) {
+    if (setActiveChatsHistory && person?.id) {
       setActiveChatsHistory(prev => ({ ...prev, [person.id]: messages }));
     }
-  }, [messages]);
+  }, [messages, person?.id, setActiveChatsHistory]);
 
   const handleSend = () => {
     if (!input.trim()) return;
@@ -3235,6 +3023,8 @@ const Forum = ({ onSelectChat, unreadFilter, setUnreadFilter, activeTab, setActi
   );
 };
 
+const MOCK_RANKING_NAMES = ['Alex_99', 'ZenMaster', 'David_X', 'Emma.Focus', 'Chris_Pro', 'Mia_Flow', 'Tom_Hustle', 'Lily_Zen', 'Samurai', 'Zoe_Dopamine', 'Max_Gains', 'Ava_Deep', 'Leo_Focus', 'Nia_Monk', 'Neo_Matrix'];
+
 const Rankings = ({ userXP, username, inventory }) => {
   const userLeagueIndex = LEAGUES.findIndex((l, i) => {
     if (i === LEAGUES.length - 1) return true;
@@ -3246,16 +3036,14 @@ const Rankings = ({ userXP, username, inventory }) => {
   const viewingLeague = LEAGUES[viewLeagueIndex];
   const isUserLeague = viewLeagueIndex === userLeagueIndex;
 
-  const mockNames = ['Alex_99', 'ZenMaster', 'David_X', 'Emma.Focus', 'Chris_Pro', 'Mia_Flow', 'Tom_Hustle', 'Lily_Zen', 'Samurai', 'Zoe_Dopamine', 'Max_Gains', 'Ava_Deep', 'Leo_Focus', 'Nia_Monk', 'Neo_Matrix'];
-
   const leaderboard = React.useMemo(() => {
     const minXP = parseInt(viewingLeague.req.split('-')[0]?.replace(/,/g, '') || '0');
     const maxXP = parseInt(viewingLeague.req.split('-')[1]?.replace(/,/g, '') || (minXP + 5000).toString());
     const range = maxXP - minXP;
     const MOCK_AVATARS = ['a_base', 'a_bot', 'a_flame', 'a_ninja', 'a_hacker', 'a_brain', 'a_vento', 'a_crono', 'a_sophia', 'a_icaro', 'a_atlas'];
 
-    let players = mockNames.map((name, i) => {
-      const xp = minXP + Math.floor((range * (mockNames.length - i)) / (mockNames.length + 2));
+    let players = MOCK_RANKING_NAMES.map((name, i) => {
+      const xp = minXP + Math.floor((range * (MOCK_RANKING_NAMES.length - i)) / (MOCK_RANKING_NAMES.length + 2));
       return { id: `mock_${i}`, name, xp, isUser: false, avatarId: MOCK_AVATARS[i % MOCK_AVATARS.length] };
     });
 
@@ -3266,7 +3054,7 @@ const Rankings = ({ userXP, username, inventory }) => {
     }
 
     return players.sort((a, b) => b.xp - a.xp);
-  }, [viewLeagueIndex, isUserLeague, userXP, username, viewingLeague, inventory]);
+  }, [isUserLeague, userXP, username, viewingLeague, inventory]);
 
   return (
     <div className="absolute inset-0 flex flex-col z-10 text-white overflow-hidden bg-black/40 backdrop-blur-sm">
@@ -3325,93 +3113,389 @@ const Rankings = ({ userXP, username, inventory }) => {
   );
 };
 
-const ShopView = ({ userDiamonds, onSelectItem, inventory }) => {
+const ShopView = ({ userDiamonds, onSelectItem, inventory, isLight = false }) => {
   const [shopTab, setShopTab] = useState('personajes');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [rarityFilter, setRarityFilter] = useState('all'); // 'all' | 'mythic' | 'legendary' | 'epic' | 'rare_common' | 'mentors'
+  const [ownershipFilter, setOwnershipFilter] = useState('all'); // 'all' | 'unowned' | 'owned'
+
   const avatars = SHOP_ITEMS.filter(i => i.category === 'avatar');
   const backgrounds = SHOP_ITEMS.filter(i => i.category === 'background');
 
-  const SectionTitle = ({ title, hex }) => (
-    <div className="flex items-center gap-3 mb-6 mt-4">
-      <div className="h-px flex-1 bg-gradient-to-r from-transparent to-white/10" />
-      <div className="w-2 h-2 rotate-45" style={{ backgroundColor: hex }} />
-      <h2 className="text-sm font-black uppercase tracking-[0.2em]" style={{ color: hex }}>{title}</h2>
-      <div className="w-2 h-2 rotate-45" style={{ backgroundColor: hex }} />
-      <div className="h-px flex-1 bg-gradient-to-l from-transparent to-white/10" />
-    </div>
-  );
+  const isMentor = (id) => ['a_vento', 'a_crono', 'a_sophia', 'a_icaro', 'a_atlas'].includes(id);
+
+  const filteredAvatars = avatars.filter(item => {
+    // Search filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const matchName = item.name.toLowerCase().includes(q);
+      const matchDesc = (item.desc || '').toLowerCase().includes(q);
+      if (!matchName && !matchDesc) return false;
+    }
+
+    // Rarity filter
+    if (rarityFilter === 'mythic' && item.rarity !== 'mythic') return false;
+    if (rarityFilter === 'legendary' && item.rarity !== 'legendary') return false;
+    if (rarityFilter === 'epic' && item.rarity !== 'epic') return false;
+    if (rarityFilter === 'rare_common' && !['rare', 'common'].includes(item.rarity)) return false;
+    if (rarityFilter === 'mentors' && !isMentor(item.id)) return false;
+
+    // Ownership filter
+    const isOwned = (inventory?.avatars || ['a_base']).includes(item.id);
+    if (ownershipFilter === 'owned' && !isOwned) return false;
+    if (ownershipFilter === 'unowned' && isOwned) return false;
+
+    return true;
+  });
 
   return (
-    <div className="absolute inset-0 flex flex-col z-10 text-white overflow-hidden bg-black/40 backdrop-blur-sm">
-      <div className="px-6 pt-16 pb-4 flex justify-between items-end relative z-10 border-b border-white/5 bg-gradient-to-b from-[#111]/80 to-transparent">
+    <div className={`absolute inset-0 flex flex-col z-10 overflow-hidden ${
+      isLight ? 'bg-zinc-50 text-zinc-900' : 'bg-black/80 backdrop-blur-xl text-white'
+    }`}>
+      {/* Top Header Bar */}
+      <div className={`px-6 pt-16 pb-4 flex justify-between items-end relative z-10 border-b backdrop-blur-md ${
+        isLight ? 'bg-white/80 border-zinc-200' : 'bg-zinc-950/80 border-white/5'
+      }`}>
         <div>
-          <span className="text-[10px] font-black text-white/50 tracking-[0.3em] uppercase block mb-1">Mercado Negro</span>
-          <h1 className="text-4xl font-black tracking-tighter uppercase leading-none transform -skew-x-6">Tienda</h1>
+          <div className="flex items-center gap-1.5 mb-1">
+            <Sparkles size={13} className="text-amber-400" />
+            <span className={`text-[10px] font-black tracking-[0.25em] uppercase ${
+              isLight ? 'text-zinc-500' : 'text-white/50'
+            }`}>
+              Bóveda de Identidad
+            </span>
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tight uppercase leading-none">
+            Tienda
+          </h1>
         </div>
-        <div className="flex items-center gap-2 bg-[#1a1a1a] px-4 py-2 border-l-2 border-l-[#8ab4f8] shadow-lg transform skew-x-6">
-          <Gem size={14} className="text-[#8ab4f8] -skew-x-6 transform" fill="#8ab4f8" />
-          <span className="font-black text-[#8ab4f8] tracking-widest text-xs -skew-x-6 transform">{userDiamonds.toLocaleString()}</span>
+
+        {/* Current Balance */}
+        <div className={`flex items-center gap-2 px-4 py-2 rounded-2xl border shadow-sm ${
+          isLight ? 'bg-sky-50 border-sky-200 text-sky-900' : 'bg-zinc-900 border-white/10 text-sky-400'
+        }`}>
+          <Gem size={15} className="fill-sky-400/20 text-sky-400" />
+          <span className="font-black tracking-wider text-xs">
+            {userDiamonds.toLocaleString()} 💎
+          </span>
         </div>
       </div>
-      <div className="px-6 mt-4 z-10">
-        <div className="flex gap-2 bg-black/60 p-1.5 rounded-full border border-white/5 shadow-inner backdrop-blur-md">
-          <button onClick={() => setShopTab('personajes')} className={`flex-1 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${shopTab === 'personajes' ? 'bg-white text-black shadow-md' : 'text-white/40 hover:text-white'}`}>Personajes</button>
-          <button onClick={() => setShopTab('entornos')} className={`flex-1 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${shopTab === 'entornos' ? 'bg-white text-black shadow-md' : 'text-white/40 hover:text-white'}`}>Entornos</button>
+
+      {/* Main Category Tabs: Personajes vs Entornos */}
+      <div className="px-6 mt-3 z-10">
+        <div className={`flex gap-1.5 p-1 rounded-2xl border ${
+          isLight ? 'bg-zinc-200/70 border-zinc-300/50' : 'bg-black/60 border-white/5'
+        }`}>
+          <button
+            onClick={() => setShopTab('personajes')}
+            className={`flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
+              shopTab === 'personajes'
+                ? (isLight ? 'bg-zinc-900 text-white shadow-sm' : 'bg-white text-black shadow-lg')
+                : (isLight ? 'text-zinc-600 hover:text-black' : 'text-white/50 hover:text-white')
+            }`}
+          >
+            Personajes ({avatars.length})
+          </button>
+          <button
+            onClick={() => setShopTab('entornos')}
+            className={`flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
+              shopTab === 'entornos'
+                ? (isLight ? 'bg-zinc-900 text-white shadow-sm' : 'bg-white text-black shadow-lg')
+                : (isLight ? 'text-zinc-600 hover:text-black' : 'text-white/50 hover:text-white')
+            }`}
+          >
+            Entornos ({backgrounds.length})
+          </button>
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto px-6 py-4 pb-36 custom-scroll relative z-10">
+
+      {/* Characters Catalog Controls: Search & Filters */}
+      {shopTab === 'personajes' && (
+        <div className="px-6 mt-3 space-y-2.5 z-10">
+          {/* Search Box */}
+          <div className="relative">
+            <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Buscar personaje o arquetipo..."
+              className={`w-full pl-9 pr-8 py-2 rounded-xl text-xs font-medium border outline-none transition-all ${
+                isLight 
+                  ? 'bg-white border-zinc-200 text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-400' 
+                  : 'bg-white/5 border-white/10 text-white placeholder:text-zinc-500 focus:border-white/25'
+              }`}
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white text-xs"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
+          {/* Rarity & Group Filters */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+            {[
+              { id: 'all', label: 'Todos' },
+              { id: 'mentors', label: 'Mentores IA' },
+              { id: 'mythic', label: 'Míticos' },
+              { id: 'legendary', label: 'Legendarios' },
+              { id: 'epic', label: 'Épicos' },
+              { id: 'rare_common', label: 'Raros & Base' }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setRarityFilter(tab.id)}
+                className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer ${
+                  rarityFilter === tab.id
+                    ? (isLight ? 'bg-zinc-900 text-white' : 'bg-white text-black shadow-sm')
+                    : (isLight ? 'bg-zinc-200/80 text-zinc-700 hover:bg-zinc-300' : 'bg-white/5 text-zinc-400 hover:text-white')
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Quick Sub-Filter: Todos vs Por Adquirir vs Poseídos */}
+          <div className="flex items-center justify-between text-[11px] font-medium pt-0.5">
+            <span className={isLight ? 'text-zinc-500' : 'text-zinc-400'}>
+              Mostrando {filteredAvatars.length} personajes
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setOwnershipFilter('all')}
+                className={`transition-colors cursor-pointer ${
+                  ownershipFilter === 'all' 
+                    ? 'font-bold text-sky-400 underline' 
+                    : (isLight ? 'text-zinc-500' : 'text-zinc-400')
+                }`}
+              >
+                Todos
+              </button>
+              <span>•</span>
+              <button
+                onClick={() => setOwnershipFilter('unowned')}
+                className={`transition-colors cursor-pointer ${
+                  ownershipFilter === 'unowned' 
+                    ? 'font-bold text-sky-400 underline' 
+                    : (isLight ? 'text-zinc-500' : 'text-zinc-400')
+                }`}
+              >
+                Disponibles
+              </button>
+              <span>•</span>
+              <button
+                onClick={() => setOwnershipFilter('owned')}
+                className={`transition-colors cursor-pointer ${
+                  ownershipFilter === 'owned' 
+                    ? 'font-bold text-sky-400 underline' 
+                    : (isLight ? 'text-zinc-500' : 'text-zinc-400')
+                }`}
+              >
+                En Colección
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Main Content Grid */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-4 pb-36 custom-scroll relative z-10" style={{ scrollbarWidth: 'none' }}>
+        {/* 1. PERSONAJES CATALOG */}
         {shopTab === 'personajes' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <SectionTitle title="Reclutas" hex="#ffffff" />
-            <div className="grid grid-cols-2 gap-4">
-              {avatars.map((item) => {
-                const owned = inventory.avatars.includes(item.id);
-                const rColor = RARITIES[item.rarity].hex;
-                return (
-                  <PolygonCard key={item.id} onClick={() => onSelectItem(item)} rarityColor={rColor} isLocked={false}>
-                    <div className="h-32 p-4 relative bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white/10 to-transparent">
-                      <AvatarDisplay id={item.id} src={item.img} className="w-full h-full drop-shadow-2xl" freeStanding={true} />
-                    </div>
-                    <div className="p-3 border-t border-white/5 bg-black/50 flex flex-col items-center text-center">
-                      <span className="text-[8px] font-black uppercase tracking-widest mb-1 px-2 py-0.5" style={{ color: rColor, backgroundColor: `${rColor}22` }}>{RARITIES[item.rarity].name}</span>
-                      <h3 className="text-xs font-black uppercase tracking-tight text-white mb-2">{item.name}</h3>
-                      {owned ? (
-                        <span className="text-[9px] font-black uppercase text-green-500 tracking-widest">Adquirido</span>
-                      ) : (
-                        <div className="flex items-center gap-1"><Gem size={10} className="text-white/50" /><span className="text-[10px] font-black text-white/80">{item.price}</span></div>
-                      )}
-                    </div>
-                  </PolygonCard>
-                )
-              })}
-            </div>
-          </motion.div>
-        )}
-        {shopTab === 'entornos' && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <SectionTitle title="Hologramas" hex="#a855f7" />
-            <div className="flex flex-col gap-4 mb-8">
-              {backgrounds.map((item) => {
-                const owned = inventory.backgrounds.includes(item.id);
-                const rColor = RARITIES[item.rarity].hex;
-                return (
-                  <PolygonCard key={item.id} onClick={() => onSelectItem(item)} rarityColor={rColor} isLocked={false}>
-                    <div className="flex h-24">
-                      <div className="w-1/3 relative overflow-hidden bg-black/40">
-                        <AvatarDisplay id={item.id} className="absolute inset-0 w-full h-full" />
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/80 z-10"></div>
+            {filteredAvatars.length === 0 ? (
+              <div className="py-16 text-center space-y-2">
+                <span className="text-3xl">🔍</span>
+                <p className="text-sm font-bold text-zinc-400">No se encontraron personajes</p>
+                <button
+                  onClick={() => { setSearchQuery(''); setRarityFilter('all'); setOwnershipFilter('all'); }}
+                  className="text-xs text-sky-400 hover:underline font-bold"
+                >
+                  Restablecer filtros
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-3.5 sm:gap-4">
+                {filteredAvatars.map((item) => {
+                  const isOwned = (inventory?.avatars || ['a_base']).includes(item.id);
+                  const isEquipped = inventory?.equippedAvatar === item.id;
+                  const rarity = RARITIES[item.rarity] || RARITIES.common;
+                  const rColor = rarity.hex;
+                  const mentor = isMentor(item.id);
+
+                  return (
+                    <motion.div
+                      key={item.id}
+                      whileHover={{ y: -4, scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => onSelectItem(item)}
+                      className={`relative rounded-[28px] border transition-all duration-300 cursor-pointer flex flex-col justify-between overflow-hidden shadow-lg ${
+                        isLight 
+                          ? 'bg-white border-zinc-200 shadow-zinc-900/5' 
+                          : 'bg-zinc-950/80 border-white/10 shadow-black/60'
+                      }`}
+                      style={{
+                        borderColor: isEquipped ? '#10b981' : isOwned ? `${rColor}50` : undefined,
+                        boxShadow: isEquipped ? '0 0 25px rgba(16,185,129,0.2)' : `0 8px 24px -6px ${rColor}20`
+                      }}
+                    >
+                      {/* Top Badges: Rarity & Ownership */}
+                      <div className="p-3 pb-1 flex justify-between items-center relative z-20">
+                        <span 
+                          className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border shadow-sm"
+                          style={{
+                            color: rColor,
+                            borderColor: `${rColor}40`,
+                            backgroundColor: `${rColor}15`
+                          }}
+                        >
+                          {mentor ? 'Mentor IA' : rarity.name}
+                        </span>
+
+                        {isEquipped ? (
+                          <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                            <Check size={10} /> En Uso
+                          </span>
+                        ) : isOwned ? (
+                          <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full bg-white/10 text-white/80 border border-white/10">
+                            Obtenido
+                          </span>
+                        ) : null}
                       </div>
-                      <div className="w-2/3 p-4 flex flex-col justify-center bg-black/50">
-                        <span className="text-[8px] font-black uppercase tracking-widest mb-1 w-max px-2 py-0.5" style={{ color: rColor, backgroundColor: `${rColor}22` }}>{RARITIES[item.rarity].name}</span>
-                        <h3 className="text-sm font-black uppercase tracking-tight text-white mb-1">{item.name}</h3>
-                        {owned ? (
-                          <span className="text-[9px] font-black uppercase text-green-500 tracking-widest mt-auto">Adquirido</span>
+
+                      {/* Character Visual Showcase */}
+                      <div className="h-32 sm:h-36 relative flex items-center justify-center p-3">
+                        {/* Soft Ambient Radial Halo */}
+                        <div 
+                          className="absolute w-24 h-24 rounded-full blur-xl pointer-events-none opacity-25"
+                          style={{ backgroundColor: rColor }}
+                        />
+                        <div className="relative w-24 h-24 sm:w-28 sm:h-28 z-10 flex items-center justify-center">
+                          <AvatarDisplay 
+                            id={item.id} 
+                            src={item.img} 
+                            className="w-full h-full drop-shadow-2xl" 
+                            freeStanding={true} 
+                          />
+                        </div>
+                      </div>
+
+                      {/* Card Footer: Name & Pricing */}
+                      <div className={`p-3.5 pt-2 border-t flex flex-col items-center text-center ${
+                        isLight ? 'bg-zinc-50/70 border-zinc-100' : 'bg-black/40 border-white/5'
+                      }`}>
+                        <h3 className="text-xs sm:text-sm font-black uppercase tracking-tight truncate w-full mb-1">
+                          {item.name}
+                        </h3>
+
+                        {isOwned ? (
+                          <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400 flex items-center gap-1">
+                            <CheckCircle2 size={11} /> Desbloqueado
+                          </span>
                         ) : (
-                          <div className="flex items-center gap-1 mt-auto"><Gem size={10} className="text-white/50" /><span className="text-[10px] font-black text-white/80">{item.price}</span></div>
+                          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-sky-500/10 text-sky-400 border border-sky-500/20">
+                            {item.price === 0 ? (
+                              <span className="text-emerald-400 font-bold uppercase text-[10px]">Gratis</span>
+                            ) : (
+                              <>
+                                <Gem size={11} className="fill-sky-400/20" />
+                                <span>{item.price}</span>
+                              </>
+                            )}
+                          </div>
                         )}
                       </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            )}
+          </motion.div>
+        )}
+
+        {/* 2. ENTORNOS CATALOG */}
+        {shopTab === 'entornos' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <div className="flex flex-col gap-3.5 mb-8">
+              {backgrounds.map((item) => {
+                const isOwned = (inventory?.backgrounds || ['bg_default']).includes(item.id);
+                const isEquipped = inventory?.equippedBg === item.id;
+                const rarity = RARITIES[item.rarity] || RARITIES.common;
+                const rColor = rarity.hex;
+
+                return (
+                  <motion.div
+                    key={item.id}
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
+                    onClick={() => onSelectItem(item)}
+                    className={`rounded-[26px] border transition-all duration-300 cursor-pointer overflow-hidden flex items-center shadow-lg ${
+                      isLight 
+                        ? 'bg-white border-zinc-200' 
+                        : 'bg-zinc-950/80 border-white/10'
+                    }`}
+                    style={{
+                      borderColor: isEquipped ? '#10b981' : isOwned ? `${rColor}40` : undefined
+                    }}
+                  >
+                    {/* Visual Preview */}
+                    <div className="w-28 sm:w-32 h-24 relative overflow-hidden bg-black/60 shrink-0">
+                      <AvatarDisplay id={item.id} className="absolute inset-0 w-full h-full" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/70 z-10" />
                     </div>
-                  </PolygonCard>
-                )
+
+                    {/* Info */}
+                    <div className="p-4 flex-1 flex flex-col justify-center min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <span 
+                          className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border"
+                          style={{ color: rColor, borderColor: `${rColor}40`, backgroundColor: `${rColor}15` }}
+                        >
+                          {rarity.name}
+                        </span>
+                        {isEquipped && (
+                          <span className="text-[9px] font-black uppercase text-emerald-400 flex items-center gap-1">
+                            <Check size={11} /> Activo
+                          </span>
+                        )}
+                      </div>
+
+                      <h3 className="text-sm font-black uppercase tracking-tight truncate mb-1">
+                        {item.name}
+                      </h3>
+                      <p className={`text-[11px] truncate mb-2 ${isLight ? 'text-zinc-500' : 'text-zinc-400'}`}>
+                        {item.desc}
+                      </p>
+
+                      <div className="flex items-center justify-between">
+                        {isOwned ? (
+                          <span className="text-[10px] font-black uppercase text-emerald-400">
+                            En Colección
+                          </span>
+                        ) : (
+                          <div className="inline-flex items-center gap-1 text-xs font-bold text-sky-400">
+                            {item.price === 0 ? (
+                              <span className="text-emerald-400 font-bold uppercase text-[10px]">Gratis</span>
+                            ) : (
+                              <>
+                                <Gem size={12} />
+                                <span>{item.price}</span>
+                              </>
+                            )}
+                          </div>
+                        )}
+                        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+                          Ver Detalles →
+                        </span>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
               })}
             </div>
           </motion.div>
@@ -3452,7 +3536,7 @@ const StatsModal = ({ onClose, calendarTasks, completedCount, userXP }) => {
         <div className="grid grid-cols-2 gap-3">
           {[
             { label: 'Hábitos Creados', value: habits.length, icon: '📋', color: 'from-blue-900/60 to-indigo-900/60', border: 'border-blue-500/20' },
-            { label: 'Completados Hoy', value: completedToday.length, icon: '✅', color: 'from-emerald-900/60 to-teal-900/60', border: 'border-emerald-500/20' },
+            { label: 'Completados Hoy', value: completedToday.length, icon: '✅', color: 'from-slate-900 to-zinc-900', border: 'border-white/15' },
             { label: 'Cumplimiento', value: `${compliance}%`, icon: '🎯', color: 'from-purple-900/60 to-violet-900/60', border: 'border-purple-500/20' },
             { label: 'Racha Máxima', value: `${maxStreak}d`, icon: '🔥', color: 'from-orange-900/60 to-red-900/60', border: 'border-orange-500/20' },
             { label: 'Rachas Totales', value: totalStreaks, icon: '⚡', color: 'from-yellow-900/60 to-amber-900/60', border: 'border-yellow-500/20' },
@@ -3751,9 +3835,9 @@ const ProfileView = ({ inventory, setInventory, userXP, username, onOpenItem, co
         </div>
 
         <div className="flex gap-2 mb-6 bg-black/60 backdrop-blur-md p-1.5 rounded-full border border-white/10 mx-6 shadow-md">
-          <button onClick={() => setActiveProfileTab('estado')} className={`flex-1 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${activeProfileTab === 'estado' ? 'bg-white text-black shadow-md' : 'text-white/40 hover:text-white'}`}>Estado</button>
-          <button onClick={() => setActiveProfileTab('insignias')} className={`flex-1 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${activeProfileTab === 'insignias' ? 'bg-white text-black shadow-md' : 'text-white/40 hover:text-white'}`}>Insignias</button>
-          <button onClick={() => setActiveProfileTab('coleccion')} className={`flex-1 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${activeProfileTab === 'coleccion' ? 'bg-white text-black shadow-md' : 'text-white/40 hover:text-white'}`}>Colección</button>
+          <button onClick={() => setActiveProfileTab('estado')} className={`flex-1 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${activeProfileTab === 'estado' ? 'bg-white text-black shadow-md' : 'text-white/40 hover:text-white'}`}>{lang === 'en' ? 'Status' : 'Estado'}</button>
+          <button onClick={() => setActiveProfileTab('insignias')} className={`flex-1 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${activeProfileTab === 'insignias' ? 'bg-white text-black shadow-md' : 'text-white/40 hover:text-white'}`}>{lang === 'en' ? 'Badges' : 'Insignias'}</button>
+          <button onClick={() => setActiveProfileTab('coleccion')} className={`flex-1 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${activeProfileTab === 'coleccion' ? 'bg-white text-black shadow-md' : 'text-white/40 hover:text-white'}`}>{lang === 'en' ? 'Collection' : 'Colección'}</button>
         </div>
 
         {activeProfileTab === 'insignias' && (
@@ -3777,34 +3861,34 @@ const ProfileView = ({ inventory, setInventory, userXP, username, onOpenItem, co
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8 px-6 pb-6">
             <div>
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-2xl font-black uppercase tracking-tight drop-shadow-md">Métricas</h3>
+                <h3 className="text-2xl font-black uppercase tracking-tight drop-shadow-md">{lang === 'en' ? 'Metrics' : 'Métricas'}</h3>
                 <button 
                   onClick={onOpenStats}
                   className="px-4 py-2 bg-gradient-to-r from-[#8ab4f8] to-[#a78bfa] hover:from-[#a78bfa] hover:to-[#8ab4f8] text-black text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg active:scale-95 transition-all"
                 >
-                  Estadísticas
+                  {lang === 'en' ? 'Statistics' : 'Estadísticas'}
                 </button>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-white/5 backdrop-blur-sm p-5 rounded-[24px] border border-white/10 flex flex-col justify-between shadow-lg">
                   <Calendar size={18} className="text-white/50 mb-3" />
                   <span className="text-3xl font-black text-white">{loginStreak || 0}</span>
-                  <span className="text-[9px] font-black uppercase tracking-widest text-white/40 mt-1">Días de Racha</span>
+                  <span className="text-[9px] font-black uppercase tracking-widest text-white/40 mt-1">{lang === 'en' ? 'Streak Days' : 'Días de Racha'}</span>
                 </div>
                 <div className="bg-white/5 backdrop-blur-sm p-5 rounded-[24px] border border-white/10 flex flex-col justify-between shadow-lg">
                   <LayoutGrid size={18} className="text-white/50 mb-3" />
                   <span className="text-3xl font-black text-white">{selectedApps?.length || 0}</span>
-                  <span className="text-[9px] font-black uppercase tracking-widest text-white/40 mt-1">Apps Activas</span>
+                  <span className="text-[9px] font-black uppercase tracking-widest text-white/40 mt-1">{lang === 'en' ? 'Active Apps' : 'Apps Activas'}</span>
                 </div>
                 <div className="bg-white/5 backdrop-blur-sm p-5 rounded-[24px] border border-white/10 flex flex-col justify-between shadow-lg">
                   <Trophy size={18} className="text-white/50 mb-3" />
                   <span className="text-3xl font-black text-white">{completedCount || 0}</span>
-                  <span className="text-[9px] font-black uppercase tracking-widest text-white/40 mt-1">Desafíos</span>
+                  <span className="text-[9px] font-black uppercase tracking-widest text-white/40 mt-1">{lang === 'en' ? 'Challenges' : 'Desafíos'}</span>
                 </div>
                 <div className="bg-white/5 backdrop-blur-sm p-5 rounded-[24px] border border-white/10 flex flex-col justify-between shadow-lg">
                   <TrendingUp size={18} className="text-white/50 mb-3" />
                   <span className="text-3xl font-black text-white">Top 10</span>
-                  <span className="text-[9px] font-black uppercase tracking-widest text-white/40 mt-1">Rango Global</span>
+                  <span className="text-[9px] font-black uppercase tracking-widest text-white/40 mt-1">{lang === 'en' ? 'Global Rank' : 'Rango Global'}</span>
                 </div>
 
                 {/* Insignias Banner */}
@@ -3818,11 +3902,11 @@ const ProfileView = ({ inventory, setInventory, userXP, username, onOpenItem, co
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h4 className="text-sm font-black uppercase tracking-tight text-white">Insignias & Retos</h4>
-                        <span className="text-[8px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-400 text-black">Logros</span>
+                        <h4 className="text-sm font-black uppercase tracking-tight text-white">{lang === 'en' ? 'Badges & Quests' : 'Insignias & Retos'}</h4>
+                        <span className="text-[8px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-400 text-black">{lang === 'en' ? 'Achievements' : 'Logros'}</span>
                       </div>
                       <p className="text-[10px] text-white/60 font-medium mt-0.5">
-                        {unlockedBadgesCount} de {BADGES.length} insignias desbloqueadas
+                        {unlockedBadgesCount} {lang === 'en' ? `of ${BADGES.length} badges unlocked` : `de ${BADGES.length} insignias desbloqueadas`}
                       </p>
                     </div>
                   </div>
@@ -3833,7 +3917,7 @@ const ProfileView = ({ inventory, setInventory, userXP, username, onOpenItem, co
 
             {activityLog && activityLog.length > 0 && (
               <div>
-                <h3 className="text-xl font-black uppercase tracking-tight mb-4 drop-shadow-md">Actividad Reciente</h3>
+                <h3 className="text-xl font-black uppercase tracking-tight mb-4 drop-shadow-md">{lang === 'en' ? 'Recent Activity' : 'Actividad Reciente'}</h3>
                 <div className="space-y-3">
                   {activityLog.map((act, idx) => {
                     let IconComponent = Activity;
@@ -3874,18 +3958,18 @@ const ProfileView = ({ inventory, setInventory, userXP, username, onOpenItem, co
                   <ChevronDown size={20} className={`text-white/50 transition-transform duration-300 ${showAppSelector ? 'rotate-180' : ''}`} />
                 </button>
                 <div className="flex gap-2 shrink-0">
-                  <button onClick={() => setLang(lang === 'es' ? 'en' : 'es')} className="w-14 bg-white/5 hover:bg-white/10 transition-colors backdrop-blur-sm rounded-[20px] border border-white/10 shadow-lg flex flex-col items-center justify-center shrink-0" title="Cambiar idioma">
-                    <span className="text-[8px] text-white/50 font-bold uppercase tracking-widest mb-1">Idioma</span>
-                    <span className="text-xs font-black uppercase text-white">{lang}</span>
+                  <button onClick={() => setLang(lang === 'es' ? 'en' : 'es')} className="w-16 bg-white/5 hover:bg-white/10 transition-colors backdrop-blur-sm rounded-[20px] border border-white/10 shadow-lg flex flex-col items-center justify-center shrink-0 px-1" title={lang === 'es' ? "Cambiar idioma (Switch language)" : "Switch to Spanish"}>
+                    <span className="text-[8px] text-white/50 font-bold uppercase tracking-widest mb-0.5">{lang === 'es' ? 'Idioma' : 'Lang'}</span>
+                    <span className="text-[11px] font-black uppercase text-white flex items-center gap-1">{lang === 'es' ? 'ES 🇪🇸' : 'EN 🇺🇸'}</span>
                   </button>
                   {toggleMode && (
-                    <button onClick={toggleMode} className="w-14 bg-white/5 hover:bg-white/10 transition-colors backdrop-blur-sm rounded-[20px] border border-white/10 shadow-lg flex flex-col items-center justify-center shrink-0" title="Cambiar tema">
-                      <span className="text-[8px] text-white/50 font-bold uppercase tracking-widest mb-1">Tema</span>
+                    <button onClick={toggleMode} className="w-14 bg-white/5 hover:bg-white/10 transition-colors backdrop-blur-sm rounded-[20px] border border-white/10 shadow-lg flex flex-col items-center justify-center shrink-0" title={lang === 'es' ? "Cambiar tema" : "Toggle theme"}>
+                      <span className="text-[8px] text-white/50 font-bold uppercase tracking-widest mb-1">{lang === 'es' ? 'Tema' : 'Theme'}</span>
                       {isLight ? <Sun size={16} className="text-yellow-400" /> : <Moon size={16} className="text-white" />}
                     </button>
                   )}
                   {toggleDeviceMode && (
-                    <button onClick={toggleDeviceMode} className="w-14 bg-white/5 hover:bg-white/10 transition-colors backdrop-blur-sm rounded-[20px] border border-white/10 shadow-lg flex flex-col items-center justify-center shrink-0" title="Ver en modo computador">
+                    <button onClick={toggleDeviceMode} className="w-14 bg-white/5 hover:bg-white/10 transition-colors backdrop-blur-sm rounded-[20px] border border-white/10 shadow-lg flex flex-col items-center justify-center shrink-0" title={lang === 'es' ? "Ver en modo computador" : "Switch to PC mode"}>
                       <span className="text-[8px] text-white/50 font-bold uppercase tracking-widest mb-1">PC</span>
                       <Laptop size={16} className="text-white" />
                     </button>
@@ -3922,40 +4006,42 @@ const ProfileView = ({ inventory, setInventory, userXP, username, onOpenItem, co
                 <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">
                   <Shield size={18} className="text-[#8ab4f8]" />
                 </div>
-                <h3 className="text-sm font-black uppercase tracking-tight text-white">Ajustes de Cuenta</h3>
+                <h3 className="text-sm font-black uppercase tracking-tight text-white">{lang === 'en' ? 'Account Settings' : 'Ajustes de Cuenta'}</h3>
               </div>
 
               {isAnonymous ? (
                 <div className="space-y-4">
                   <p className="text-[11px] text-yellow-400 font-medium leading-relaxed bg-yellow-500/10 p-3.5 rounded-2xl border border-yellow-500/20">
-                    ⚠️ Usando cuenta temporal de invitado. Registra tu cuenta para guardar tu progreso en la nube y acceder como desarrollador.
+                    {lang === 'en' 
+                      ? '⚠️ Using temporary guest account. Register your account to save your progress in the cloud.' 
+                      : '⚠️ Usando cuenta temporal de invitado. Registra tu cuenta para guardar tu progreso en la nube.'}
                   </p>
                   <div className="flex gap-3">
                     <button 
                       onClick={() => onLinkAccount(false)} 
                       className="flex-1 bg-white text-black py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all shadow-md text-center"
                     >
-                      Registrarse
+                      {lang === 'en' ? 'Sign Up' : 'Registrarse'}
                     </button>
                     <button 
                       onClick={() => onLinkAccount(true)} 
                       className="flex-1 bg-white/10 hover:bg-white/20 text-white py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all border border-white/10 shadow-md text-center"
                     >
-                      Iniciar Sesión
+                      {lang === 'en' ? 'Sign In' : 'Iniciar Sesión'}
                     </button>
                   </div>
                 </div>
               ) : (
                 <div className="space-y-4">
                   <div className="bg-green-500/10 p-3.5 rounded-2xl border border-green-500/20 flex flex-col gap-1">
-                    <span className="text-[10px] font-black tracking-widest text-green-400 uppercase">🟢 Cuenta Vinculada</span>
+                    <span className="text-[10px] font-black tracking-widest text-green-400 uppercase">{lang === 'en' ? '🟢 Linked Account' : '🟢 Cuenta Vinculada'}</span>
                     <span className="text-[11px] font-bold text-white/80 select-all truncate">{userEmail}</span>
                   </div>
                   <button 
                     onClick={onSignOut} 
                     className="w-full bg-red-600/20 hover:bg-red-600/30 text-red-400 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all border border-red-500/20 shadow-md text-center"
                   >
-                    Cerrar Sesión
+                    {lang === 'en' ? 'Sign Out' : 'Cerrar Sesión'}
                   </button>
                 </div>
               )}
@@ -3968,7 +4054,7 @@ const ProfileView = ({ inventory, setInventory, userXP, username, onOpenItem, co
                       onClick={onOpenPrivacy}
                       className="flex-1 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white py-3 rounded-2xl text-[9px] font-black uppercase tracking-wider transition-all border border-white/10 text-center"
                     >
-                      Privacidad
+                      {lang === 'en' ? 'Privacy' : 'Privacidad'}
                     </button>
                   )}
                   {onOpenTerms && (
@@ -3976,7 +4062,7 @@ const ProfileView = ({ inventory, setInventory, userXP, username, onOpenItem, co
                       onClick={onOpenTerms}
                       className="flex-1 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white py-3 rounded-2xl text-[9px] font-black uppercase tracking-wider transition-all border border-white/10 text-center"
                     >
-                      Términos
+                      {lang === 'en' ? 'Terms' : 'Términos'}
                     </button>
                   )}
                 </div>
@@ -3987,7 +4073,7 @@ const ProfileView = ({ inventory, setInventory, userXP, username, onOpenItem, co
                   onClick={onOpenLanding}
                   className="w-full bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all border border-indigo-500/30 shadow-md text-center flex items-center justify-center gap-2 mt-2"
                 >
-                  <Globe size={14} /> Ver Landing Page
+                  <Globe size={14} /> {lang === 'en' ? 'View Landing Page' : 'Ver Landing Page'}
                 </button>
               )}
             </div>
@@ -4157,6 +4243,8 @@ const HomeDashboard = ({ selectedApps, activeChallenge, onSelectChallenge, onOpe
   const [organizeSubTab, setOrganizeSubTab] = useState('habitos');
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [selectedMasteryCourse, setSelectedMasteryCourse] = useState(null);
+  const [selectedMasteryInitialClass, setSelectedMasteryInitialClass] = useState(null);
+  const [selectedMasteryInitialChallenge, setSelectedMasteryInitialChallenge] = useState(null);
   const [completedMasteryClasses, setCompletedMasteryClasses] = useState(() => {
     try {
       const saved = localStorage.getItem('focusly_completed_masteries');
@@ -4260,14 +4348,14 @@ const HomeDashboard = ({ selectedApps, activeChallenge, onSelectChallenge, onOpe
                   <div className="absolute top-0 left-0 bottom-0 w-1.5 bg-[#8ab4f8]" />
                   <div className="absolute top-4 right-6 opacity-0 group-hover:opacity-100 transition-opacity"><ArrowRight size={20} className="text-white/30" /></div>
                   <div className="flex justify-between items-start mb-6">
-                    <span className="text-[10px] font-black tracking-[0.2em] text-[#8ab4f8] uppercase drop-shadow-md">Progreso del Desafío</span>
+                    <span className="text-[10px] font-black tracking-[0.2em] text-[#8ab4f8] uppercase drop-shadow-md">{lang === 'en' ? 'Challenge Progress' : 'Progreso del Desafío'}</span>
                     <div className="text-right">
                       <h2 className="text-3xl font-black tracking-tighter leading-none">{Math.max(1, Math.round((activeChallenge.currentDay / activeChallenge.duration) * 100))}%</h2>
                     </div>
                   </div>
                   <div className="flex items-baseline gap-2 mb-8">
                     <span className="text-6xl font-black tracking-tighter leading-none">{activeChallenge.currentDay}</span>
-                    <span className="text-xl font-bold text-white/40">/ {activeChallenge.duration} DÍAS</span>
+                    <span className="text-xl font-bold text-white/40">/ {activeChallenge.duration} {lang === 'en' ? 'DAYS' : 'DÍAS'}</span>
                   </div>
                   <div className="relative h-4 bg-black/50 rounded-full overflow-hidden mb-3 border border-white/5">
                     <motion.div initial={{ width: 0 }} animate={{ width: `${Math.max(2, (activeChallenge.currentDay / activeChallenge.duration) * 100)}%` }} transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }} className="absolute top-0 left-0 bottom-0 bg-[#8ab4f8] rounded-full shadow-[0_0_15px_rgba(138,180,248,0.5)]">
@@ -4275,18 +4363,22 @@ const HomeDashboard = ({ selectedApps, activeChallenge, onSelectChallenge, onOpe
                     </motion.div>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-[9px] font-black tracking-[0.2em] text-white/30 uppercase">{activeChallenge.title} Activo</span>
+                    <span className="text-[9px] font-black tracking-[0.2em] text-white/30 uppercase">{activeChallenge.title} {lang === 'en' ? 'Active' : 'Activo'}</span>
                   </div>
                 </motion.div>
                 <button onClick={onCompleteChallenge} className="mt-4 w-full bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-full py-4 text-[10px] font-black uppercase tracking-widest hover:bg-white/20 transition-all shadow-lg">
-                  Finalizar y Reclamar Recompensa
+                  {lang === 'en' ? 'Complete and Claim Reward' : 'Finalizar y Reclamar Recompensa'}
                 </button>
               </div>
             ) : (
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white/5 backdrop-blur-md rounded-[32px] p-8 border border-white/10 shadow-xl mb-10 flex flex-col items-center text-center">
                 <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-6 border border-white/10"><Clock size={28} className="text-white/50" /></div>
-                <h3 className="text-xl font-black uppercase tracking-tight mb-2">Sin retos activos</h3>
-                <p className="text-[11px] text-white/60 font-medium leading-relaxed px-4">Selecciona un desafío de la lista inferior para comenzar a forjar tu voluntad hoy.</p>
+                <h3 className="text-xl font-black uppercase tracking-tight mb-2">{lang === 'en' ? 'No active challenges' : 'Sin retos activos'}</h3>
+                <p className="text-[11px] text-white/60 font-medium leading-relaxed px-4">
+                  {lang === 'en' 
+                    ? 'Select a challenge from the list below to begin building your focus today.' 
+                    : 'Selecciona un desafío de la lista inferior para comenzar a forjar tu voluntad hoy.'}
+                </p>
               </motion.div>
             )}
             {/* AI Behavioral Recommendations */}
@@ -4310,8 +4402,8 @@ const HomeDashboard = ({ selectedApps, activeChallenge, onSelectChallenge, onOpe
             )}
 
             <div className="flex justify-between items-end mb-6">
-              <h3 className="text-xl font-black uppercase tracking-tight text-white drop-shadow-md">Más Desafíos</h3>
-              <button onClick={onOpenAll} className="text-[9px] font-black tracking-widest text-white/60 hover:text-white uppercase transition-colors">Ver todos</button>
+              <h3 className="text-xl font-black uppercase tracking-tight text-white drop-shadow-md">{lang === 'en' ? 'More Challenges' : 'Más Desafíos'}</h3>
+              <button onClick={onOpenAll} className="text-[9px] font-black tracking-widest text-white/60 hover:text-white uppercase transition-colors">{lang === 'en' ? 'View all' : 'Ver todos'}</button>
             </div>
 
             <motion.div variants={staggerContainer} initial="hidden" animate="show" className="space-y-4">
@@ -4325,12 +4417,12 @@ const HomeDashboard = ({ selectedApps, activeChallenge, onSelectChallenge, onOpe
                       </div>
                       <div>
                         <h4 className="text-lg font-black tracking-tight uppercase leading-none mb-1">{challenge.title}</h4>
-                        <p className="text-[9px] font-black tracking-[0.1em] text-white/50 uppercase">{challenge.duration} DÍAS • {challenge.subtitle}</p>
+                        <p className="text-[9px] font-black tracking-[0.1em] text-white/50 uppercase">{challenge.duration} {lang === 'en' ? 'DAYS' : 'DÍAS'} • {challenge.subtitle}</p>
                       </div>
                     </div>
                     <div className="text-right">
                       <div className="flex items-center gap-1.5 justify-end mb-1"><Gem size={12} className="text-white/80" /><span className="text-sm font-black text-white">{challenge.diamonds}</span></div>
-                      {challenge.reward && <span className="text-[8px] font-black uppercase text-yellow-400 mt-1 block">+ Premio Mítico</span>}
+                      {challenge.reward && <span className="text-[8px] font-black uppercase text-yellow-400 mt-1 block">{lang === 'en' ? '+ Mythic Reward' : '+ Premio Mítico'}</span>}
                     </div>
                   </motion.div>
                 )
@@ -4339,7 +4431,7 @@ const HomeDashboard = ({ selectedApps, activeChallenge, onSelectChallenge, onOpe
 
             <div className="my-10 border-t border-white/10" />
             <div className="flex justify-between items-end mb-6">
-              <h3 className="text-xl font-black uppercase tracking-tight text-white drop-shadow-md">Centro de Pruebas</h3>
+              <h3 className="text-xl font-black uppercase tracking-tight text-white drop-shadow-md">{lang === 'en' ? 'Testing Center' : 'Centro de Pruebas'}</h3>
             </div>
             <motion.div variants={staggerContainer} initial="hidden" animate="show" className="space-y-4">
               {MINIGAMES_BANK.map((game) => {
@@ -4366,7 +4458,7 @@ const HomeDashboard = ({ selectedApps, activeChallenge, onSelectChallenge, onOpe
                 )
               })}
             </motion.div>
-            <p className="text-center text-[10px] text-white/40 font-bold uppercase tracking-widest mt-10">Más minijuegos próximamente...</p>
+            <p className="text-center text-[10px] text-white/40 font-bold uppercase tracking-widest mt-10">{lang === 'en' ? 'More minigames coming soon...' : 'Más minijuegos próximamente...'}</p>
           </motion.div>
         )}
 
@@ -4374,9 +4466,9 @@ const HomeDashboard = ({ selectedApps, activeChallenge, onSelectChallenge, onOpe
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col gap-8">
             {/* Sub-navigation tabs */}
             <div className="flex gap-1 bg-black/60 p-1 rounded-full border border-white/5 shadow-inner backdrop-blur-md shrink-0">
-              <button onClick={() => setOrganizeSubTab('habitos')} className={`flex-1 py-2 px-3 rounded-full text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${organizeSubTab === 'habitos' ? 'bg-white text-black shadow-md' : 'text-white/40 hover:text-white'}`}>Hábitos</button>
-              <button onClick={() => setOrganizeSubTab('calendario')} className={`flex-1 py-2 px-3 rounded-full text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${organizeSubTab === 'calendario' ? 'bg-white text-black shadow-md' : 'text-white/40 hover:text-white'}`}>Calendario</button>
-              <button onClick={() => setOrganizeSubTab('bloqueador')} className={`flex-1 py-2 px-3 rounded-full text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${organizeSubTab === 'bloqueador' ? 'bg-white text-black shadow-md' : 'text-white/40 hover:text-white'}`}>Bloqueador</button>
+              <button onClick={() => setOrganizeSubTab('habitos')} className={`flex-1 py-2 px-3 rounded-full text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${organizeSubTab === 'habitos' ? 'bg-white text-black shadow-md' : 'text-white/40 hover:text-white'}`}>{lang === 'en' ? 'Habits' : 'Hábitos'}</button>
+              <button onClick={() => setOrganizeSubTab('calendario')} className={`flex-1 py-2 px-3 rounded-full text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${organizeSubTab === 'calendario' ? 'bg-white text-black shadow-md' : 'text-white/40 hover:text-white'}`}>{lang === 'en' ? 'Calendar' : 'Calendario'}</button>
+              <button onClick={() => setOrganizeSubTab('bloqueador')} className={`flex-1 py-2 px-3 rounded-full text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${organizeSubTab === 'bloqueador' ? 'bg-white text-black shadow-md' : 'text-white/40 hover:text-white'}`}>{lang === 'en' ? 'Blocker' : 'Bloqueador'}</button>
             </div>
 
             {organizeSubTab === 'habitos' && (
@@ -4384,8 +4476,8 @@ const HomeDashboard = ({ selectedApps, activeChallenge, onSelectChallenge, onOpe
                 {/* AI Assistant Button for Habits */}
                 <div className="bg-gradient-to-r from-indigo-900/80 to-purple-900/80 rounded-[32px] p-6 border border-indigo-500/30 shadow-[0_0_30px_rgba(99,102,241,0.2)] flex items-center justify-between group cursor-pointer" onClick={onOpenAIHabit}>
                   <div>
-                    <h3 className="text-xl font-black uppercase tracking-tight text-white drop-shadow-md">Asistente IA de Hábitos</h3>
-                    <p className="text-[10px] font-bold text-white/60 uppercase tracking-widest mt-1">Genera planes de hábitos personalizados</p>
+                    <h3 className="text-xl font-black uppercase tracking-tight text-white drop-shadow-md">{lang === 'en' ? 'AI Habit Assistant' : 'Asistente IA de Hábitos'}</h3>
+                    <p className="text-[10px] font-bold text-white/60 uppercase tracking-widest mt-1">{lang === 'en' ? 'Generate personalized habit plans' : 'Genera planes de hábitos personalizados'}</p>
                   </div>
                   <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform shadow-inner">
                     <Sparkles size={24} className="text-indigo-400" />
@@ -4395,16 +4487,16 @@ const HomeDashboard = ({ selectedApps, activeChallenge, onSelectChallenge, onOpe
                 {/* Mis Hábitos Title + Add button */}
                 <div>
                   <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-xl font-black uppercase tracking-tight text-white drop-shadow-md">Mis Hábitos</h3>
+                    <h3 className="text-xl font-black uppercase tracking-tight text-white drop-shadow-md">{lang === 'en' ? 'My Habits' : 'Mis Hábitos'}</h3>
                     <button onClick={onOpenCreateHabit} className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-[9px] font-black uppercase tracking-widest rounded-full transition-all flex items-center gap-1.5 shadow-md">
-                      <Plus size={12} /> Crear Hábito
+                      <Plus size={12} /> {lang === 'en' ? 'Create Habit' : 'Crear Hábito'}
                     </button>
                   </div>
 
                   {calendarTasks.filter(t => t.isHabit).length === 0 ? (
                     <div className="bg-white/5 border border-white/10 rounded-[24px] p-8 text-center">
                       <Target size={32} className="text-white/20 mx-auto mb-3" />
-                      <p className="text-[11px] text-white/40 font-bold uppercase tracking-wider">Sin hábitos aún. ¡Crea uno o usa el Asistente IA!</p>
+                      <p className="text-[11px] text-white/40 font-bold uppercase tracking-wider">{lang === 'en' ? 'No habits yet. Create one or use the AI Assistant!' : 'Sin hábitos aún. ¡Crea uno o usa el Asistente IA!'}</p>
                     </div>
                   ) : (
                     <div className="space-y-4">
@@ -4436,7 +4528,7 @@ const HomeDashboard = ({ selectedApps, activeChallenge, onSelectChallenge, onOpe
                             const diamondReward = habit.category === 'salud' ? 3 : 2;
                             setUserXP(prev => prev + xpReward);
                             setUserDiamonds(prev => prev + diamondReward);
-                            setCompletedActivities(prev => [{ id: Date.now().toString(), title: 'Hábito completado', subtitle: habit.title, time: 'Hace un momento', icon: Check }, ...prev]);
+                            setCompletedActivities(prev => [{ id: Date.now().toString(), title: lang === 'en' ? 'Habit completed' : 'Hábito completado', subtitle: habit.title, time: lang === 'en' ? 'Just now' : 'Hace un momento', icon: Check }, ...prev]);
                           }
                           setCalendarTasks(prev => prev.map(t => t.id === habit.id ? { ...t, completedDates: updatedDates, streak: newStreak } : t));
                         };
@@ -4480,6 +4572,7 @@ const HomeDashboard = ({ selectedApps, activeChallenge, onSelectChallenge, onOpe
                   onOpenAICalendar={onOpenAICalendar} 
                   isLight={isLight} 
                   onModalOpenChange={onCalendarModalChange}
+                  lang={lang}
                 />
               </motion.div>
             )}
@@ -4666,79 +4759,27 @@ const HomeDashboard = ({ selectedApps, activeChallenge, onSelectChallenge, onOpe
         )}
 
         {homeTab === 'crece' && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            {/* MAESTRÍAS Y CURSOS COMPLETOS */}
-            <div className="flex justify-between items-center mb-4">
-              <div>
-                <span className="text-[9px] font-black uppercase text-blue-400 tracking-widest block">Academia de Crecimiento</span>
-                <h3 className="text-xl font-black uppercase tracking-tight text-white drop-shadow-md">Maestrías & Cursos</h3>
-              </div>
-              <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-white/10 text-emerald-400 border border-emerald-500/30">
-                {completedMasteryClasses.length} clases hechas
-              </span>
-            </div>
-            <p className="text-[10px] text-white/60 mb-5 leading-relaxed">
-              Cursos prácticos para jóvenes: computación, neurociencia, IA, finanzas y técnicas de estudio con videos, exámenes y medallas.
-            </p>
-
-            <div className="space-y-4 mb-8">
-              {MASTERIES_DATA.map(mastery => {
-                const totalCls = mastery.classes.length;
-                const doneCount = mastery.classes.filter(c => completedMasteryClasses.includes(c.id)).length;
-                const pct = Math.round((doneCount / totalCls) * 100);
-                const isFinished = doneCount === totalCls;
-
-                return (
-                  <motion.div
-                    key={mastery.id}
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => setSelectedMasteryCourse(mastery)}
-                    className="p-5 rounded-[28px] border border-white/10 bg-white/5 backdrop-blur-md cursor-pointer relative overflow-hidden group shadow-lg"
-                  >
-                    <div className={`absolute -right-10 -top-10 w-28 h-28 rounded-full blur-2xl pointer-events-none opacity-20 bg-gradient-to-br ${mastery.color}`} />
-                    
-                    <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center text-2xl shrink-0">
-                        {mastery.icon === 'Laptop' ? '💻' : mastery.icon === 'Brain' ? '🧠' : mastery.icon === 'Gem' ? '💎' : '📚'}
-                      </div>
-                      
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-blue-500/20 text-[#8ab4f8] border border-blue-500/30">
-                            {mastery.category}
-                          </span>
-                          <span className="text-[9px] font-bold text-amber-400">
-                            +{mastery.xpPerClass} XP
-                          </span>
-                        </div>
-                        <h4 className="text-base font-black uppercase tracking-tight text-white truncate leading-tight">
-                          {mastery.title}
-                        </h4>
-                        <p className="text-[10px] text-white/60 line-clamp-2 mt-1">
-                          {mastery.desc}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Progress bar and badges */}
-                    <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-2 text-[9px] font-bold text-white/50">
-                        <span>{mastery.levelsCount || 3} Niveles</span>
-                        <span>•</span>
-                        <span>{totalCls} Clases con Examen</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-20 h-1.5 rounded-full bg-black/50 overflow-hidden border border-white/10">
-                          <div className="h-full bg-emerald-400 rounded-full" style={{ width: `${Math.max(4, pct)}%` }} />
-                        </div>
-                        <span className="text-[9px] font-black text-emerald-400">{pct}%</span>
-                      </div>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-8">
+            {/* MAESTRÍAS Y CURSOS COMPLETOS - REDISEÑO MINIMALISTA FOCUSLY */}
+            <MasteriesSectionView
+              completedClasses={completedMasteryClasses}
+              isLight={isLight}
+              onLaunchClass={(cls, mastery) => {
+                setSelectedMasteryInitialClass(cls);
+                setSelectedMasteryInitialChallenge(null);
+                setSelectedMasteryCourse(mastery);
+              }}
+              onLaunchChallenge={(unit, mastery) => {
+                setSelectedMasteryInitialClass(null);
+                setSelectedMasteryInitialChallenge(unit);
+                setSelectedMasteryCourse(mastery);
+              }}
+              onOpenFullCourse={(mastery) => {
+                setSelectedMasteryInitialClass(null);
+                setSelectedMasteryInitialChallenge(null);
+                setSelectedMasteryCourse(mastery);
+              }}
+            />
 
             <div className="flex justify-between items-end mb-6">
               <h3 className="text-xl font-black uppercase tracking-tight text-white drop-shadow-md">Consejos de Enfoque</h3>
@@ -4905,15 +4946,15 @@ const HomeDashboard = ({ selectedApps, activeChallenge, onSelectChallenge, onOpe
               </div>
 
               {selectedVideo.activityText && (
-                <div className="bg-gradient-to-br from-emerald-900/60 to-teal-900/60 border border-emerald-500/30 rounded-3xl p-5 shadow-lg">
-                  <h4 className="text-[10px] font-black tracking-widest text-emerald-400 uppercase mb-3 flex items-center gap-2">
+                <div className="bg-white/5 border border-white/10 rounded-3xl p-5 shadow-lg">
+                  <h4 className="text-[10px] font-black tracking-widest text-blue-400 uppercase mb-3 flex items-center gap-2">
                     <Check size={14} /> ACTIVIDAD PRÁCTICA
                   </h4>
                   <p className="text-[11px] text-white/80 font-semibold leading-relaxed mb-4">{selectedVideo.activityText}</p>
                   {completedActivities?.includes(selectedVideo.id) ? (
-                    <div className="flex items-center gap-2 bg-emerald-500/20 border border-emerald-500/30 rounded-full px-4 py-2 w-max">
-                      <Check size={14} className="text-emerald-400" />
-                      <span className="text-[9px] font-black uppercase tracking-widest text-emerald-400">¡Actividad Completada!</span>
+                    <div className="flex items-center gap-2 bg-blue-500/20 border border-blue-500/30 rounded-full px-4 py-2 w-max">
+                      <Check size={14} className="text-blue-400" />
+                      <span className="text-[9px] font-black uppercase tracking-widest text-blue-400">¡Actividad Completada!</span>
                     </div>
                   ) : (
                     <motion.button whileTap={{ scale: 0.95 }}
@@ -4926,7 +4967,7 @@ const HomeDashboard = ({ selectedApps, activeChallenge, onSelectChallenge, onOpe
                           setTimeout(() => setActivityDone(null), 2500);
                         }
                       }}
-                      className="bg-emerald-500 text-black rounded-full px-5 py-3 text-[9px] font-black uppercase tracking-widest hover:bg-emerald-400 transition-colors shadow-lg">
+                      className="bg-white text-zinc-950 font-black rounded-full px-5 py-3 text-[9px] uppercase tracking-widest hover:bg-zinc-100 transition-colors shadow-lg cursor-pointer">
                       ✓ Completar Actividad (+20 XP, +5 💎)
                     </motion.button>
                   )}
@@ -4945,7 +4986,13 @@ const HomeDashboard = ({ selectedApps, activeChallenge, onSelectChallenge, onOpe
             mastery={selectedMasteryCourse}
             completedClasses={completedMasteryClasses}
             onCompleteClass={handleCompleteMasteryClass}
-            onClose={() => setSelectedMasteryCourse(null)}
+            onClose={() => {
+              setSelectedMasteryCourse(null);
+              setSelectedMasteryInitialClass(null);
+              setSelectedMasteryInitialChallenge(null);
+            }}
+            initialClass={selectedMasteryInitialClass}
+            initialUnitChallenge={selectedMasteryInitialChallenge}
             isLight={isLight}
           />
         )}
@@ -5256,766 +5303,7 @@ const ActiveChallengeInteractive = ({ challenge, onClose, addXP, addDiamonds }) 
   )
 }
 
-const MinigameReflex = ({ game, onClose, addXP, addDiamonds }) => {
-  const [gameState, setGameState] = useState('idle'); // idle, waiting, ready, won_level, lost, won_all
-  const [level, setLevel] = useState(1);
-  const [reactionTime, setReactionTime] = useState(null);
-  const timeoutRef = useRef(null);
-  const startTimeRef = useRef(null);
-
-  const getTargetTime = (lvl) => lvl === 1 ? 500 : lvl === 2 ? 400 : 300;
-
-  const startGame = (nextLevel = false) => {
-    if (!nextLevel) setLevel(1);
-    setGameState('waiting');
-    setReactionTime(null);
-    const randomDelay = Math.random() * 3000 + 1500;
-    timeoutRef.current = setTimeout(() => {
-      setGameState('ready');
-      startTimeRef.current = Date.now();
-    }, randomDelay);
-  };
-
-  const handleTap = () => {
-    if (gameState === 'waiting') {
-      clearTimeout(timeoutRef.current);
-      setGameState('lost');
-    } else if (gameState === 'ready') {
-      const time = Date.now() - startTimeRef.current;
-      setReactionTime(time);
-      if (time <= getTargetTime(level)) {
-        if (level < 3) {
-          setGameState('won_level');
-        } else {
-          setGameState('won_all');
-          addXP(game.rewardXP);
-          addDiamonds(game.rewardDia);
-        }
-      } else {
-        setGameState('lost');
-      }
-    }
-  };
-
-  useEffect(() => { return () => clearTimeout(timeoutRef.current); }, []);
-
-  return (
-    <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 200 }} className="absolute inset-0 bg-black/90 backdrop-blur-xl z-[100] flex flex-col text-white">
-      <div className="relative z-10 flex flex-col h-full px-6 pt-16 pb-8">
-        <div className="flex justify-between items-center mb-6">
-          <button onClick={onClose} className="p-2 -ml-2 bg-white/5 rounded-full hover:bg-white/10 transition-colors"><X size={20} /></button>
-          <div className="flex gap-2">
-            <span className="text-[9px] font-black bg-white/10 px-2 py-1 rounded text-white tracking-widest uppercase">+{game.rewardXP} XP</span>
-            <span className="text-[9px] font-black bg-white/10 px-2 py-1 rounded text-white tracking-widest uppercase flex items-center gap-1"><Gem size={8} /> +{game.rewardDia}</span>
-          </div>
-        </div>
-
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-black uppercase tracking-tighter">{game.title}</h2>
-          <div className="flex justify-center gap-2 mt-4">
-            {[1, 2, 3].map(l => (
-              <div key={l} className={`h-1.5 w-10 rounded-full ${l < level ? 'bg-green-500' : l === level && gameState !== 'idle' ? 'bg-yellow-400 shadow-[0_0_10px_#facc15]' : 'bg-white/20'}`}></div>
-            ))}
-          </div>
-          <p className="text-[10px] text-white/50 uppercase tracking-widest mt-4">Nivel {level}: Reacciona en &lt; {getTargetTime(level)}ms</p>
-        </div>
-
-        <div className="flex-1 flex items-center justify-center">
-          {gameState === 'idle' && (
-            <button onClick={() => startGame(false)} className="w-48 h-48 rounded-full bg-white text-black font-black uppercase tracking-widest shadow-[0_0_50px_rgba(255,255,255,0.2)] hover:scale-105 active:scale-95 transition-all text-xl">
-              Iniciar Prueba
-            </button>
-          )}
-
-          {(gameState === 'waiting' || gameState === 'ready') && (
-            <div onClick={handleTap} className={`w-full h-[60%] rounded-[40px] flex items-center justify-center cursor-pointer transition-colors duration-100 ${gameState === 'ready' ? 'bg-green-500 shadow-[0_0_100px_rgba(34,197,94,0.6)]' : 'bg-red-600 shadow-[0_0_100px_rgba(220,38,38,0.4)]'}`}>
-              <span className="text-4xl font-black uppercase tracking-tighter text-white drop-shadow-md text-center px-4">
-                {gameState === 'waiting' ? '¡ESPERA EL VERDE!' : '¡TOCA AHORA!'}
-              </span>
-            </div>
-          )}
-
-          {gameState === 'won_level' && (
-            <div className="text-center flex flex-col items-center">
-              <div className="w-20 h-20 bg-yellow-500/20 rounded-full flex items-center justify-center mb-6"><Zap size={40} className="text-yellow-400" /></div>
-              <h3 className="text-2xl font-black uppercase mb-2">Nivel {level} Superado</h3>
-              <p className="text-white/60 mb-8 font-medium">Reacción: <span className="text-yellow-400 font-black">{reactionTime}ms</span>. ¡Prepárate para ser más rápido!</p>
-              <button onClick={() => { setLevel(l => l + 1); startGame(true); }} className="bg-white text-black px-8 py-4 rounded-full text-xs font-black uppercase tracking-widest">Siguiente Nivel</button>
-            </div>
-          )}
-
-          {gameState === 'won_all' && (
-            <div className="text-center flex flex-col items-center">
-              <div className="w-24 h-24 bg-green-500/20 rounded-full flex items-center justify-center mb-6"><Check size={48} className="text-green-500" /></div>
-              <h3 className="text-3xl font-black uppercase mb-2">¡Dominio Total!</h3>
-              <p className="text-white/60 mb-8 font-medium">Has superado los 3 niveles con reflejos sobrehumanos. Recompensa obtenida.</p>
-              <button onClick={() => startGame(false)} className="bg-white/10 text-white px-8 py-4 rounded-full text-xs font-black uppercase tracking-widest">Jugar de Nuevo</button>
-            </div>
-          )}
-
-          {gameState === 'lost' && (
-            <div className="text-center flex flex-col items-center">
-              <div className="w-24 h-24 bg-red-500/20 rounded-full flex items-center justify-center mb-6"><X size={48} className="text-red-500" /></div>
-              <h3 className="text-3xl font-black uppercase mb-2">Conexión Rota</h3>
-              <p className="text-white/60 mb-8 font-medium">
-                {reactionTime ? `Tu tiempo: ${reactionTime}ms (Requerido: < ${getTargetTime(level)}ms). Fuiste demasiado lento.` : 'Te adelantaste a la señal. Controla la ansiedad.'}
-              </p>
-              <button onClick={() => startGame(false)} className="bg-white/10 text-white border border-white/20 px-8 py-4 rounded-full text-xs font-black uppercase tracking-widest hover:bg-white/20 transition-colors">Volver a Intentar Nivel 1</button>
-            </div>
-          )}
-        </div>
-      </div>
-    </motion.div>
-  )
-};
-
-const MinigameMemory = ({ game, onClose, addXP, addDiamonds }) => {
-  const ICONS_BANK = [Zap, Flame, Target, Star, Heart, Brain, Crown, Shield];
-  const [cards, setCards] = useState([]);
-  const [flipped, setFlipped] = useState([]);
-  const [matched, setMatched] = useState([]);
-  const [errors, setErrors] = useState(0);
-  const [level, setLevel] = useState(1);
-  const [gameState, setGameState] = useState('idle');
-
-  const getMaxErrors = (lvl) => lvl === 1 ? 3 : lvl === 2 ? 4 : 5;
-  const getPairsCount = (lvl) => lvl === 1 ? 3 : lvl === 2 ? 6 : 8;
-
-  const startGame = (nextLevel = false) => {
-    const currentLvl = nextLevel ? level + 1 : 1;
-    if (!nextLevel) setLevel(1);
-    else setLevel(currentLvl);
-
-    const pairs = getPairsCount(currentLvl);
-    const selectedIcons = ICONS_BANK.slice(0, pairs);
-    let deck = [...selectedIcons, ...selectedIcons].map((icon, i) => ({ id: i, icon, uid: Math.random() }));
-    deck.sort((a, b) => a.uid - b.uid);
-
-    setCards(deck);
-    setFlipped([]);
-    setMatched([]);
-    setErrors(0);
-    setGameState('playing');
-  };
-
-  const handleCardClick = (idx) => {
-    if (gameState !== 'playing' || flipped.length >= 2 || flipped.includes(idx) || matched.includes(idx)) return;
-    const newFlipped = [...flipped, idx];
-    setFlipped(newFlipped);
-
-    if (newFlipped.length === 2) {
-      const [first, second] = newFlipped;
-      if (cards[first].icon === cards[second].icon) {
-        const newMatched = [...matched, first, second];
-        setMatched(newMatched);
-        setFlipped([]);
-        if (newMatched.length === cards.length) {
-          if (level < 3) setGameState('won_level');
-          else {
-            setGameState('won_all');
-            addXP(game.rewardXP);
-            addDiamonds(game.rewardDia);
-          }
-        }
-      } else {
-        setTimeout(() => {
-          setFlipped([]);
-          setErrors(e => {
-            if (e + 1 >= getMaxErrors(level)) setGameState('lost');
-            return e + 1;
-          });
-        }, 800);
-      }
-    }
-  };
-
-  const maxE = getMaxErrors(level);
-
-  return (
-    <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 200 }} className="absolute inset-0 bg-black/90 backdrop-blur-xl z-[100] flex flex-col text-white">
-      <div className="relative z-10 flex flex-col h-full px-6 pt-16 pb-8">
-        <div className="flex justify-between items-center mb-6">
-          <button onClick={onClose} className="p-2 -ml-2 bg-white/5 rounded-full hover:bg-white/10 transition-colors"><X size={20} /></button>
-          <div className="flex gap-2">
-            <span className="text-[9px] font-black bg-white/10 px-2 py-1 rounded text-white tracking-widest uppercase">+{game.rewardXP} XP</span>
-            <span className="text-[9px] font-black bg-white/10 px-2 py-1 rounded text-white tracking-widest uppercase flex items-center gap-1"><Gem size={8} /> +{game.rewardDia}</span>
-          </div>
-        </div>
-
-        <div className="text-center mb-6">
-          <h2 className="text-3xl font-black uppercase tracking-tighter">{game.title}</h2>
-          <div className="flex justify-center gap-2 mt-3">
-            {[1, 2, 3].map(l => (
-              <div key={l} className={`h-1 w-8 rounded-full ${l < level ? 'bg-blue-500' : l === level && gameState !== 'idle' ? 'bg-cyan-400' : 'bg-white/20'}`}></div>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex-1 flex flex-col items-center justify-center">
-          {gameState === 'idle' && (
-            <button onClick={() => startGame(false)} className="w-48 h-48 rounded-full bg-blue-600 text-white font-black uppercase tracking-widest shadow-[0_0_50px_rgba(37,99,235,0.4)] hover:scale-105 active:scale-95 transition-all text-xl">
-              Iniciar Matriz
-            </button>
-          )}
-
-          {gameState === 'playing' && (
-            <div className="w-full max-w-sm">
-              <div className="flex justify-between mb-4 px-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-white/50">Vidas: {'❤️'.repeat(maxE - errors)}</span>
-                <span className="text-[10px] font-black uppercase tracking-widest text-blue-400">Pares: {matched.length / 2}/{getPairsCount(level)}</span>
-              </div>
-              <div className={`grid gap-3 ${cards.length <= 6 ? 'grid-cols-3' : 'grid-cols-4'}`}>
-                {cards.map((card, idx) => {
-                  const isRevealed = flipped.includes(idx) || matched.includes(idx);
-                  const Icon = card.icon;
-                  return (
-                    <div key={idx} onClick={() => handleCardClick(idx)} className={`aspect-square rounded-2xl flex items-center justify-center cursor-pointer transition-all duration-300 transform ${isRevealed ? 'bg-blue-600 border border-blue-400 shadow-[0_0_15px_rgba(37,99,235,0.4)] rotate-y-180' : 'bg-white/10 border border-white/5 hover:bg-white/20'}`}>
-                      {isRevealed && <Icon size={cards.length > 12 ? 24 : 32} className="text-white drop-shadow-md" />}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {gameState === 'won_level' && (
-            <div className="text-center flex flex-col items-center">
-              <div className="w-20 h-20 bg-blue-500/20 rounded-full flex items-center justify-center mb-6"><LayoutGrid size={40} className="text-blue-400" /></div>
-              <h3 className="text-2xl font-black uppercase mb-2">Matriz Nivel {level} Superada</h3>
-              <p className="text-white/60 mb-8 font-medium text-sm">Errores cometidos: {errors}. Prepárate, la cuadrícula se expande.</p>
-              <button onClick={() => startGame(true)} className="bg-white text-black px-8 py-4 rounded-full text-xs font-black uppercase tracking-widest">Siguiente Matriz</button>
-            </div>
-          )}
-
-          {gameState === 'won_all' && (
-            <div className="text-center flex flex-col items-center">
-              <div className="w-24 h-24 bg-green-500/20 rounded-full flex items-center justify-center mb-6"><Check size={48} className="text-green-500" /></div>
-              <h3 className="text-3xl font-black uppercase mb-2">¡Memoria Fotográfica!</h3>
-              <p className="text-white/60 mb-8 font-medium">Has dominado los 3 niveles de la matriz. Eres inmune a las distracciones visuales.</p>
-              <button onClick={() => startGame(false)} className="bg-white/10 text-white px-8 py-4 rounded-full text-xs font-black uppercase tracking-widest">Jugar de Nuevo</button>
-            </div>
-          )}
-
-          {gameState === 'lost' && (
-            <div className="text-center flex flex-col items-center">
-              <div className="w-24 h-24 bg-red-500/20 rounded-full flex items-center justify-center mb-6"><X size={48} className="text-red-500" /></div>
-              <h3 className="text-3xl font-black uppercase mb-2">Colapso Visual</h3>
-              <p className="text-white/60 mb-8 font-medium">Llegaste al límite de errores. Tu concentración falló. Vuelve al Nivel 1.</p>
-              <button onClick={() => startGame(false)} className="bg-white/10 text-white border border-white/20 px-8 py-4 rounded-full text-xs font-black uppercase tracking-widest hover:bg-white/20 transition-colors">Reiniciar Simulación</button>
-            </div>
-          )}
-        </div>
-      </div>
-    </motion.div>
-  );
-};
-
-const MinigameMillionaire = ({ game, onClose, addXP, addDiamonds }) => {
-  const TOTAL_QS = 5;
-  const [questions, setQuestions] = useState([]);
-  const [currentQIndex, setCurrentQIndex] = useState(0);
-  const [gameState, setGameState] = useState('idle');
-  const [selectedAns, setSelectedAns] = useState(null);
-  const [showResult, setShowResult] = useState(false);
-
-  const startGame = () => {
-    const shuffled = [...MILLIONAIRE_QS].sort(() => Math.random() - 0.5).slice(0, TOTAL_QS);
-    setQuestions(shuffled);
-    setCurrentQIndex(0);
-    setGameState('playing');
-    setSelectedAns(null);
-    setShowResult(false);
-  };
-
-  const handleAnswer = (idx) => {
-    if (gameState !== 'playing' || selectedAns !== null) return;
-    setSelectedAns(idx);
-    setShowResult(true);
-
-    const correct = idx === questions[currentQIndex].answer;
-
-    setTimeout(() => {
-      if (correct) {
-        if (currentQIndex + 1 === TOTAL_QS) {
-          setGameState('won');
-          addXP(game.rewardXP);
-          addDiamonds(game.rewardDia);
-        } else {
-          setCurrentQIndex(p => p + 1);
-          setSelectedAns(null);
-          setShowResult(false);
-        }
-      } else {
-        setGameState('lost');
-      }
-    }, 1500);
-  };
-
-  return (
-    <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 200 }} className="absolute inset-0 bg-black/90 backdrop-blur-xl z-[100] flex flex-col text-white">
-      <div className="relative z-10 flex flex-col h-full px-6 pt-16 pb-8">
-        <div className="flex justify-between items-center mb-6">
-          <button onClick={onClose} className="p-2 -ml-2 bg-white/5 rounded-full hover:bg-white/10 transition-colors"><X size={20} /></button>
-          <div className="flex gap-2">
-            <span className="text-[9px] font-black bg-white/10 px-2 py-1 rounded text-white tracking-widest uppercase">+{game.rewardXP} XP</span>
-            <span className="text-[9px] font-black bg-white/10 px-2 py-1 rounded text-white tracking-widest uppercase flex items-center gap-1"><Gem size={8} /> +{game.rewardDia}</span>
-          </div>
-        </div>
-
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-black uppercase tracking-tighter">{game.title}</h2>
-          <p className="text-[10px] text-white/50 uppercase tracking-widest mt-2">{game.desc}</p>
-        </div>
-
-        <div className="flex-1 flex flex-col items-center justify-center">
-          {gameState === 'idle' && (
-            <button onClick={startGame} className="w-48 h-48 rounded-full bg-purple-600 text-white font-black uppercase tracking-widest shadow-[0_0_50px_rgba(147,51,234,0.4)] hover:scale-105 active:scale-95 transition-all text-xl">
-              Iniciar
-            </button>
-          )}
-
-          {gameState === 'playing' && questions.length > 0 && (
-            <div className="w-full flex flex-col flex-1 max-w-sm">
-              <div className="flex justify-center gap-1.5 mb-8">
-                {Array.from({ length: TOTAL_QS }).map((_, i) => (
-                  <div key={i} className={`h-2 flex-1 rounded-full ${i < currentQIndex ? 'bg-purple-500 shadow-[0_0_10px_purple]' : i === currentQIndex ? 'bg-purple-500/50 animate-pulse' : 'bg-white/10'}`} />
-                ))}
-              </div>
-
-              <div className="bg-white/5 border border-white/10 p-6 rounded-3xl mb-8 shadow-lg text-center min-h-[140px] flex items-center justify-center">
-                <h3 className="text-lg font-bold leading-relaxed">{questions[currentQIndex].q}</h3>
-              </div>
-
-              <div className="space-y-4 w-full">
-                {questions[currentQIndex].options.map((opt, idx) => {
-                  let btnStyle = 'bg-white/5 border-white/10 hover:bg-white/10';
-                  if (showResult) {
-                    if (idx === questions[currentQIndex].answer) btnStyle = 'bg-green-600 border-green-500 shadow-[0_0_20px_rgba(22,163,74,0.4)]';
-                    else if (idx === selectedAns) btnStyle = 'bg-red-600 border-red-500 shadow-[0_0_20px_rgba(220,38,38,0.4)]';
-                    else btnStyle = 'bg-white/5 border-white/10 opacity-50';
-                  } else if (selectedAns === idx) {
-                    btnStyle = 'bg-purple-600 border-purple-500 shadow-[0_0_20px_rgba(147,51,234,0.4)]';
-                  }
-
-                  return (
-                    <button key={idx} onClick={() => handleAnswer(idx)} disabled={showResult} className={`w-full text-left p-5 rounded-2xl border transition-all duration-300 font-bold text-sm ${btnStyle}`}>
-                      <span className="text-purple-400 mr-3">{['A', 'B', 'C', 'D'][idx]}.</span> {opt}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-          )}
-
-          {gameState === 'won' && (
-            <div className="text-center flex flex-col items-center">
-              <div className="w-24 h-24 bg-green-500/20 rounded-full flex items-center justify-center mb-6"><Check size={48} className="text-green-500" /></div>
-              <h3 className="text-3xl font-black uppercase mb-2">¡Erudito Absoluto!</h3>
-              <p className="text-white/60 mb-8 font-medium px-6">Resolviste las 5 preguntas correctamente. Tu cerebro está en óptimas condiciones para rechazar la gratificación instantánea.</p>
-              <button onClick={startGame} className="bg-white text-black px-8 py-4 rounded-full text-xs font-black uppercase tracking-widest">Jugar de Nuevo</button>
-            </div>
-          )}
-
-          {gameState === 'lost' && (
-            <div className="text-center flex flex-col items-center">
-              <div className="w-24 h-24 bg-red-500/20 rounded-full flex items-center justify-center mb-6"><X size={48} className="text-red-500" /></div>
-              <h3 className="text-3xl font-black uppercase mb-2">Error Fatal</h3>
-              <p className="text-white/60 mb-8 font-medium">Fallaste en la pregunta {currentQIndex + 1}. Un solo error destruye la racha. Repasa tus conocimientos y vuelve a intentar.</p>
-              <button onClick={startGame} className="bg-white/10 text-white border border-white/20 px-8 py-4 rounded-full text-xs font-black uppercase tracking-widest hover:bg-white/20 transition-colors">Reiniciar Prueba</button>
-            </div>
-          )}
-        </div>
-      </div>
-    </motion.div>
-  );
-};
-
-const MinigameMath = ({ game, onClose, addXP, addDiamonds }) => {
-  const [gameState, setGameState] = useState('idle');
-  const [level, setLevel] = useState(1);
-  const [problem, setProblem] = useState({ q: '', a: 0, options: [] });
-
-  const generateProblem = (lvl) => {
-    let num1, num2, op, ans;
-    if (lvl === 1) {
-      num1 = Math.floor(Math.random() * 10) + 1;
-      num2 = Math.floor(Math.random() * 10) + 1;
-      op = '+';
-      ans = num1 + num2;
-    } else if (lvl === 2) {
-      num1 = Math.floor(Math.random() * 20) + 10;
-      num2 = Math.floor(Math.random() * 10) + 1;
-      op = '-';
-      ans = num1 - num2;
-    } else {
-      num1 = Math.floor(Math.random() * 10) + 2;
-      num2 = Math.floor(Math.random() * 10) + 2;
-      op = 'x';
-      ans = num1 * num2;
-    }
-    let options = [ans, ans + Math.floor(Math.random() * 5) + 1, ans - (Math.floor(Math.random() * 4) + 1), ans + 10].sort(() => Math.random() - 0.5);
-    setProblem({ q: `${num1} ${op} ${num2}`, a: ans, options });
-  };
-
-  const startGame = (nextLevel = false) => {
-    const currentLvl = nextLevel ? level + 1 : 1;
-    if (!nextLevel) setLevel(1);
-    else setLevel(currentLvl);
-    generateProblem(currentLvl);
-    setGameState('playing');
-  };
-
-  const handleAnswer = (ans) => {
-    if (ans === problem.a) {
-      if (level < 3) setGameState('won_level');
-      else {
-        setGameState('won_all');
-        addXP(game.rewardXP);
-        addDiamonds(game.rewardDia);
-      }
-    } else {
-      setGameState('lost');
-    }
-  };
-
-  return (
-    <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 200 }} className="absolute inset-0 bg-black/90 backdrop-blur-xl z-[100] flex flex-col text-white">
-      <div className="relative z-10 flex flex-col h-full px-6 pt-16 pb-8">
-        <div className="flex justify-between items-center mb-6">
-          <button onClick={onClose} className="p-2 -ml-2 bg-white/5 rounded-full hover:bg-white/10 transition-colors"><X size={20} /></button>
-          <div className="flex gap-2">
-            <span className="text-[9px] font-black bg-white/10 px-2 py-1 rounded text-white tracking-widest uppercase">+{game.rewardXP} XP</span>
-            <span className="text-[9px] font-black bg-white/10 px-2 py-1 rounded text-white tracking-widest uppercase flex items-center gap-1"><Gem size={8} /> +{game.rewardDia}</span>
-          </div>
-        </div>
-
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-black uppercase tracking-tighter">{game.title}</h2>
-          <div className="flex justify-center gap-2 mt-4">
-            {[1, 2, 3].map(l => (
-              <div key={l} className={`h-1.5 w-10 rounded-full ${l < level ? 'bg-green-500' : l === level && gameState !== 'idle' ? 'bg-yellow-400 shadow-[0_0_10px_#facc15]' : 'bg-white/20'}`}></div>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex-1 flex items-center justify-center">
-          {gameState === 'idle' && (
-            <button onClick={() => startGame(false)} className="w-48 h-48 rounded-full bg-green-600 text-white font-black uppercase tracking-widest shadow-[0_0_50px_rgba(22,163,74,0.4)] hover:scale-105 active:scale-95 transition-all text-xl">
-              Iniciar Prueba
-            </button>
-          )}
-
-          {gameState === 'playing' && (
-            <div className="w-full max-w-sm flex flex-col items-center">
-              <div className="text-5xl font-black mb-10 tracking-tighter bg-white/10 p-8 rounded-3xl w-full text-center border border-white/20">{problem.q}</div>
-              <div className="grid grid-cols-2 gap-4 w-full">
-                {problem.options.map((opt, i) => (
-                  <button key={i} onClick={() => handleAnswer(opt)} className="bg-white/5 hover:bg-white/20 border border-white/10 py-6 rounded-2xl text-2xl font-black transition-colors">{opt}</button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {gameState === 'won_level' && (
-            <div className="text-center flex flex-col items-center">
-              <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mb-6"><Check size={40} className="text-green-500" /></div>
-              <h3 className="text-2xl font-black uppercase mb-2">Nivel {level} Superado</h3>
-              <button onClick={() => startGame(true)} className="bg-white text-black px-8 py-4 rounded-full text-xs font-black uppercase tracking-widest mt-6">Siguiente Nivel</button>
-            </div>
-          )}
-
-          {gameState === 'won_all' && (
-            <div className="text-center flex flex-col items-center">
-              <div className="w-24 h-24 bg-green-500/20 rounded-full flex items-center justify-center mb-6"><Activity size={48} className="text-green-500" /></div>
-              <h3 className="text-3xl font-black uppercase mb-2">¡Genio!</h3>
-              <p className="text-white/60 mb-8 font-medium">Cálculo mental perfeccionado.</p>
-              <button onClick={() => startGame(false)} className="bg-white/10 text-white px-8 py-4 rounded-full text-xs font-black uppercase tracking-widest">Jugar de Nuevo</button>
-            </div>
-          )}
-
-          {gameState === 'lost' && (
-            <div className="text-center flex flex-col items-center">
-              <div className="w-24 h-24 bg-red-500/20 rounded-full flex items-center justify-center mb-6"><X size={48} className="text-red-500" /></div>
-              <h3 className="text-3xl font-black uppercase mb-2">Error de Cálculo</h3>
-              <button onClick={() => startGame(false)} className="bg-white/10 text-white border border-white/20 px-8 py-4 rounded-full text-xs font-black uppercase tracking-widest mt-6">Reintentar</button>
-            </div>
-          )}
-        </div>
-      </div>
-    </motion.div>
-  );
-};
-
-const MinigameWhack = ({ game, onClose, addXP, addDiamonds }) => {
-  const [moles, setMoles] = useState([]);
-  const [score, setScore] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(30);
-  const [gameOver, setGameOver] = useState(false);
-  const [win, setWin] = useState(false);
-
-  useEffect(() => {
-    if (gameOver) return;
-    const timer = setInterval(() => setTimeLeft(t => {
-      if (t <= 1) { setGameOver(true); setWin(score >= 15); return 0; }
-      return t - 1;
-    }), 1000);
-    return () => clearInterval(timer);
-  }, [gameOver, score]);
-
-  useEffect(() => {
-    if (gameOver) return;
-    const interval = setInterval(() => {
-      const type = Math.random() > 0.7 ? 'work' : 'distraction';
-      const id = Date.now();
-      const x = Math.random() * 80 + 10;
-      const y = Math.random() * 80 + 10;
-      setMoles(prev => [...prev, { id, type, x, y }]);
-      setTimeout(() => {
-        setMoles(prev => prev.filter(m => m.id !== id));
-      }, type === 'work' ? 2000 : 1500);
-    }, 800);
-    return () => clearInterval(interval);
-  }, [gameOver]);
-
-  const handleHit = (mole) => {
-    if (mole.type === 'work') {
-      setScore(s => Math.max(0, s - 3));
-    } else {
-      setScore(s => s + 1);
-    }
-    setMoles(prev => prev.filter(m => m.id !== mole.id));
-  };
-
-  return (
-    <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 200 }} className="absolute inset-0 bg-black/90 backdrop-blur-xl z-[100] flex flex-col items-center justify-center text-white p-6">
-      <div className="w-full max-w-sm bg-gradient-to-br from-gray-900 to-black border-2 border-red-500/30 rounded-[32px] p-6 shadow-[0_0_50px_rgba(239,68,68,0.2)] flex flex-col items-center relative overflow-hidden">
-        <button onClick={onClose} className="absolute top-4 right-4 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center text-white/50 hover:text-white"><X size={16} /></button>
-        <game.icon size={48} className="text-red-400 mb-4 drop-shadow-[0_0_15px_rgba(239,68,68,0.8)]" />
-        <h2 className="text-2xl font-black uppercase text-white mb-1 tracking-tight text-center">{game.title}</h2>
-        <p className="text-xs text-white/50 uppercase tracking-widest text-center mb-6">{game.subtitle}</p>
-
-        {!gameOver ? (
-          <>
-            <div className="flex w-full justify-between mb-4">
-              <div className="bg-red-500/20 px-4 py-2 rounded-xl border border-red-500/30"><span className="text-xl font-black text-white">{timeLeft}s</span></div>
-              <div className="bg-blue-500/20 px-4 py-2 rounded-xl border border-blue-500/30"><span className="text-xl font-black text-white">{score} Pts</span></div>
-            </div>
-            <div className="w-full aspect-square bg-white/5 border border-white/10 rounded-2xl relative overflow-hidden shadow-inner">
-              <AnimatePresence>
-                {moles.map(mole => (
-                  <motion.button key={mole.id} initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }} whileTap={{ scale: 0.8 }} onClick={() => handleHit(mole)} className={`absolute w-12 h-12 flex items-center justify-center rounded-full shadow-lg border-2 ${mole.type === 'work' ? 'bg-blue-500 border-blue-300' : 'bg-red-500 border-red-300'}`} style={{ left: `${mole.x}%`, top: `${mole.y}%`, transform: 'translate(-50%, -50%)' }}>
-                    {mole.type === 'work' ? <Activity size={24} className="text-white" /> : <Zap size={24} className="text-white" />}
-                  </motion.button>
-                ))}
-              </AnimatePresence>
-            </div>
-            <p className="text-[10px] uppercase text-white/50 text-center mt-4">Golpea lo rojo, evita lo azul. Objetivo: 15 Pts</p>
-          </>
-        ) : (
-          <div className="flex flex-col items-center py-6">
-            <h3 className={`text-4xl font-black uppercase mb-2 drop-shadow-lg ${win ? 'text-green-400' : 'text-red-400'}`}>{win ? 'VICTORIA' : 'DERROTA'}</h3>
-            <p className="text-white/60 mb-8 uppercase tracking-widest font-bold text-center">Puntuación: {score}</p>
-            {win && (
-              <button onClick={() => { addXP(game.rewardXP); addDiamonds(game.rewardDia); onClose(); }} className="w-full py-4 rounded-full bg-green-500 text-black font-black uppercase tracking-widest text-sm shadow-[0_0_20px_rgba(34,197,94,0.4)] hover:scale-105 active:scale-95 transition-all">Reclamar Recompensa</button>
-            )}
-            {!win && (
-              <button onClick={onClose} className="w-full py-4 rounded-full bg-white/10 text-white font-black uppercase tracking-widest text-sm hover:bg-white/20 transition-all">Intentar de Nuevo</button>
-            )}
-          </div>
-        )}
-      </div>
-    </motion.div>
-  );
-};
-
-const MinigameStoic = ({ game, onClose, addXP, addDiamonds }) => {
-  const QUOTES = [
-    { phrase: "La riqueza no consiste en tener muchas posesiones sino en tener pocas necesidades", author: "Epicteto" },
-    { phrase: "No nos afecta lo que nos sucede sino lo que nos decimos sobre lo que nos sucede", author: "Epicteto" },
-    { phrase: "Elige no ser dañado y no te sentirás dañado", author: "Marco Aurelio" },
-    { phrase: "La felicidad de tu vida depende de la calidad de tus pensamientos", author: "Marco Aurelio" },
-    { phrase: "Si no es correcto no lo hagas, si no es verdad no lo digas", author: "Marco Aurelio" }
-  ];
-
-  const [quoteIdx, setQuoteIdx] = useState(0);
-  const [words, setWords] = useState([]);
-  const [selectedWords, setSelectedWords] = useState([]);
-  const [win, setWin] = useState(false);
-
-  useEffect(() => {
-    const arr = QUOTES[quoteIdx].phrase.split(" ").map((w, i) => ({ id: i, text: w }));
-    setWords(arr.sort(() => Math.random() - 0.5));
-    setSelectedWords([]);
-  }, [quoteIdx]);
-
-  const handleSelect = (word) => {
-    setSelectedWords([...selectedWords, word]);
-    setWords(words.filter(w => w.id !== word.id));
-  };
-
-  const handleDeselect = (word) => {
-    setWords([...words, word]);
-    setSelectedWords(selectedWords.filter(w => w.id !== word.id));
-  };
-
-  const checkAnswer = () => {
-    const currentStr = selectedWords.map(w => w.text).join(" ");
-    if (currentStr.toLowerCase() === QUOTES[quoteIdx].phrase.toLowerCase()) {
-      if (quoteIdx < 1) { // just do 2 quotes for the minigame
-        setQuoteIdx(quoteIdx + 1);
-      } else {
-        setWin(true);
-      }
-    } else {
-      const arr = QUOTES[quoteIdx].phrase.split(" ").map((w, i) => ({ id: i, text: w }));
-      setWords(arr.sort(() => Math.random() - 0.5));
-      setSelectedWords([]);
-    }
-  };
-
-  return (
-    <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 200 }} className="absolute inset-0 bg-black/90 backdrop-blur-xl z-[100] flex flex-col items-center justify-center text-white p-6">
-      <div className="w-full max-w-sm bg-gradient-to-br from-slate-900 to-black border-2 border-slate-500/30 rounded-[32px] p-6 shadow-[0_0_50px_rgba(100,116,139,0.2)] flex flex-col items-center relative overflow-hidden">
-        <button onClick={onClose} className="absolute top-4 right-4 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center text-white/50 hover:text-white"><X size={16} /></button>
-        <game.icon size={48} className="text-slate-400 mb-4 drop-shadow-[0_0_15px_rgba(148,163,184,0.8)]" />
-        <h2 className="text-2xl font-black uppercase text-white mb-1 tracking-tight text-center">{game.title}</h2>
-        <p className="text-xs text-white/50 uppercase tracking-widest text-center mb-6">{game.subtitle}</p>
-
-        {!win ? (
-          <>
-            <div className="w-full mb-6 text-center">
-              <span className="text-[10px] font-black uppercase text-blue-400 tracking-widest">Autor: {QUOTES[quoteIdx].author}</span>
-              <span className="text-[10px] font-black uppercase text-white/40 tracking-widest block mt-1">Frase {quoteIdx + 1}/2</span>
-            </div>
-            <div className="w-full min-h-[100px] border-b-2 border-white/20 mb-6 flex flex-wrap gap-2 items-start justify-center pb-4">
-              <AnimatePresence>
-                {selectedWords.map(w => (
-                  <motion.button key={`sel-${w.id}`} initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} onClick={() => handleDeselect(w)} className="bg-blue-500 text-white font-black uppercase text-[10px] px-3 py-1.5 rounded shadow-lg hover:scale-105 active:scale-95">{w.text}</motion.button>
-                ))}
-              </AnimatePresence>
-            </div>
-            <div className="flex flex-wrap gap-2 justify-center mb-8">
-              <AnimatePresence>
-                {words.map(w => (
-                  <motion.button key={`w-${w.id}`} initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} onClick={() => handleSelect(w)} className="bg-white/10 border border-white/20 text-white font-black uppercase text-[10px] px-3 py-1.5 rounded hover:bg-white/20 hover:scale-105 active:scale-95">{w.text}</motion.button>
-                ))}
-              </AnimatePresence>
-            </div>
-            {words.length === 0 && (
-              <button onClick={checkAnswer} className="w-full py-4 rounded-full bg-white text-black font-black uppercase tracking-widest text-sm hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(255,255,255,0.4)]">Verificar</button>
-            )}
-          </>
-        ) : (
-          <div className="flex flex-col items-center py-6">
-            <h3 className="text-4xl font-black uppercase mb-2 drop-shadow-lg text-green-400">ILUMINADO</h3>
-            <p className="text-white/60 mb-8 uppercase tracking-widest font-bold text-center">Sabiduría Adquirida</p>
-            <button onClick={() => { addXP(game.rewardXP); addDiamonds(game.rewardDia); onClose(); }} className="w-full py-4 rounded-full bg-green-500 text-black font-black uppercase tracking-widest text-sm shadow-[0_0_20px_rgba(34,197,94,0.4)] hover:scale-105 active:scale-95 transition-all">Reclamar Recompensa</button>
-          </div>
-        )}
-      </div>
-    </motion.div>
-  );
-};
-
-const MinigameSequence = ({ game, onClose, addXP, addDiamonds }) => {
-  const [gameState, setGameState] = useState('idle');
-  const [level, setLevel] = useState(1);
-  const [numbers, setNumbers] = useState([]);
-  const [expectedIndex, setExpectedIndex] = useState(0);
-
-  const startGame = (nextLevel = false) => {
-    const currentLvl = nextLevel ? level + 1 : 1;
-    if (!nextLevel) setLevel(1);
-    else setLevel(currentLvl);
-
-    const count = currentLvl === 1 ? 4 : currentLvl === 2 ? 6 : 9;
-    let nums = Array.from({ length: count }, () => Math.floor(Math.random() * 99) + 1);
-    nums = nums.map((n, i) => ({ val: n, id: i, clicked: false }));
-    setNumbers(nums.sort(() => Math.random() - 0.5));
-    setExpectedIndex(0);
-    setGameState('playing');
-  };
-
-  const handleNumClick = (id, val) => {
-    const sortedVals = [...numbers].map(n => n.val).sort((a, b) => a - b);
-    if (val === sortedVals[expectedIndex]) {
-      setNumbers(prev => prev.map(n => n.id === id ? { ...n, clicked: true } : n));
-      if (expectedIndex + 1 === numbers.length) {
-        if (level < 3) setGameState('won_level');
-        else {
-          setGameState('won_all');
-          addXP(game.rewardXP);
-          addDiamonds(game.rewardDia);
-        }
-      } else {
-        setExpectedIndex(e => e + 1);
-      }
-    } else {
-      setGameState('lost');
-    }
-  };
-
-  return (
-    <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 200 }} className="absolute inset-0 bg-black/90 backdrop-blur-xl z-[100] flex flex-col text-white">
-      <div className="relative z-10 flex flex-col h-full px-6 pt-16 pb-8">
-        <div className="flex justify-between items-center mb-6">
-          <button onClick={onClose} className="p-2 -ml-2 bg-white/5 rounded-full hover:bg-white/10 transition-colors"><X size={20} /></button>
-          <div className="flex gap-2">
-            <span className="text-[9px] font-black bg-white/10 px-2 py-1 rounded text-white tracking-widest uppercase">+{game.rewardXP} XP</span>
-            <span className="text-[9px] font-black bg-white/10 px-2 py-1 rounded text-white tracking-widest uppercase flex items-center gap-1"><Gem size={8} /> +{game.rewardDia}</span>
-          </div>
-        </div>
-
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-black uppercase tracking-tighter">{game.title}</h2>
-          <p className="text-xs text-white/50 uppercase mt-2 font-bold tracking-widest">Ordena de Menor a Mayor</p>
-        </div>
-
-        <div className="flex-1 flex items-center justify-center">
-          {gameState === 'idle' && (
-            <button onClick={() => startGame(false)} className="w-48 h-48 rounded-full bg-indigo-600 text-white font-black uppercase tracking-widest shadow-[0_0_50px_rgba(79,70,229,0.4)] hover:scale-105 active:scale-95 transition-all text-xl">
-              Iniciar Prueba
-            </button>
-          )}
-
-          {gameState === 'playing' && (
-            <div className={`grid gap-4 w-full max-w-sm ${level === 1 ? 'grid-cols-2' : level === 2 ? 'grid-cols-3' : 'grid-cols-3'}`}>
-              {numbers.map((n) => (
-                <button key={n.id} onClick={() => !n.clicked && handleNumClick(n.id, n.val)} disabled={n.clicked} className={`aspect-square rounded-2xl text-3xl font-black transition-all duration-300 flex items-center justify-center ${n.clicked ? 'bg-indigo-600/50 text-white/30 scale-95 border-none' : 'bg-white/10 hover:bg-white/20 border border-white/20 shadow-lg text-white'}`}>
-                  {n.val}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {gameState === 'won_level' && (
-            <div className="text-center flex flex-col items-center">
-              <div className="w-20 h-20 bg-indigo-500/20 rounded-full flex items-center justify-center mb-6"><Check size={40} className="text-indigo-500" /></div>
-              <h3 className="text-2xl font-black uppercase mb-2">Nivel {level} Superado</h3>
-              <button onClick={() => startGame(true)} className="bg-white text-black px-8 py-4 rounded-full text-xs font-black uppercase tracking-widest mt-6">Siguiente Nivel</button>
-            </div>
-          )}
-
-          {gameState === 'won_all' && (
-            <div className="text-center flex flex-col items-center">
-              <div className="w-24 h-24 bg-indigo-500/20 rounded-full flex items-center justify-center mb-6"><LayoutGrid size={48} className="text-indigo-500" /></div>
-              <h3 className="text-3xl font-black uppercase mb-2">¡Orden Perfecto!</h3>
-              <button onClick={() => startGame(false)} className="bg-white/10 text-white px-8 py-4 rounded-full text-xs font-black uppercase tracking-widest mt-6">Jugar de Nuevo</button>
-            </div>
-          )}
-
-          {gameState === 'lost' && (
-            <div className="text-center flex flex-col items-center">
-              <div className="w-24 h-24 bg-red-500/20 rounded-full flex items-center justify-center mb-6"><X size={48} className="text-red-500" /></div>
-              <h3 className="text-3xl font-black uppercase mb-2">Secuencia Rota</h3>
-              <button onClick={() => startGame(false)} className="bg-white/10 text-white border border-white/20 px-8 py-4 rounded-full text-xs font-black uppercase tracking-widest mt-6">Reintentar</button>
-            </div>
-          )}
-        </div>
-      </div>
-    </motion.div>
-  );
-};
+// Los minijuegos de Focusly ahora se importan desde ./components/FocuslyMinigames
 
 const BottomNav = ({ activeTab, onChange, currentThemeBg, lang = 'es' }) => {
   const t = UI_TEXT[lang];
@@ -6063,8 +5351,27 @@ const BottomNav = ({ activeTab, onChange, currentThemeBg, lang = 'es' }) => {
 
 // --- APP COMPONENT ---
 function App() {
-  const [step, setStep] = useState('splash');
-  const [lang, setLang] = useState('es');
+  const [step, setStep] = useState('landing');
+  const [lang, setLangState] = useState(() => {
+    try {
+      return localStorage.getItem('focusly_lang') || 'es';
+    } catch {
+      return 'es';
+    }
+  });
+
+  const setLang = (newLang) => {
+    setLangState(prev => {
+      const resolved = typeof newLang === 'function' ? newLang(prev) : newLang;
+      try {
+        localStorage.setItem('focusly_lang', resolved);
+      } catch (e) {
+        console.error(e);
+      }
+      return resolved;
+    });
+  };
+
   const [selectedApps, setSelectedApps] = useState([]);
   const [isLight, setIsLight] = useState(() => localStorage.getItem('theme') === 'light');
 
@@ -6111,15 +5418,36 @@ function App() {
   const [loginStreak, setLoginStreak] = useState(0);
   const [lastLoginDate, setLastLoginDate] = useState(null);
 
-  const [inventory, setInventory] = useState({
-    avatars: ['a_base'],
-    backgrounds: ['bg_default'],
-    skins: [],
-    unlockedBadges: [],
-    equippedAvatar: 'a_base',
-    equippedBg: 'bg_default',
-    equippedSkins: { 'a_base': null }
+  const [inventory, setInventory] = useState(() => {
+    try {
+      return loadSavedInventory();
+    } catch {
+      return {
+        avatars: ['a_base'],
+        backgrounds: ['bg_default'],
+        skins: [],
+        outfits: ['outfit_base'],
+        accessories: ['acc_none'],
+        unlockedOutfits: ['outfit_base'],
+        unlockedAccessories: ['acc_none'],
+        unlockedTitles: ['title_iniciado'],
+        unlockedBadges: [],
+        equippedAvatar: 'a_base',
+        equippedOutfit: 'outfit_base',
+        equippedAccessory: 'acc_none',
+        equippedBg: 'bg_default',
+        equippedTitle: 'title_iniciado',
+        equippedSkins: { 'a_base': null },
+        ownedItems: ['a_base', 'bg_default', 'outfit_base', 'acc_none', 'title_iniciado']
+      };
+    }
   });
+
+  useEffect(() => {
+    if (inventory) {
+      saveInventoryToStorage(inventory);
+    }
+  }, [inventory]);
 
   const [unlockedBadgeCelebration, setUnlockedBadgeCelebration] = useState(null);
 
@@ -6174,17 +5502,17 @@ function App() {
       selectedApps,
       calendarTasks
     };
-    const newBadges = checkAllBadges(stats, inventory.unlockedBadges || []);
+    const newBadges = checkAllBadges(stats, inventory?.unlockedBadges || []);
     if (newBadges.length > 0) {
       const newIds = newBadges.map(b => b.id);
       setInventory(prev => ({
         ...prev,
-        unlockedBadges: Array.from(new Set([...(prev.unlockedBadges || []), ...newIds]))
+        unlockedBadges: Array.from(new Set([...(prev?.unlockedBadges || []), ...newIds]))
       }));
       // Desplegar celebración con la primera nueva insignia desbloqueada
       setUnlockedBadgeCelebration(newBadges[0]);
     }
-  }, [userXP, completedCount, loginStreak, activityLog?.length, selectedApps?.length, calendarTasks?.length, dbLoaded, step]);
+  }, [userXP, completedCount, loginStreak, activityLog, selectedApps, calendarTasks, inventory?.unlockedBadges, dbLoaded, step]);
 
   const handleClaimBadge = (badge) => {
     if (!badge) return;
@@ -6203,39 +5531,13 @@ function App() {
     setUnlockedBadgeCelebration(null);
   };
 
-  // Detección 100% automática y reactiva del tamaño de la pantalla (con persistencia si el usuario alterna manualmente)
-  const [isDesktopDevice, setIsDesktopDevice] = useState(() => {
-    if (typeof window === 'undefined') return true;
-    try {
-      const saved = localStorage.getItem('focusly_device_mode');
-      if (saved === 'desktop') return true;
-      if (saved === 'mobile') return false;
-    } catch {}
-    return window.innerWidth >= 768;
-  });
+  // --- Sistema Inteligente de Adaptación de Pantalla (Auto-Scale & Responsivo) ---
+  const screenAdapt = useScreenAdaptation();
+  const isDesktopDevice = screenAdapt.isDesktop;
 
   const toggleDeviceMode = () => {
-    setIsDesktopDevice(prev => {
-      const next = !prev;
-      try {
-        localStorage.setItem('focusly_device_mode', next ? 'desktop' : 'mobile');
-      } catch {}
-      return next;
-    });
+    screenAdapt.setTargetView(screenAdapt.isDesktop ? 'mobile' : 'desktop');
   };
-
-  useEffect(() => {
-    const handleResize = () => {
-      try {
-        const saved = localStorage.getItem('focusly_device_mode');
-        if (saved) return;
-      } catch {}
-      setIsDesktopDevice(window.innerWidth >= 768);
-    };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   const [activeChatsHistory, setActiveChatsHistory] = useState(() => {
     return MESSAGES_DATA.reduce((acc, person) => {
@@ -6378,8 +5680,8 @@ function App() {
           supabase.from('profiles').update({ login_streak: newStreak, last_login_date: today }).eq('id', uid).then(() => {});
         } catch (_) {}
 
-        // Usuario verificado con progreso: llevar directamente al dashboard principal
-        setStep('main');
+        // Usuario verificado con progreso: sincronizar datos sin interrumpir el flujo de inicio
+        setOnboardingDone(true);
       } else {
         // Usuario sin onboarding o cuenta nueva
         const isAnonSession = (() => { 
@@ -6421,7 +5723,6 @@ function App() {
           setSelectedLevel(defaultProfile.selected_level);
           setInventory(defaultProfile.inventory);
           setOnboardingDone(true);
-          setStep('main');
         } else {
           // Usuario nuevo anónimo: sembrar tareas iniciales de ejemplo
           const todayStr = new Date().toISOString().split('T')[0];
@@ -6691,21 +5992,105 @@ function App() {
   const handleAddXP = (amount) => setUserXP(prev => prev + amount);
   const handleAddDiamonds = (amount) => setUserDiamonds(prev => prev + amount);
 
-  const handleItemAction = (action, item) => {
+  const handleItemAction = (action, item, options = {}) => {
+    if (!item) return;
+    const cat = item.category || item.type || 'avatar';
+
     if (action === 'buy') {
-      if (userDiamonds >= item.price) {
-        setUserDiamonds(prev => prev - item.price);
-        if (item.category === 'avatar') {
-          setInventory({ ...inventory, avatars: [...inventory.avatars, item.id] });
-        } else if (item.category === 'background') {
-          setInventory({ ...inventory, backgrounds: [...inventory.backgrounds, item.id] });
+      if (userDiamonds >= (item.price || 0)) {
+        setUserDiamonds(prev => Math.max(0, prev - (item.price || 0)));
+        setInventory(prev => {
+          const next = { ...prev };
+          const ownedList = new Set(next.ownedItems || []);
+          ownedList.add(item.id);
+          next.ownedItems = Array.from(ownedList);
+
+          if (cat === 'avatar') {
+            next.avatars = Array.from(new Set([...(next.avatars || []), item.id]));
+          } else if (cat === 'outfit') {
+            next.unlockedOutfits = Array.from(new Set([...(next.unlockedOutfits || []), item.id]));
+            next.outfits = next.unlockedOutfits;
+          } else if (cat === 'accessory') {
+            next.unlockedAccessories = Array.from(new Set([...(next.unlockedAccessories || []), item.id]));
+            next.accessories = next.unlockedAccessories;
+          } else if (cat === 'title') {
+            next.unlockedTitles = Array.from(new Set([...(next.unlockedTitles || []), item.id]));
+            next.titles = next.unlockedTitles;
+          } else if (cat === 'background' || cat === 'environment') {
+            next.backgrounds = Array.from(new Set([...(next.backgrounds || []), item.id]));
+          }
+          return sanitizeInventory(next);
+        });
+
+        if (!options?.keepOpen) {
+          setSelectedInventoryItem(null);
         }
-        setSelectedInventoryItem(null);
       }
     } else if (action === 'equip') {
-      if (item.category === 'avatar') setInventory({ ...inventory, equippedAvatar: item.id });
-      else setInventory({ ...inventory, equippedBg: item.id });
-      setSelectedInventoryItem(null);
+      setInventory(prev => {
+        const next = { ...prev };
+        if (cat === 'avatar') {
+          next.equippedAvatar = item.id;
+        } else if (cat === 'outfit') {
+          next.equippedOutfit = item.id;
+        } else if (cat === 'accessory') {
+          next.equippedAccessory = item.id;
+        } else if (cat === 'title') {
+          next.equippedTitle = item.id;
+        } else if (cat === 'background' || cat === 'environment') {
+          next.equippedBg = item.id;
+        }
+        return sanitizeInventory(next);
+      });
+      if (!options?.keepOpen) {
+        setSelectedInventoryItem(null);
+      }
+    } else if (action === 'unequip') {
+      setInventory(prev => {
+        const next = { ...prev };
+        if (cat === 'accessory') {
+          next.equippedAccessory = 'acc_none';
+        } else if (cat === 'outfit') {
+          next.equippedOutfit = 'outfit_base';
+        } else if (cat === 'title') {
+          next.equippedTitle = 'title_iniciado';
+        }
+        return sanitizeInventory(next);
+      });
+    } else if (action === 'buy_and_equip') {
+      if (userDiamonds >= (item.price || 0)) {
+        setUserDiamonds(prev => Math.max(0, prev - (item.price || 0)));
+        setInventory(prev => {
+          const next = { ...prev };
+          const ownedList = new Set(next.ownedItems || []);
+          ownedList.add(item.id);
+          next.ownedItems = Array.from(ownedList);
+
+          if (cat === 'avatar') {
+            next.avatars = Array.from(new Set([...(next.avatars || []), item.id]));
+            next.equippedAvatar = item.id;
+          } else if (cat === 'outfit') {
+            next.unlockedOutfits = Array.from(new Set([...(next.unlockedOutfits || []), item.id]));
+            next.outfits = next.unlockedOutfits;
+            next.equippedOutfit = item.id;
+          } else if (cat === 'accessory') {
+            next.unlockedAccessories = Array.from(new Set([...(next.unlockedAccessories || []), item.id]));
+            next.accessories = next.unlockedAccessories;
+            next.equippedAccessory = item.id;
+          } else if (cat === 'title') {
+            next.unlockedTitles = Array.from(new Set([...(next.unlockedTitles || []), item.id]));
+            next.titles = next.unlockedTitles;
+            next.equippedTitle = item.id;
+          } else if (cat === 'background' || cat === 'environment') {
+            next.backgrounds = Array.from(new Set([...(next.backgrounds || []), item.id]));
+            next.equippedBg = item.id;
+          }
+          return sanitizeInventory(next);
+        });
+        if (!options?.keepOpen) {
+          setSelectedInventoryItem(null);
+        }
+      }
     } else if (action === 'gotoShop') {
       setSelectedInventoryItem(null);
       setMainNav('shop');
@@ -6716,10 +6101,17 @@ function App() {
     } else if (action === 'buy_skin') {
       if (userDiamonds >= item.price) {
         setUserDiamonds(prev => prev - item.price);
-        setInventory(prev => ({ ...prev, skins: [...(prev.skins || []), item.id] }));
+        setInventory(prev => sanitizeInventory({ 
+          ...prev, 
+          skins: [...new Set([...(prev.skins || []), item.id])],
+          ownedItems: [...new Set([...(prev.ownedItems || []), item.id])]
+        }));
       }
     } else if (action === 'equip_skin') {
-      setInventory(prev => ({ ...prev, equippedSkins: { ...(prev.equippedSkins || {}), [item.baseId]: item.skinId } }));
+      setInventory(prev => sanitizeInventory({ 
+        ...prev, 
+        equippedSkins: { ...(prev.equippedSkins || {}), [item.baseId]: item.skinId } 
+      }));
     }
   };
 
@@ -6736,8 +6128,8 @@ function App() {
   // Renderizar la página de inicio completa (Landing Page)
   if (step === 'landing') {
     return (
-      <div className="fixed inset-0 z-[500] bg-[#03050d] overflow-y-auto">
-        <LandingPage onFinish={() => setStep('main')} />
+      <div className="fixed inset-0 z-[500] bg-black overflow-y-auto">
+        <LandingPage onFinish={() => setStep('splash')} lang={lang} setLang={setLang} />
       </div>
     );
   }
@@ -6809,11 +6201,20 @@ function App() {
             isLight ? 'bg-white border-black/10' : 'bg-[#0c0c0c] border-white/10'
           }`}>
             <div className="flex items-center justify-between mb-6">
-              <button onClick={() => setStep('auth')} className="flex items-center gap-1 opacity-60 hover:opacity-100 transition-opacity cursor-pointer"><ChevronLeft size={22} /><span className="text-xs font-bold uppercase tracking-wider">Volver</span></button>
-              <span className="text-xs font-black uppercase tracking-widest text-indigo-400">Paso 1 de 2</span>
+              <button onClick={() => setStep('auth')} className="flex items-center gap-1 opacity-60 hover:opacity-100 transition-opacity cursor-pointer">
+                <ChevronLeft size={22} />
+                <span className="text-xs font-bold uppercase tracking-wider">{lang === 'en' ? 'Back' : 'Volver'}</span>
+              </button>
+              <span className="text-xs font-black uppercase tracking-widest text-indigo-400">
+                {lang === 'en' ? 'Step 1 of 2' : 'Paso 1 de 2'}
+              </span>
             </div>
-            <h1 className="text-3xl font-black uppercase tracking-tight mb-2">Elige tus Apps a Bloquear</h1>
-            <p className="text-xs opacity-60 uppercase tracking-wider mb-6">Selecciona las aplicaciones que más te distraen.</p>
+            <h1 className="text-3xl font-black uppercase tracking-tight mb-2">
+              {lang === 'en' ? 'Select Apps to Block' : 'Elige tus Apps a Bloquear'}
+            </h1>
+            <p className="text-xs opacity-60 uppercase tracking-wider mb-6">
+              {lang === 'en' ? 'Select the applications that distract you most.' : 'Selecciona las aplicaciones que más te distraen.'}
+            </p>
             <div className="flex-1 overflow-y-auto custom-scroll pr-2 grid grid-cols-3 sm:grid-cols-4 gap-4 mb-6">
               {APPS.map(app => {
                 const isSelected = selectedApps.includes(app.id);
@@ -6835,7 +6236,7 @@ function App() {
             <button onClick={() => setStep('levels')} className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all cursor-pointer ${
               isLight ? 'bg-black text-white hover:bg-zinc-800' : 'bg-white text-black hover:bg-zinc-200'
             }`}>
-              Continuar al Reto
+              {lang === 'en' ? 'Continue to Challenge' : 'Continuar al Reto'}
             </button>
           </div>
         </div>
@@ -6849,11 +6250,20 @@ function App() {
             isLight ? 'bg-white border-black/10' : 'bg-[#0c0c0c] border-white/10'
           }`}>
             <div className="flex items-center justify-between mb-6">
-              <button onClick={() => setStep('apps')} className="flex items-center gap-1 opacity-60 hover:opacity-100 transition-opacity cursor-pointer"><ChevronLeft size={22} /><span className="text-xs font-bold uppercase tracking-wider">Volver</span></button>
-              <span className="text-xs font-black uppercase tracking-widest text-indigo-400">Paso 2 de 2</span>
+              <button onClick={() => setStep('apps')} className="flex items-center gap-1 opacity-60 hover:opacity-100 transition-opacity cursor-pointer">
+                <ChevronLeft size={22} />
+                <span className="text-xs font-bold uppercase tracking-wider">{lang === 'en' ? 'Back' : 'Volver'}</span>
+              </button>
+              <span className="text-xs font-black uppercase tracking-widest text-indigo-400">
+                {lang === 'en' ? 'Step 2 of 2' : 'Paso 2 de 2'}
+              </span>
             </div>
-            <h1 className="text-3xl font-black uppercase tracking-tight mb-2">Elige tu Desafío</h1>
-            <p className="text-xs opacity-60 uppercase tracking-wider mb-6">Define tu nivel inicial de desintoxicación digital.</p>
+            <h1 className="text-3xl font-black uppercase tracking-tight mb-2">
+              {lang === 'en' ? 'Choose Your Challenge' : 'Elige tu Desafío'}
+            </h1>
+            <p className="text-xs opacity-60 uppercase tracking-wider mb-6">
+              {lang === 'en' ? 'Define your starting digital detox level.' : 'Define tu nivel inicial de desintoxicación digital.'}
+            </p>
             <div className="flex-1 overflow-y-auto custom-scroll pr-2 space-y-3 mb-6">
               {LEVELS.map(l => {
                 const Icon = l.icon;
@@ -6874,7 +6284,9 @@ function App() {
                         <p className="text-xs opacity-60">{l.desc}</p>
                       </div>
                     </div>
-                    <span className="text-[10px] font-black px-2.5 py-1 rounded-lg border uppercase" style={{ borderColor: `${l.hex}40`, color: l.hex }}>Nivel {l.id}</span>
+                    <span className="text-[10px] font-black px-2.5 py-1 rounded-lg border uppercase" style={{ borderColor: `${l.hex}40`, color: l.hex }}>
+                      {lang === 'en' ? `Level ${l.id}` : `Nivel ${l.id}`}
+                    </span>
                   </div>
                 );
               })}
@@ -6884,7 +6296,7 @@ function App() {
                 ? (isLight ? 'bg-black text-white hover:bg-zinc-800 cursor-pointer' : 'bg-white text-black hover:bg-zinc-200 cursor-pointer')
                 : 'bg-zinc-500/20 text-zinc-500 cursor-not-allowed'
             }`}>
-              Confirmar y Comenzar
+              {lang === 'en' ? 'Confirm and Start' : 'Confirmar y Comenzar'}
             </button>
           </div>
         </div>
@@ -6892,14 +6304,15 @@ function App() {
     }
 
     return (
-      <div className={`w-full min-h-screen relative selection:bg-white selection:text-black transition-colors duration-500 ${isLight ? 'bg-zinc-100' : 'bg-black'}`}>
+      <div className={`w-full min-h-screen max-w-[100vw] overflow-x-clip relative selection:bg-white selection:text-black transition-colors duration-500 ${isLight ? 'bg-zinc-100' : 'bg-black'}`}>
         <style dangerouslySetInnerHTML={{
           __html: `
           @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-          .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
-          .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 999px; }
-          .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-          body { background-color: #000000; color: white; font-family: 'Inter', sans-serif; }
+          * { scrollbar-width: none !important; -ms-overflow-style: none !important; }
+          *::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; background: transparent !important; }
+          *::-webkit-scrollbar-track, *::-webkit-scrollbar-thumb, *::-webkit-scrollbar-corner { display: none !important; background: transparent !important; }
+          :root, html { color-scheme: dark; scrollbar-width: none !important; -ms-overflow-style: none !important; }
+          body { overflow-x: hidden; overflow-y: auto !important; scrollbar-width: none !important; -ms-overflow-style: none !important; background-color: #000000; color: white; font-family: 'Inter', sans-serif; }
           input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.5; cursor: pointer; }
         `}} />
 
@@ -7033,28 +6446,28 @@ function App() {
             </div>
           )}
           {activeMinigame && activeMinigame.type === 'reflex' && (
-            <MinigameReflex key="modal-minigame-reflex" game={activeMinigame} onClose={() => setActiveMinigame(null)} addXP={handleAddXP} addDiamonds={handleAddDiamonds} />
+            <MinigameReflex key="modal-minigame-reflex" game={activeMinigame} onClose={() => setActiveMinigame(null)} addXP={handleAddXP} addDiamonds={handleAddDiamonds} isLight={isLight} />
           )}
           {activeMinigame && activeMinigame.type === 'memory' && (
-            <MinigameMemory key="modal-minigame-memory" game={activeMinigame} onClose={() => setActiveMinigame(null)} addXP={handleAddXP} addDiamonds={handleAddDiamonds} />
+            <MinigameMemory key="modal-minigame-memory" game={activeMinigame} onClose={() => setActiveMinigame(null)} addXP={handleAddXP} addDiamonds={handleAddDiamonds} isLight={isLight} />
           )}
           {activeMinigame && activeMinigame.type === 'millionaire' && (
-            <MinigameMillionaire key="modal-minigame-millionaire" game={activeMinigame} onClose={() => setActiveMinigame(null)} addXP={handleAddXP} addDiamonds={handleAddDiamonds} />
+            <MinigameMillionaire key="modal-minigame-millionaire" game={activeMinigame} onClose={() => setActiveMinigame(null)} addXP={handleAddXP} addDiamonds={handleAddDiamonds} isLight={isLight} />
           )}
           {activeMinigame && activeMinigame.type === 'math' && (
-            <MinigameMath key="modal-minigame-math" game={activeMinigame} onClose={() => setActiveMinigame(null)} addXP={handleAddXP} addDiamonds={handleAddDiamonds} />
+            <MinigameMath key="modal-minigame-math" game={activeMinigame} onClose={() => setActiveMinigame(null)} addXP={handleAddXP} addDiamonds={handleAddDiamonds} isLight={isLight} />
           )}
           {activeMinigame && activeMinigame.type === 'sequence' && (
-            <MinigameSequence key="modal-minigame-sequence" game={activeMinigame} onClose={() => setActiveMinigame(null)} addXP={handleAddXP} addDiamonds={handleAddDiamonds} />
+            <MinigameSequence key="modal-minigame-sequence" game={activeMinigame} onClose={() => setActiveMinigame(null)} addXP={handleAddXP} addDiamonds={handleAddDiamonds} isLight={isLight} />
           )}
           {activeMinigame && activeMinigame.type === 'whack' && (
-            <MinigameWhack key="modal-minigame-whack" game={activeMinigame} onClose={() => setActiveMinigame(null)} addXP={handleAddXP} addDiamonds={handleAddDiamonds} />
+            <MinigameWhack key="modal-minigame-whack" game={activeMinigame} onClose={() => setActiveMinigame(null)} addXP={handleAddXP} addDiamonds={handleAddDiamonds} isLight={isLight} />
           )}
           {activeMinigame && activeMinigame.type === 'stoic' && (
-            <MinigameStoic key="modal-minigame-stoic" game={activeMinigame} onClose={() => setActiveMinigame(null)} addXP={handleAddXP} addDiamonds={handleAddDiamonds} />
+            <MinigameStoic key="modal-minigame-stoic" game={activeMinigame} onClose={() => setActiveMinigame(null)} addXP={handleAddXP} addDiamonds={handleAddDiamonds} isLight={isLight} />
           )}
           {selectedInventoryItem && (
-            <UniversalDetailModal key="modal-item" item={selectedInventoryItem} userDiamonds={userDiamonds} onClose={() => setSelectedInventoryItem(null)} onAction={handleItemAction} inventory={inventory} isShopMode={isShopMode} />
+            <UniversalDetailModal key="modal-item" item={selectedInventoryItem} userDiamonds={userDiamonds} onClose={() => setSelectedInventoryItem(null)} onAction={handleItemAction} inventory={inventory} isShopMode={isShopMode} isLight={isLight} />
           )}
           {showAICalendar && (
             <AICalendarAssistant 
@@ -7186,18 +6599,26 @@ function App() {
   }
 
   return (
-    <div className={`flex items-center justify-center min-h-[100dvh] w-full selection:bg-red-500 selection:text-white transition-colors duration-700 ${isLight ? 'bg-slate-100' : 'bg-[#000]'}`}>
+    <div className={`flex items-center justify-center min-h-[100dvh] w-full max-w-[100vw] overflow-x-clip selection:bg-red-500 selection:text-white transition-colors duration-700 relative ${isLight ? 'bg-slate-100' : 'bg-[#000]'}`}>
       <style dangerouslySetInnerHTML={{
         __html: `
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        .custom-scroll::-webkit-scrollbar { width: 0px; display: none; }
-        body { background-color: #000; color: white; font-family: 'Inter', sans-serif; }
+        * { scrollbar-width: none !important; -ms-overflow-style: none !important; }
+        *::-webkit-scrollbar { display: none !important; width: 0px !important; height: 0px !important; background: transparent !important; }
+        *::-webkit-scrollbar-track, *::-webkit-scrollbar-thumb, *::-webkit-scrollbar-corner { display: none !important; background: transparent !important; }
+        :root, html { color-scheme: dark; scrollbar-width: none !important; -ms-overflow-style: none !important; }
+        body { overflow-x: hidden; overflow-y: auto !important; scrollbar-width: none !important; -ms-overflow-style: none !important; background-color: #000; color: white; font-family: 'Inter', sans-serif; }
         input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.5; cursor: pointer; }
       `}} />
 
-      <div className={`w-full max-w-md min-h-[100dvh] h-[100dvh] relative overflow-hidden flex flex-col transition-all duration-700 ${(BACKGROUNDS[inventory.equippedBg] || BACKGROUNDS['bg_default']).css} ${isLight ? 'theme-light' : ''}`}>
-        <GlobalThemeEffects themeId={inventory.equippedBg} />
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay pointer-events-none z-0"></div>
+      <div 
+        className={`w-full max-w-md min-h-[100dvh] h-[100dvh] relative overflow-hidden flex flex-col transition-all duration-700 ${(BACKGROUNDS[inventory.equippedBg] || BACKGROUNDS['bg_default']).css} ${isLight ? 'theme-light' : ''}`}
+      >
+        <GlobalThemeEffects themeId={inventory.equippedBg} isDesktop={false} isLight={isLight} />
+        <div 
+          className="absolute inset-0 opacity-10 mix-blend-overlay pointer-events-none z-0"
+          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E")` }}
+        />
 
         <AnimatePresence mode="wait">
           {step === 'splash' && (
@@ -7224,8 +6645,8 @@ function App() {
             />
           )}
           {step === 'landing' && (
-            <div className="fixed inset-0 z-[500] bg-[#03050d] overflow-y-auto">
-              <LandingPage onFinish={() => setStep('main')} />
+            <div className="fixed inset-0 z-[500] bg-black overflow-y-auto">
+              <LandingPage onFinish={() => setStep('splash')} lang={lang} setLang={setLang} />
             </div>
           )}
           {step === 'auth' && (
@@ -7361,7 +6782,7 @@ function App() {
                   {mainNav === 'home' && <motion.div key="h" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-10"><HomeDashboard selectedApps={selectedApps} activeChallenge={activeChallenge} onSelectChallenge={setShowChallengeDetail} onOpenActive={() => setShowActiveInteractive(true)} onOpenAll={() => setShowAllChallenges(true)} onCompleteChallenge={handleCompleteChallenge} onPlayMinigame={setActiveMinigame} userGender={userGender} selectedCoach={selectedCoach} setSelectedCoach={setSelectedCoach} completedActivities={completedActivities} setCompletedActivities={setCompletedActivities} userXP={userXP} setUserXP={setUserXP} userDiamonds={userDiamonds} setUserDiamonds={setUserDiamonds} calendarTasks={calendarTasks} setCalendarTasks={setCalendarTasks} blockedAppsConfig={blockedAppsConfig} setBlockedAppsConfig={setBlockedAppsConfig} onOpenAICalendar={() => setShowAICalendar(true)} onOpenAIHabit={() => setShowAIHabit(true)} onOpenCreateHabit={() => setShowCreateHabit(true)} lang={lang} supabaseUserId={supabaseUserId} setCoachChatOpen={setCoachChatOpen} isLight={isLight} toggleMode={toggleMode} onOpenLanding={() => setStep('landing')} onCalendarModalChange={setIsCalendarModalOpen} onHomeSubModalChange={setIsHomeSubModalOpen} /></motion.div>}
                   {mainNav === 'forum' && <motion.div key="f" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-10"><Forum onSelectChat={(p) => { setChatPerson(p); setStep('chat'); }} unreadFilter={unreadFilter} setUnreadFilter={setUnreadFilter} activeTab={activeForumTab} setActiveTab={setActiveForumTab} forumPosts={forumPosts} setForumPosts={setForumPosts} userAvatarItem={SHOP_ITEMS.find(i => i.id === inventory.equippedAvatar)} username={username} /></motion.div>}
                   {mainNav === 'rankings' && <motion.div key="r" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-10"><Rankings userXP={userXP} inventory={inventory} username={username} /></motion.div>}
-                  {mainNav === 'shop' && <motion.div key="s" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-10"><ShopView userDiamonds={userDiamonds} onSelectItem={openShopItem} inventory={inventory} /></motion.div>}
+                  {mainNav === 'shop' && <motion.div key="s" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-10"><ShopView userDiamonds={userDiamonds} onSelectItem={openShopItem} inventory={inventory} isLight={isLight} /></motion.div>}
                   {mainNav === 'profile' && (
                     <motion.div key="p" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-10">
                       <ErrorBoundary>
@@ -7420,15 +6841,15 @@ function App() {
                 {showAllChallenges && <AllChallengesView key="modal-all-challenges" selectedApps={selectedApps} onClose={() => setShowAllChallenges(false)} onSelectChallenge={setShowChallengeDetail} userGender={userGender} />}
                 {showActiveInteractive && activeChallenge && <ActiveChallengeInteractive key="modal-active" challenge={activeChallenge} onClose={() => setShowActiveInteractive(false)} addXP={handleAddXP} addDiamonds={handleAddDiamonds} />}
 
-                {activeMinigame && activeMinigame.type === 'reflex' && <MinigameReflex key="modal-minigame-reflex" game={activeMinigame} onClose={() => setActiveMinigame(null)} addXP={handleAddXP} addDiamonds={handleAddDiamonds} />}
-                {activeMinigame && activeMinigame.type === 'memory' && <MinigameMemory key="modal-minigame-memory" game={activeMinigame} onClose={() => setActiveMinigame(null)} addXP={handleAddXP} addDiamonds={handleAddDiamonds} />}
-                {activeMinigame && activeMinigame.type === 'millionaire' && <MinigameMillionaire key="modal-minigame-millionaire" game={activeMinigame} onClose={() => setActiveMinigame(null)} addXP={handleAddXP} addDiamonds={handleAddDiamonds} />}
-                {activeMinigame && activeMinigame.type === 'math' && <MinigameMath key="modal-minigame-math" game={activeMinigame} onClose={() => setActiveMinigame(null)} addXP={handleAddXP} addDiamonds={handleAddDiamonds} />}
-                {activeMinigame && activeMinigame.type === 'sequence' && <MinigameSequence key="modal-minigame-sequence" game={activeMinigame} onClose={() => setActiveMinigame(null)} addXP={handleAddXP} addDiamonds={handleAddDiamonds} />}
-                {activeMinigame && activeMinigame.type === 'whack' && <MinigameWhack key="modal-minigame-whack" game={activeMinigame} onClose={() => setActiveMinigame(null)} addXP={handleAddXP} addDiamonds={handleAddDiamonds} />}
-                {activeMinigame && activeMinigame.type === 'stoic' && <MinigameStoic key="modal-minigame-stoic" game={activeMinigame} onClose={() => setActiveMinigame(null)} addXP={handleAddXP} addDiamonds={handleAddDiamonds} />}
+                {activeMinigame && activeMinigame.type === 'reflex' && <MinigameReflex key="modal-minigame-reflex" game={activeMinigame} onClose={() => setActiveMinigame(null)} addXP={handleAddXP} addDiamonds={handleAddDiamonds} isLight={isLight} />}
+                {activeMinigame && activeMinigame.type === 'memory' && <MinigameMemory key="modal-minigame-memory" game={activeMinigame} onClose={() => setActiveMinigame(null)} addXP={handleAddXP} addDiamonds={handleAddDiamonds} isLight={isLight} />}
+                {activeMinigame && activeMinigame.type === 'millionaire' && <MinigameMillionaire key="modal-minigame-millionaire" game={activeMinigame} onClose={() => setActiveMinigame(null)} addXP={handleAddXP} addDiamonds={handleAddDiamonds} isLight={isLight} />}
+                {activeMinigame && activeMinigame.type === 'math' && <MinigameMath key="modal-minigame-math" game={activeMinigame} onClose={() => setActiveMinigame(null)} addXP={handleAddXP} addDiamonds={handleAddDiamonds} isLight={isLight} />}
+                {activeMinigame && activeMinigame.type === 'sequence' && <MinigameSequence key="modal-minigame-sequence" game={activeMinigame} onClose={() => setActiveMinigame(null)} addXP={handleAddXP} addDiamonds={handleAddDiamonds} isLight={isLight} />}
+                {activeMinigame && activeMinigame.type === 'whack' && <MinigameWhack key="modal-minigame-whack" game={activeMinigame} onClose={() => setActiveMinigame(null)} addXP={handleAddXP} addDiamonds={handleAddDiamonds} isLight={isLight} />}
+                {activeMinigame && activeMinigame.type === 'stoic' && <MinigameStoic key="modal-minigame-stoic" game={activeMinigame} onClose={() => setActiveMinigame(null)} addXP={handleAddXP} addDiamonds={handleAddDiamonds} isLight={isLight} />}
 
-                {selectedInventoryItem && <UniversalDetailModal key="modal-item" item={selectedInventoryItem} userDiamonds={userDiamonds} onClose={() => setSelectedInventoryItem(null)} onAction={handleItemAction} inventory={inventory} isShopMode={isShopMode} />}
+                {selectedInventoryItem && <UniversalDetailModal key="modal-item" item={selectedInventoryItem} userDiamonds={userDiamonds} onClose={() => setSelectedInventoryItem(null)} onAction={handleItemAction} inventory={inventory} isShopMode={isShopMode} isLight={isLight} />}
 
                 {showAICalendar && <AICalendarAssistant key="modal-ai-calendar" onClose={() => setShowAICalendar(false)} calendarTasks={calendarTasks} setCalendarTasks={setCalendarTasks} isLight={isLight} />}
                 {showStats && <StatsModal key="modal-stats" onClose={() => setShowStats(false)} calendarTasks={calendarTasks} completedCount={completedCount} userXP={userXP} />}
@@ -7623,7 +7044,9 @@ function App() {
 export default function SafeApp() {
   return (
     <ErrorBoundary>
-      <App />
+      <ScreenAdaptationProvider>
+        <App />
+      </ScreenAdaptationProvider>
     </ErrorBoundary>
   );
 }

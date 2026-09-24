@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <!-- Página principal / Landing -->
+  <url>
+    <loc>https://ais-pre-rtaadb6u3dcag6l57ekglp-188665010574.us-east5.run.app/</loc>
+    <lastmod>2026-09-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ais-pre-rtaadb6u3dcag6l57ekglp-188665010574.us-east5.run.app/?lang=es" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://ais-pre-rtaadb6u3dcag6l57ekglp-188665010574.us-east5.run.app/?lang=en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ais-pre-rtaadb6u3dcag6l57ekglp-188665010574.us-east5.run.app/" />
+  </url>
+
+  <!-- Sección de Productividad -->
+  <url>
+    <loc>https://ais-pre-rtaadb6u3dcag6l57ekglp-188665010574.us-east5.run.app/#productividad</loc>
+    <lastmod>2026-09-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ais-pre-rtaadb6u3dcag6l57ekglp-188665010574.us-east5.run.app/?lang=es#productividad" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://ais-pre-rtaadb6u3dcag6l57ekglp-188665010574.us-east5.run.app/?lang=en#productividad" />
+  </url>
+
+  <!-- Sección de Preguntas Frecuentes y Arquitectura del Comportamiento -->
+  <url>
+    <loc>https://ais-pre-rtaadb6u3dcag6l57ekglp-188665010574.us-east5.run.app/#mas_info</loc>
+    <lastmod>2026-09-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ais-pre-rtaadb6u3dcag6l57ekglp-188665010574.us-east5.run.app/?lang=es#mas_info" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://ais-pre-rtaadb6u3dcag6l57ekglp-188665010574.us-east5.run.app/?lang=en#mas_info" />
+  </url>
+
+  <!-- Planes y Focusly Pro -->
+  <url>
+    <loc>https://ais-pre-rtaadb6u3dcag6l57ekglp-188665010574.us-east5.run.app/#focusly_pro</loc>
+    <lastmod>2026-09-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://ais-pre-rtaadb6u3dcag6l57ekglp-188665010574.us-east5.run.app/?lang=es#focusly_pro" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://ais-pre-rtaadb6u3dcag6l57ekglp-188665010574.us-east5.run.app/?lang=en#focusly_pro" />
+  </url>
+</urlset>

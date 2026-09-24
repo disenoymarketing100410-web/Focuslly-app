@@ -37,16 +37,27 @@ import {
   CheckCircle2,
   Filter,
   Award,
-  Smartphone
+  Smartphone,
+  Globe
 } from 'lucide-react';
 import { InteractiveCalendar } from './InteractiveCalendar';
 import { AppIcon } from './AppIcon';
+import { FocuslyIcon } from './FocuslyLogo';
 import { BADGES, checkAllBadges, BADGE_TIERS } from '../data/badges';
 import { BadgesView } from './BadgesView';
 import { BadgeUnlockModal } from './BadgeUnlockModal';
 import { BadgeDetailModal } from './BadgeDetailModal';
 import { MASTERIES_DATA } from '../data/masteries';
 import { MasteryCourseModal } from './MasteryCourseModal';
+import { MasteriesSectionView } from './mastery/MasteriesSectionView';
+import { FocuslyAvatar3D } from './FocuslyAvatar3D';
+import { FocuslyEnvironment } from './FocuslyEnvironment';
+import { FocuslyProgressionRoad } from './FocuslyProgressionRoad';
+import { FocuslyShopExpanded } from './FocuslyShopExpanded';
+import { FocuslyCelebrationModal } from './FocuslyCelebrationModal';
+import { TITLES, ENVIRONMENTS, OUTFITS, ACCESSORIES } from '../data/focuslyCustomization';
+import { useScreenAdaptation } from './ScreenAdaptationSystem';
+import { TRANSLATIONS, t as translate } from '../data/translations';
 
 const COACHES_DATA = [
   { id: 'sophia', name: 'Sophia', type: 'Perfeccionista Ansioso/a', icon: '🌙', desc: 'Presión académica e Instagram', color: 'from-purple-700 to-indigo-900', borderColor: 'border-purple-500/50', tips: ['Recuerda: 1 like no define tu valor.', 'La perfección es enemiga del progreso.', 'Date permiso de equivocarte.', 'No compares tu interior con el exterior de otros.'] },
@@ -134,13 +145,13 @@ const DEFAULT_VIDEOS = [
 ];
 
 const DEFAULT_MINIGAMES = [
-  { id: 'mg_1', type: 'reflex', title: 'Reflejos Zen', subtitle: '3 Niveles de Atención', desc: 'Prueba de velocidad neuronal. Supera 3 niveles seguidos para ganar la recompensa completa.', icon: Zap, color: 'from-yellow-500 to-orange-600', rewardXP: 30, rewardDia: 10 },
-  { id: 'mg_2', type: 'memory', title: 'Memoriza', subtitle: 'Progresión Visual', desc: 'Encuentra las parejas ocultas. La dificultad aumenta tras cada victoria.', icon: LayoutGrid, color: 'from-blue-500 to-cyan-600', rewardXP: 45, rewardDia: 15 },
-  { id: 'mg_3', type: 'millionaire', title: 'Mente Maestra', subtitle: 'Prueba de 5 Preguntas', desc: 'Demuestra tu cultura general. Responde 5 preguntas seguidas sin margen de error.', icon: Brain, color: 'from-purple-500 to-indigo-600', rewardXP: 60, rewardDia: 20 },
-  { id: 'mg_4', type: 'math', title: 'Genio Matemático', subtitle: 'Agilidad Numérica', desc: 'Resuelve operaciones matemáticas. Fomenta la rapidez mental.', icon: Zap, color: 'from-green-500 to-emerald-600', rewardXP: 40, rewardDia: 10 },
-  { id: 'mg_5', type: 'sequence', title: 'Secuencia Lógica', subtitle: 'Orden y Enfoque', desc: 'Toca los números en orden ascendente. Entrena tu memoria de trabajo.', icon: LayoutGrid, color: 'from-indigo-500 to-purple-600', rewardXP: 35, rewardDia: 10 },
-  { id: 'mg_6', type: 'whack', title: 'Destructor', subtitle: 'Caza de Distracciones', desc: 'Destruye los iconos de distracciones antes de que desaparezcan.', icon: Target, color: 'from-red-500 to-pink-600', rewardXP: 50, rewardDia: 15 },
-  { id: 'mg_7', type: 'stoic', title: 'Sabiduría Estoica', subtitle: 'Ordena la frase', desc: 'Ordena las palabras para formar famosas frases de pensadores estoicos.', icon: BookOpen, color: 'from-slate-500 to-gray-700', rewardXP: 40, rewardDia: 15 }
+  { id: 'mg_1', type: 'reflex', title: 'Reflejos Zen', subtitle: '5 Niveles de Velocidad', desc: 'Prueba de velocidad neuronal con trampas rojas de inhibición de impulsos. Supera los 5 niveles.', icon: Zap, color: 'from-yellow-500 to-orange-600', rewardXP: 50, rewardDia: 20 },
+  { id: 'mg_2', type: 'memory', title: 'Memoriza', subtitle: '5 Niveles de Matriz', desc: 'Encuentra las parejas en cuadrículas progresivas desde 6 hasta 20 cartas con racha de combo.', icon: LayoutGrid, color: 'from-blue-500 to-cyan-600', rewardXP: 60, rewardDia: 25 },
+  { id: 'mg_3', type: 'millionaire', title: 'Mente Maestra', subtitle: 'Trivia de 8 Preguntas', desc: 'Preguntas de ciencia, neurociencia y filosofía con comodines estratégicos 50:50 y Pista del Sabio.', icon: Brain, color: 'from-purple-500 to-indigo-600', rewardXP: 80, rewardDia: 30 },
+  { id: 'mg_4', type: 'math', title: 'Genio Matemático', subtitle: '5 Niveles Contrarreloj', desc: 'Aritmética, operaciones combinadas, álgebra visual y secuencias lógicas con 12s por ronda.', icon: Zap, color: 'from-green-500 to-emerald-600', rewardXP: 60, rewardDia: 20 },
+  { id: 'mg_5', type: 'sequence', title: 'Secuencia Lógica', subtitle: '5 Niveles Cognitivos', desc: 'Orden ascendente, números negativos, descenso inverso y el Test Chimpancé de memoria espacial.', icon: LayoutGrid, color: 'from-indigo-500 to-purple-600', rewardXP: 60, rewardDia: 20 },
+  { id: 'mg_6', type: 'whack', title: 'Destructor', subtitle: '3 Oleadas de Enfoque', desc: 'Destruye distracciones digitales, evita libros de estudio y no toques las bombas de dopamina.', icon: Target, color: 'from-red-500 to-pink-600', rewardXP: 70, rewardDia: 25 },
+  { id: 'mg_7', type: 'stoic', title: 'Sabiduría Estoica', subtitle: '5 Máximas Filosóficas', desc: 'Ordena citas de Epicteto, Marco Aurelio, Séneca y Viktor Frankl descartando palabras distractoras.', icon: BookOpen, color: 'from-slate-500 to-gray-700', rewardXP: 60, rewardDia: 20 }
 ];
 
 export const DesktopLayout = ({
@@ -215,6 +226,7 @@ export const DesktopLayout = ({
 }) => {
   // Navigation sub-states (identical to mobile app)
   const [homeTab, setHomeTab] = useState('desafiate'); // 'desafiate' | 'organizate' | 'crece'
+  const [celebrationData, setCelebrationData] = useState(null);
   const [organizeSubTab, setOrganizeSubTab] = useState('habitos'); // 'habitos' | 'calendario' | 'bloqueador'
   const [forumTab, setForumTab] = useState('comunidad'); // 'comunidad' | 'directos'
   const [forumFilter, setForumFilter] = useState('todos');
@@ -223,6 +235,8 @@ export const DesktopLayout = ({
   const [profileSubView, setProfileSubView] = useState('inventario'); // 'inventario' | 'insignias'
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [selectedMasteryCourse, setSelectedMasteryCourse] = useState(null);
+  const [selectedMasteryInitialClass, setSelectedMasteryInitialClass] = useState(null);
+  const [selectedMasteryInitialChallenge, setSelectedMasteryInitialChallenge] = useState(null);
   const [completedMasteryClasses, setCompletedMasteryClasses] = useState(() => {
     try {
       const saved = localStorage.getItem('focusly_completed_mastery_classes');
@@ -235,6 +249,10 @@ export const DesktopLayout = ({
   const [creceTab, setCreceTab] = useState('maestrias'); // 'maestrias' | 'coaches' | 'videos'
   const [focusRewardToast, setFocusRewardToast] = useState(null);
   const [emergencyTimers, setEmergencyTimers] = useState({});
+
+  // Sistema de Adaptación Inteligente a cualquier tamaño de pantalla
+  const { scale, scalePercent, density, dimensions } = useScreenAdaptation();
+  const isCompactScreen = density === 'compact' || dimensions.height < 840 || dimensions.width < 1360;
 
   const handleCompleteMasteryClass = (cls, mastery) => {
     if (!cls || completedMasteryClasses.includes(cls.id)) return;
@@ -264,7 +282,42 @@ export const DesktopLayout = ({
       title: '¡Clase Completada!',
       desc: `+${xpEarned} XP • +${diaEarned} Diamantes ganados`
     });
+    setCelebrationData({
+      title: '¡Clase de Maestría Superada!',
+      subtitle: cls.title,
+      xpGained: xpEarned,
+      diamondsGained: diaEarned
+    });
     setTimeout(() => setFocusRewardToast(null), 4000);
+  };
+
+  const handleChallengeCelebration = () => {
+    const xpToAdd = activeChallenge?.xp || 200;
+    const diaToAdd = activeChallenge?.diamonds || 50;
+    setCelebrationData({
+      title: lang === 'en' ? 'Challenge Day Conquered!' : '¡Día de Desafío Conquistado!',
+      subtitle: activeChallenge?.title 
+        ? (lang === 'en' ? `Confirmed progress on "${activeChallenge.title}".` : `Progreso confirmado en "${activeChallenge.title}".`)
+        : (lang === 'en' ? 'Your consistency is elevating your attention span.' : 'Tu constancia está elevando tu capacidad de atención.'),
+      xpGained: xpToAdd,
+      diamondsGained: diaToAdd
+    });
+    if (onCompleteChallenge) {
+      onCompleteChallenge();
+    }
+  };
+
+  const handleClaimFocusTime = () => {
+    const xpToAdd = 150;
+    const diaToAdd = 40;
+    setUserXP?.(prev => prev + xpToAdd);
+    setUserDiamonds?.(prev => prev + diaToAdd);
+    setCelebrationData({
+      title: lang === 'en' ? 'Screen-Free Time Claimed!' : '¡Tiempo Libre de Redes Reclamado!',
+      subtitle: lang === 'en' ? 'You blocked distractions and protected 60 minutes of conscious life.' : 'Has bloqueado distracciones y protegido 60 minutos de vida consciente.',
+      xpGained: xpToAdd,
+      diamondsGained: diaToAdd
+    });
   };
 
   // New post modal state in forum
@@ -272,22 +325,34 @@ export const DesktopLayout = ({
   const [newPostContent, setNewPostContent] = useState('');
   const [newPostTag, setNewPostTag] = useState('Estudio');
 
-  const t = uiText?.[lang] || uiText?.['es'] || {
-    home: 'Inicio',
-    forum: 'Comunidad',
-    rankings: 'Rankings',
-    shop: 'Tienda',
-    profile: 'Perfil',
-    challenge: 'Desafíate',
-    organize: 'Organízate',
-    grow: 'Crece',
-    aiRec: 'Recomendaciones IA'
-  };
+  const t = (path, fallback) => translate(lang, path, fallback);
+  Object.assign(t, uiText?.[lang] || TRANSLATIONS[lang] || TRANSLATIONS['es']);
 
   const recommendations = [
-    { id: 'rec_1', title: 'Bloque de Enfoque Profundo (45 min)', desc: 'Desactiva notificaciones de redes seleccionadas para entrar en flujo.', icon: '🧠', color: 'from-blue-900/40 to-black', border: 'border-blue-500/30' },
-    { id: 'rec_2', title: 'Pausa Activa sin Pantalla (10 min)', desc: 'Camina e hidrátate antes del siguiente bloque de estudio.', icon: '🌿', color: 'from-emerald-900/40 to-black', border: 'border-emerald-500/30' },
-    { id: 'rec_3', title: 'Repaso con Técnica Feynman', desc: 'Explica lo aprendido en voz alta sin mirar tus notas para consolidar.', icon: '📚', color: 'from-purple-900/40 to-black', border: 'border-purple-500/30' }
+    { 
+      id: 'rec_1', 
+      title: t('recommendations.deepFocus', 'Bloque de Enfoque Profundo (45 min)'), 
+      desc: t('recommendations.deepFocusDesc', 'Desactiva notificaciones de redes seleccionadas para entrar en flujo.'), 
+      icon: '🧠', 
+      color: 'from-blue-900/40 to-black', 
+      border: 'border-blue-500/30' 
+    },
+    { 
+      id: 'rec_2', 
+      title: t('recommendations.activeBreak', 'Pausa Activa sin Pantalla (10 min)'), 
+      desc: t('recommendations.activeBreakDesc', 'Camina e hidrátate antes del siguiente bloque de estudio.'), 
+      icon: '🌿', 
+      color: 'from-zinc-900 to-black', 
+      border: 'border-white/10' 
+    },
+    { 
+      id: 'rec_3', 
+      title: t('recommendations.feynman', 'Repaso con Técnica Feynman'), 
+      desc: t('recommendations.feynmanDesc', 'Explica lo aprendido en voz alta sin mirar tus notas para consolidar.'), 
+      icon: '📚', 
+      color: 'from-purple-900/40 to-black', 
+      border: 'border-purple-500/30' 
+    }
   ];
 
   // User Level & XP
@@ -352,57 +417,70 @@ export const DesktopLayout = ({
   // Equipped Theme
   const currentBgTheme = backgroundsData[inventory?.equippedBg] || backgroundsData['bg_default'] || { css: 'bg-[#000]' };
 
-  // Main 5 Navigation Items (Identical to Mobile)
+  // EXACTLY the 5 Original Main Navigation Sections of Focusly:
+  // FORO | RANKINGS | HOME | SHOP | PERFIL (Home is the Center)
   const navItems = [
-    { id: 'home', icon: Home, label: t.home || 'Inicio' },
-    { id: 'forum', icon: Megaphone, label: t.forum || 'Comunidad' },
-    { id: 'rankings', icon: Trophy, label: t.rankings || 'Rankings' },
-    { id: 'shop', icon: ShoppingBag, label: t.shop || 'Tienda' },
-    { id: 'profile', icon: User, label: t.profile || 'Perfil' }
+    { id: 'forum', icon: Megaphone, label: t('nav.forum', 'Foro') },
+    { id: 'rankings', icon: Trophy, label: t('nav.rankings', 'Rankings') },
+    { id: 'home', icon: Home, label: t('nav.home', 'Inicio') },
+    { id: 'shop', icon: ShoppingBag, label: t('nav.shop', 'Tienda') },
+    { id: 'profile', icon: User, label: t('nav.profile', 'Perfil') }
   ];
+
+  const handleNavClick = (itemId) => {
+    setActiveTab(itemId);
+  };
 
   const equippedAvatarItem = (shopItemsList || []).find(i => i.id === inventory?.equippedAvatar);
 
   return (
-    <div className={`w-full min-h-screen flex flex-col relative overflow-hidden ${isLight ? 'bg-[#fafafa] text-zinc-900' : `${currentBgTheme.css} text-white`} selection:bg-white selection:text-black font-sans`}>
+    <div 
+      className={`w-full min-h-screen flex flex-col relative overflow-x-clip ${isLight ? 'bg-[#fafafa] text-zinc-900' : `${currentBgTheme.css} text-white`} selection:bg-white selection:text-black font-sans transition-all duration-300`}
+    >
       {/* Background Animated Themes */}
-      {GlobalThemeEffects && !isLight && inventory?.equippedBg && (
-        <GlobalThemeEffects themeId={inventory.equippedBg} />
+      {GlobalThemeEffects && (
+        <GlobalThemeEffects themeId={inventory?.equippedBg || 'bg_default'} isDesktop={true} isLight={isLight} />
       )}
 
-      {/* Subtle Grain Overlay */}
-      <div className="fixed inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5 mix-blend-overlay pointer-events-none z-0" />
+      {/* Subtle Grain Overlay (Zero Network Latency Data-URI) */}
+      <div 
+        className="fixed inset-0 opacity-[0.03] pointer-events-none z-0" 
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+        }} 
+      />
 
       {/* TOP BAR / DESKTOP HEADER */}
-      <header className={`sticky top-0 z-50 w-full border-b backdrop-blur-2xl transition-all duration-300 ${isLight ? 'bg-white/85 border-zinc-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)]' : 'bg-black/90 border-white/10 shadow-2xl'}`}>
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between gap-6">
+      <header className={`sticky top-0 z-50 w-full border-b backdrop-blur-xl transition-all duration-300 ${isLight ? 'bg-white/85 border-zinc-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)]' : 'bg-black/90 border-white/10 shadow-2xl'}`}>
+        <div className="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-10 2xl:px-14 h-20 2xl:h-24 flex items-center justify-between gap-3 lg:gap-6">
           
           {/* Focusly Logo & Brand */}
-          <div className="flex items-center gap-3 cursor-pointer group select-none" onClick={() => setActiveTab('home')}>
-            <div className="w-10 h-10 rounded-2xl flex items-center justify-center overflow-hidden transition-transform duration-300 group-hover:scale-105">
-              <img src="/focusly-logo-icon.png" alt="Focusly" className="w-full h-full object-contain" />
+          <div className="flex items-center gap-3.5 cursor-pointer group select-none shrink-0" onClick={() => setActiveTab('home')}>
+            <div className="transition-transform duration-300 group-hover:scale-105 shrink-0">
+              <FocuslyIcon size={38} className="2xl:w-[42px] 2xl:h-[42px] drop-shadow-[0_2px_12px_rgba(255,255,255,0.2)]" />
             </div>
-            <span className={`text-2xl font-black tracking-tight uppercase leading-none ${isLight ? 'text-zinc-900' : 'text-white'}`}>
+            <span className={`text-xl sm:text-2xl 2xl:text-3xl font-black tracking-tight uppercase leading-none hidden sm:inline ${isLight ? 'text-zinc-900' : 'text-white'}`}>
               FOCUSLY
             </span>
           </div>
 
-          {/* MAIN 5 NAV TABS */}
-          <nav className={`flex items-center gap-1.5 p-1.5 rounded-2xl border backdrop-blur-md shadow-inner ${isLight ? 'bg-zinc-100/90 border-zinc-200/80' : 'bg-white/[0.04] border-white/10'}`}>
+          {/* MAIN 5 NAV TABS: FORO | RANKINGS | HOME | SHOP | PERFIL */}
+          <nav className={`flex items-center gap-1 sm:gap-1.5 2xl:gap-2.5 p-1 sm:p-1.5 2xl:p-2 rounded-2xl border backdrop-blur-md shadow-inner ${isLight ? 'bg-zinc-100/90 border-zinc-200/80' : 'bg-white/[0.04] border-white/10'}`}>
             {navItems.map(item => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
+              const isCenterHome = item.id === 'home';
               return (
                 <button
                   key={item.id}
-                  onClick={() => setActiveTab(item.id)}
-                  className={`relative flex items-center gap-2.5 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-200 ${
+                  onClick={() => handleNavClick(item.id)}
+                  className={`relative flex items-center gap-1.5 sm:gap-2.5 px-3 sm:px-4 lg:px-6 2xl:px-8 py-2 sm:py-2.5 2xl:py-3.5 rounded-xl text-[11px] sm:text-xs lg:text-sm 2xl:text-base font-black uppercase tracking-wider transition-all duration-200 whitespace-nowrap cursor-pointer ${
                     isActive 
-                      ? (isLight ? 'bg-white text-zinc-900 shadow-sm border border-zinc-200/80' : 'bg-white text-black shadow-lg shadow-white/10')
+                      ? (isLight ? 'bg-white text-zinc-900 shadow-sm border border-zinc-200/80 scale-105' : 'bg-white text-black shadow-lg shadow-white/10 scale-105')
                       : (isLight ? 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200/40' : 'text-white/50 hover:text-white hover:bg-white/10')
-                  }`}
+                  } ${isCenterHome && !isActive ? (isLight ? 'text-zinc-800 font-extrabold' : 'text-zinc-300 font-extrabold') : ''}`}
                 >
-                  <Icon size={16} strokeWidth={isActive ? 2.5 : 1.8} />
+                  <Icon size={16} className="2xl:w-5 2xl:h-5" strokeWidth={isActive ? 2.5 : 1.8} />
                   <span>{item.label}</span>
                 </button>
               );
@@ -410,54 +488,65 @@ export const DesktopLayout = ({
           </nav>
 
           {/* USER STATS & CONTROLS */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Streak */}
-            <div className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border transition-all ${isLight ? 'bg-white border-zinc-200 text-zinc-800 shadow-sm' : 'bg-white/5 border-white/10 text-white'}`} title="Racha de Días">
-              <Flame size={16} className="text-orange-500 fill-orange-500" />
+            <div className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-2 rounded-xl border transition-all ${isLight ? 'bg-white border-zinc-200 text-zinc-800 shadow-sm' : 'bg-white/5 border-white/10 text-white'}`} title={lang === 'en' ? 'Daily Streak' : 'Racha de Días'}>
+              <Flame size={15} className="text-orange-500 fill-orange-500" />
               <span className="text-xs font-black">{loginStreak || 1}d</span>
             </div>
 
             {/* Diamonds */}
-            <div className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border transition-all ${isLight ? 'bg-white border-zinc-200 text-zinc-800 shadow-sm' : 'bg-white/5 border-white/10 text-white'}`} title="Diamantes">
-              <Gem size={16} className="text-cyan-500 fill-cyan-500" />
+            <div className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-2 rounded-xl border transition-all ${isLight ? 'bg-white border-zinc-200 text-zinc-800 shadow-sm' : 'bg-white/5 border-white/10 text-white'}`} title={lang === 'en' ? 'Diamonds' : 'Diamantes'}>
+              <Gem size={15} className="text-sky-500 fill-sky-500/20" />
               <span className="text-xs font-black">{userDiamonds || 0}</span>
             </div>
 
             {/* Level & XP */}
-            <div className={`flex items-center gap-3 px-4 py-2 rounded-xl border ${isLight ? 'bg-white border-zinc-200 text-zinc-800 shadow-sm' : 'bg-white/5 border-white/10 text-white'}`}>
+            <div className={`hidden md:flex items-center gap-2.5 sm:gap-3 px-3 sm:px-4 py-2 rounded-xl border ${isLight ? 'bg-white border-zinc-200 text-zinc-800 shadow-sm' : 'bg-white/5 border-white/10 text-white'}`}>
               <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black ${isLight ? 'bg-zinc-900 text-white' : 'bg-white text-black'}`}>
                 {currentLevel}
               </div>
               <div className="flex flex-col">
-                <span className="text-[9px] font-black uppercase tracking-wider">NIVEL {currentLevel}</span>
-                <div className={`w-20 h-1.5 rounded-full overflow-hidden mt-0.5 ${isLight ? 'bg-zinc-200' : 'bg-white/20'}`}>
+                <span className="text-[9px] font-black uppercase tracking-wider">{lang === 'en' ? 'LEVEL' : 'NIVEL'} {currentLevel}</span>
+                <div className={`w-16 lg:w-20 h-1.5 rounded-full overflow-hidden mt-0.5 ${isLight ? 'bg-zinc-200' : 'bg-white/20'}`}>
                   <div className={`h-full rounded-full transition-all ${isLight ? 'bg-gradient-to-r from-blue-600 to-indigo-600' : 'bg-white'}`} style={{ width: `${levelProgress}%` }} />
                 </div>
               </div>
             </div>
 
-            {/* Switch to Mobile Mode */}
-            {toggleDeviceMode && (
+            {/* Language Switcher */}
+            {setLang && (
               <button
-                onClick={toggleDeviceMode}
-                className={`p-2.5 rounded-xl border transition-all hover:scale-105 flex items-center gap-1.5 ${
+                onClick={() => setLang(lang === 'en' ? 'es' : 'en')}
+                className={`flex items-center gap-1.5 px-3 py-2 sm:py-2.5 rounded-xl border transition-all hover:scale-105 cursor-pointer text-xs font-black uppercase tracking-wider ${
                   isLight ? 'bg-white hover:bg-zinc-50 border-zinc-200 text-zinc-700 shadow-sm' : 'bg-white/5 hover:bg-white/10 border-white/10 text-white'
                 }`}
-                title="Cambiar a vista móvil"
+                title={lang === 'en' ? 'Cambiar a Español' : 'Switch to English'}
               >
-                <Smartphone size={16} />
-                <span className="hidden xl:inline text-[10px] font-bold uppercase tracking-wider">Móvil</span>
+                <Globe size={15} className="text-sky-400" />
+                <span className="font-black">{lang === 'en' ? 'ES' : 'EN'}</span>
               </button>
             )}
 
             {/* Theme Toggle */}
             <button
               onClick={toggleMode}
-              className={`p-2.5 rounded-xl border transition-all hover:scale-105 ${isLight ? 'bg-white hover:bg-zinc-50 border-zinc-200 text-zinc-700 shadow-sm' : 'bg-white/5 hover:bg-white/10 border-white/10 text-white'}`}
-              title={isLight ? 'Modo Oscuro' : 'Modo Claro'}
+              className={`p-2 sm:p-2.5 rounded-xl border transition-all hover:scale-105 ${isLight ? 'bg-white hover:bg-zinc-50 border-zinc-200 text-zinc-700 shadow-sm' : 'bg-white/5 hover:bg-white/10 border-white/10 text-white'}`}
+              title={isLight ? (lang === 'en' ? 'Dark Mode' : 'Modo Oscuro') : (lang === 'en' ? 'Light Mode' : 'Modo Claro')}
             >
               {isLight ? <Moon size={16} /> : <Sun size={16} />}
             </button>
+
+            {/* Device Mode Toggle */}
+            {toggleDeviceMode && (
+              <button
+                onClick={toggleDeviceMode}
+                className={`p-2 sm:p-2.5 rounded-xl border transition-all hover:scale-105 ${isLight ? 'bg-white hover:bg-zinc-50 border-zinc-200 text-zinc-700 shadow-sm' : 'bg-white/5 hover:bg-white/10 border-white/10 text-white'}`}
+                title={lang === 'en' ? 'Mobile Mode' : 'Modo Móvil'}
+              >
+                <Smartphone size={16} />
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -483,53 +572,287 @@ export const DesktopLayout = ({
         )}
       </AnimatePresence>
 
-      {/* MAIN BODY CONTAINER */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-6 md:p-8 pb-28 relative z-10">
+      {/* MAIN BODY CONTAINER - ADAPTA AUTOMÁTICAMENTE A CUALQUIER RESOLUCIÓN */}
+      <main 
+        className={`flex-1 max-w-[1720px] w-full mx-auto relative z-10 transition-all duration-300 ${
+          isCompactScreen 
+            ? 'p-4 sm:p-5 lg:p-6 2xl:p-10 pb-20 2xl:pb-28' 
+            : 'p-4 sm:p-6 lg:p-8 2xl:p-14 pb-24 2xl:pb-36'
+        }`}
+      >
         
         {/* ======================================================== */}
-        {/* 1. INICIO (HOME) VIEW */}
+        {/* 1. INICIO (HOME HUB) & PRIMARY ACTION REALMS */}
         {/* ======================================================== */}
-        {activeTab === 'home' && (
+        {(activeTab === 'home' || activeTab === 'desafiate' || activeTab === 'organizate' || activeTab === 'crece') && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
             
-            {/* SUB-MENU TABS (DESAFÍATE / ORGANÍZATE / CRECE) */}
-            <div className="flex justify-center">
-              <div className={`inline-flex items-center gap-2 p-1.5 rounded-full border backdrop-blur-md shadow-sm ${isLight ? 'bg-zinc-100 border-zinc-200/80' : 'bg-black/80 border-white/10'}`}>
+            {/* 1. HERO COMPOSITION (PROTAGONISTA PRINCIPAL): LIVING AVATAR & ENVIRONMENT (LEFT) + ACTIVE MISSION & FOCUS RECLAIM (RIGHT) */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 2xl:gap-8 items-stretch">
+              
+              {/* HERO LEFT (5 COLS / 4 COLS ON 2XL): LIVING AVATAR & CUSTOM ENVIRONMENT */}
+              <div className={`lg:col-span-5 2xl:col-span-4 rounded-[28px] lg:rounded-[36px] 2xl:rounded-[44px] border p-1 overflow-hidden relative shadow-2xl flex flex-col justify-between min-h-[380px] sm:min-h-[420px] lg:min-h-[450px] 2xl:min-h-[580px] ${
+                isLight ? 'bg-white border-zinc-200/80 text-zinc-900 shadow-zinc-900/5' : 'bg-zinc-950 border-white/10 text-white'
+              }`}>
+                <FocuslyEnvironment
+                  environmentId={inventory?.equippedBg || 'env_focus'}
+                  userXP={userXP}
+                  isLight={isLight}
+                  className="rounded-[24px] lg:rounded-[32px] 2xl:rounded-[40px] p-5 sm:p-6 2xl:p-8 flex flex-col justify-between h-full"
+                >
+                  {/* Top Header of Realm: Title + Realm Tier */}
+                  <div className="flex items-center justify-between z-10">
+                    <div className="flex items-center gap-2">
+                      <span className="px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-[10px] sm:text-[11px] 2xl:text-xs font-black uppercase tracking-widest bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center gap-1.5 shadow-sm">
+                        <Crown size={14} />
+                        {TITLES.find(t => t.id === inventory?.equippedTitle)?.name || 'Guardián del Enfoque'}
+                      </span>
+                    </div>
+                    <span className={`text-[10px] sm:text-[11px] 2xl:text-xs font-mono font-bold uppercase px-2.5 sm:px-3 py-1 rounded-full border ${
+                      isLight ? 'bg-white/80 border-zinc-200 text-zinc-700' : 'bg-black/60 border-white/15 text-zinc-300'
+                    }`}>
+                      Nivel {currentLevel}
+                    </span>
+                  </div>
+
+                  {/* 3D Interactive Living Avatar */}
+                  <div className="my-auto py-3 sm:py-5 flex flex-col items-center justify-center z-10">
+                    <FocuslyAvatar3D
+                      avatarId={inventory?.equippedAvatar || 'a_base'}
+                      outfitId={inventory?.equippedOutfit || 'outfit_base'}
+                      accessoryId={inventory?.equippedAccessory || 'acc_none'}
+                      size="hero"
+                      showPedestal={true}
+                      interactive={true}
+                      className="scale-95 sm:scale-100 lg:scale-105 2xl:scale-115 transition-transform"
+                    />
+                  </div>
+
+                  {/* Bottom Footer: User Greeting & Shop Customizer CTA */}
+                  <div className="pt-4 2xl:pt-6 border-t border-white/10 flex items-center justify-between z-10">
+                    <div>
+                      <div className="text-sm 2xl:text-base font-black uppercase tracking-tight">{username || (lang === 'en' ? 'Focus Student' : 'Estudiante de Enfoque')}</div>
+                      <div className={`text-xs 2xl:text-sm font-medium ${isLight ? 'text-zinc-500' : 'text-zinc-400'}`}>
+                        🔥 {loginStreak || 1} {lang === 'en' ? 'days active streak' : 'días de racha activa'}
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setActiveTab('shop');
+                      }}
+                      className={`px-4.5 2xl:px-6 py-2.5 2xl:py-3 rounded-xl 2xl:rounded-2xl text-xs 2xl:text-sm font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 ${
+                        isLight ? 'bg-zinc-900 text-white hover:bg-zinc-800' : 'bg-white text-black hover:bg-zinc-200'
+                      }`}
+                    >
+                      <Sparkles size={16} />
+                      <span>{lang === 'en' ? 'Customize' : 'Personalizar'}</span>
+                    </button>
+                  </div>
+                </FocuslyEnvironment>
+              </div>
+
+              {/* HERO RIGHT (7 COLS / 8 COLS ON 2XL): PROTAGONIST MISSION & RECLAIM SAVED SCREEN TIME */}
+              <div className="lg:col-span-7 2xl:col-span-8 flex flex-col justify-between gap-6">
+                
+                {/* Active Mission Protagonist Card */}
+                {activeChallenge ? (
+                  <div className={`p-8 2xl:p-10 rounded-[36px] 2xl:rounded-[44px] border relative overflow-hidden backdrop-blur-xl flex-1 flex flex-col justify-between shadow-2xl transition-all ${
+                    isLight ? 'bg-white border-zinc-200/80 text-zinc-900 shadow-zinc-900/5' : 'bg-zinc-950/90 border-white/10 text-white'
+                  }`}>
+                    {/* Glow decorativo */}
+                    <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+
+                    <div>
+                      <div className="flex justify-between items-start mb-6">
+                        <div className="space-y-1">
+                          <span className={`px-3.5 py-1 rounded-full text-[10px] 2xl:text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5 ${
+                            isLight ? 'bg-sky-50 text-sky-800 border border-sky-200' : 'bg-sky-950/40 text-sky-300 border border-sky-500/30'
+                          }`}>
+                            <Zap size={14} className="text-amber-500" />
+                            {lang === 'en' ? "Today's Featured Quest" : 'Misión Protagonista de Hoy'}
+                          </span>
+                          <h3 className="text-3xl 2xl:text-4xl font-black uppercase tracking-tight mt-3">
+                            {activeChallenge.title}
+                          </h3>
+                          <p className={`text-xs 2xl:text-sm font-medium mt-1 ${isLight ? 'text-zinc-500' : 'text-zinc-400'}`}>
+                            {activeChallenge.subtitle}
+                          </p>
+                        </div>
+
+                        <div className="text-right">
+                          <span className={`text-4xl 2xl:text-5xl font-black ${isLight ? 'text-sky-600' : 'text-sky-400'}`}>
+                            {Math.max(1, Math.round((activeChallenge.currentDay / activeChallenge.duration) * 100))}%
+                          </span>
+                          <span className={`text-[10px] 2xl:text-xs font-black uppercase tracking-wider block ${isLight ? 'text-zinc-400' : 'text-zinc-500'}`}>
+                            {lang === 'en' ? 'Total Progress' : 'Progreso Total'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Days Counter & Visual Curved Bar */}
+                      <div className="flex items-baseline gap-2 my-6">
+                        <span className="text-6xl 2xl:text-7xl font-black tracking-tight">{activeChallenge.currentDay}</span>
+                        <span className={`text-xl 2xl:text-2xl font-bold uppercase tracking-wider ${isLight ? 'text-zinc-400' : 'text-zinc-500'}`}>
+                          / {activeChallenge.duration} {lang === 'en' ? 'Days Conquered' : 'Días Superados'}
+                        </span>
+                      </div>
+
+                      <div className={`h-4 2xl:h-5 rounded-full overflow-hidden border mb-6 p-0.5 ${
+                        isLight ? 'bg-zinc-100 border-zinc-200' : 'bg-black/60 border-white/10'
+                      }`}>
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${Math.max(5, (activeChallenge.currentDay / activeChallenge.duration) * 100)}%` }}
+                          transition={{ duration: 1, ease: "easeOut" }}
+                          className="h-full rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-500 shadow-sm"
+                        />
+                      </div>
+                    </div>
+
+                    {/* CTAs */}
+                    <div className="flex flex-wrap sm:flex-nowrap gap-3 pt-4 border-t border-white/10">
+                      <button
+                        onClick={onOpenActiveChallenge}
+                        className={`flex-1 py-4 2xl:py-5 px-6 2xl:px-8 rounded-2xl font-black uppercase text-xs 2xl:text-sm tracking-widest transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer ${
+                          isLight ? 'bg-zinc-900 text-white hover:bg-zinc-800' : 'bg-white text-black hover:bg-zinc-200'
+                        }`}
+                      >
+                        <Play size={18} fill="currentColor" />
+                        <span>{lang === 'en' ? 'Continue Daily Quest' : 'Continuar Misión Diaria'}</span>
+                      </button>
+
+                      <button
+                        onClick={handleChallengeCelebration}
+                        className={`py-4 2xl:py-5 px-6 2xl:px-8 rounded-2xl border font-black uppercase text-xs 2xl:text-sm tracking-widest transition-all cursor-pointer flex items-center gap-2 ${
+                          isLight ? 'border-zinc-200 hover:bg-zinc-100 text-zinc-800' : 'border-white/20 hover:bg-white/10 text-white'
+                        }`}
+                      >
+                        <CheckCircle2 size={18} className="text-emerald-400" />
+                        <span>{lang === 'en' ? 'Complete Today' : 'Completar Hoy'}</span>
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className={`p-8 2xl:p-10 rounded-[36px] 2xl:rounded-[44px] border relative overflow-hidden backdrop-blur-xl flex-1 flex flex-col items-center justify-center text-center space-y-4 ${
+                    isLight ? 'bg-white border-zinc-200/80 shadow-md text-zinc-900' : 'bg-zinc-950/80 border-white/10 shadow-2xl text-white'
+                  }`}>
+                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center border ${
+                      isLight ? 'bg-zinc-100 text-zinc-700 border-zinc-200' : 'bg-zinc-900 text-zinc-300 border-zinc-800'
+                    }`}>
+                      <Target size={32} />
+                    </div>
+                    <div className="space-y-1">
+                      <h3 className="text-2xl font-black uppercase tracking-tight">{lang === 'en' ? 'No Active Quest' : 'Sin Misión Activa'}</h3>
+                      <p className={`text-xs max-w-sm ${isLight ? 'text-zinc-500' : 'text-zinc-400'}`}>
+                        {lang === 'en' ? 'Choose your next detox challenge and gain focus experience.' : 'Elige tu próximo reto de desintoxicación y gana experiencia de enfoque.'}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setHomeTab('desafiate');
+                      }}
+                      className={`px-8 py-3.5 rounded-2xl font-black uppercase text-xs tracking-widest transition-all shadow-lg cursor-pointer ${
+                        isLight ? 'bg-zinc-900 text-white hover:bg-zinc-800' : 'bg-white text-black hover:bg-zinc-200'
+                      }`}
+                    >
+                      {lang === 'en' ? 'Explore Challenges' : 'Explorar Desafíos'}
+                    </button>
+                  </div>
+                )}
+
+                {/* FOCUS TIME RECLAIM STATION - ULTRA CLEAN & PROFESSIONAL */}
+                <div className={`p-6 2xl:p-7 rounded-[28px] 2xl:rounded-[32px] border flex flex-col sm:flex-row items-center justify-between gap-4 transition-all ${
+                  isLight 
+                    ? 'bg-white border-zinc-200 text-zinc-900 shadow-sm' 
+                    : 'bg-[#121318] border-white/10 text-white shadow-xl shadow-black/20'
+                }`}>
+                  <div className="flex items-center gap-4 text-center sm:text-left">
+                    <div className={`w-12 h-12 2xl:w-14 2xl:h-14 rounded-2xl border flex items-center justify-center shrink-0 ${
+                      isLight ? 'bg-blue-50 border-blue-200 text-blue-600' : 'bg-blue-500/10 border-blue-500/20 text-blue-400'
+                    }`}>
+                      <Shield size={24} className="2xl:w-7 2xl:h-7" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 justify-center sm:justify-start">
+                        <span className={`w-2 h-2 rounded-full ${isLight ? 'bg-blue-500' : 'bg-blue-400'} animate-pulse`} />
+                        <span className={`text-[11px] 2xl:text-xs font-black uppercase tracking-widest ${
+                          isLight ? 'text-blue-600' : 'text-blue-400'
+                        }`}>
+                          {lang === 'en' ? 'Anti-Distraction Shield' : 'Escudo Anti-Distracciones'}
+                        </span>
+                      </div>
+                      <div className="text-sm 2xl:text-base font-bold mt-0.5">
+                        {lang === 'en' ? 'You protected ~60 min of focus today' : 'Has protegido ~60 min de atención hoy'}
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={handleClaimFocusTime}
+                    className={`px-6 py-3.5 rounded-xl 2xl:rounded-2xl font-black uppercase text-xs 2xl:text-sm tracking-wider transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 shadow-md active:scale-98 ${
+                      isLight
+                        ? 'bg-zinc-900 hover:bg-zinc-800 text-white shadow-zinc-900/10'
+                        : 'bg-white hover:bg-zinc-100 text-zinc-950 shadow-white/10'
+                    }`}
+                  >
+                    <Zap size={15} className="fill-amber-400 text-amber-400" />
+                    <span>{lang === 'en' ? 'Claim +150 XP and +40 💎' : 'Reclamar +150 XP y +40 💎'}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. SUB-MENU TABS DE HOME: DESAFÍATE | ORGANÍZATE | CRECE */}
+            <div className="flex justify-center pt-2">
+              <div className={`inline-flex items-center gap-2 p-1.5 2xl:p-2.5 rounded-full border backdrop-blur-md shadow-sm ${
+                isLight ? 'bg-zinc-100 border-zinc-200/80' : 'bg-black/80 border-white/10'
+              }`}>
                 <button
                   onClick={() => setHomeTab('desafiate')}
-                  className={`px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-200 ${
+                  className={`px-7 lg:px-9 2xl:px-12 py-3 2xl:py-4 rounded-full text-xs lg:text-sm 2xl:text-base font-black uppercase tracking-wider transition-all duration-200 cursor-pointer flex items-center gap-2.5 ${
                     homeTab === 'desafiate'
-                      ? (isLight ? 'bg-white text-zinc-900 shadow-sm border border-zinc-200/80' : 'bg-white text-black shadow-lg shadow-white/10')
-                      : (isLight ? 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200/40' : 'text-white/40 hover:text-white hover:bg-white/5')
+                      ? (isLight ? 'bg-white text-zinc-900 shadow-md border border-zinc-200/80 scale-105' : 'bg-white text-black shadow-lg shadow-white/10 scale-105')
+                      : (isLight ? 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200/40' : 'text-white/50 hover:text-white hover:bg-white/5')
                   }`}
                 >
-                  {t.challenge || 'Desafíate'}
+                  <Target size={18} className="2xl:w-5 2xl:h-5 text-sky-500" />
+                  <span>{t.challenge || 'Desafíate'}</span>
                 </button>
                 <button
                   onClick={() => setHomeTab('organizate')}
-                  className={`px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-200 ${
+                  className={`px-7 lg:px-9 2xl:px-12 py-3 2xl:py-4 rounded-full text-xs lg:text-sm 2xl:text-base font-black uppercase tracking-wider transition-all duration-200 cursor-pointer flex items-center gap-2.5 ${
                     homeTab === 'organizate'
-                      ? (isLight ? 'bg-white text-zinc-900 shadow-sm border border-zinc-200/80' : 'bg-white text-black shadow-lg shadow-white/10')
-                      : (isLight ? 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200/40' : 'text-white/40 hover:text-white hover:bg-white/5')
+                      ? (isLight ? 'bg-white text-zinc-900 shadow-md border border-zinc-200/80 scale-105' : 'bg-white text-black shadow-lg shadow-white/10 scale-105')
+                      : (isLight ? 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200/40' : 'text-white/50 hover:text-white hover:bg-white/5')
                   }`}
                 >
-                  {t.organize || 'Organízate'}
+                  <Clock size={18} className="2xl:w-5 2xl:h-5 text-purple-400" />
+                  <span>{t.organize || 'Organízate'}</span>
                 </button>
                 <button
                   onClick={() => setHomeTab('crece')}
-                  className={`px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-200 ${
+                  className={`px-7 lg:px-9 2xl:px-12 py-3 2xl:py-4 rounded-full text-xs lg:text-sm 2xl:text-base font-black uppercase tracking-wider transition-all duration-200 cursor-pointer flex items-center gap-2.5 ${
                     homeTab === 'crece'
-                      ? (isLight ? 'bg-white text-zinc-900 shadow-sm border border-zinc-200/80' : 'bg-white text-black shadow-lg shadow-white/10')
-                      : (isLight ? 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200/40' : 'text-white/40 hover:text-white hover:bg-white/5')
+                      ? (isLight ? 'bg-white text-zinc-900 shadow-md border border-zinc-200/80 scale-105' : 'bg-white text-black shadow-lg shadow-white/10 scale-105')
+                      : (isLight ? 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200/40' : 'text-white/50 hover:text-white hover:bg-white/5')
                   }`}
                 >
-                  {t.grow || 'Crece (Mentores)'}
+                  <Brain size={18} className="2xl:w-5 2xl:h-5 text-emerald-400" />
+                  <span>{t.grow || 'Crece'}</span>
                 </button>
               </div>
             </div>
 
             {/* ----------------- SUBTAB: DESAFÍATE ----------------- */}
             {homeTab === 'desafiate' && (
+              <div className="space-y-10">
+                {/* Camino de Trofeos Focusly */}
+                <FocuslyProgressionRoad
+                  userXP={userXP}
+                  userDiamonds={userDiamonds}
+                  isLight={isLight}
+                />
               <div className="space-y-8">
                 
                 {/* TOP GRID: ACTIVE CHALLENGE + AI RECOMMENDATIONS */}
@@ -541,43 +864,47 @@ export const DesktopLayout = ({
                       <div className={`p-8 rounded-[32px] border relative overflow-hidden backdrop-blur-md transition-all ${isLight ? 'bg-white border-zinc-200 shadow-sm text-zinc-900' : 'bg-[#0c0c0c] border-white/10 shadow-2xl text-white'}`}>
                         <div className="flex justify-between items-start mb-6">
                           <div>
-                            <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${isLight ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-white/10 text-white border-white/20'}`}>DESAFÍO ACTIVO</span>
+                            <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${isLight ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-white/10 text-white border-white/20'}`}>
+                              {lang === 'en' ? 'ACTIVE CHALLENGE' : 'DESAFÍO ACTIVO'}
+                            </span>
                             <h3 className="text-3xl font-black uppercase tracking-tighter mt-3">{activeChallenge.title}</h3>
                             <p className={`text-xs font-medium mt-1 ${isLight ? 'text-zinc-500' : 'text-white/60'}`}>{activeChallenge.subtitle}</p>
                           </div>
                           <div className="text-right">
                             <span className="text-4xl font-black tracking-tight">{Math.max(1, Math.round((activeChallenge.currentDay / activeChallenge.duration) * 100))}%</span>
-                            <span className={`text-[10px] font-black uppercase tracking-wider block ${isLight ? 'text-zinc-400' : 'text-white/40'}`}>Completado</span>
+                            <span className={`text-[10px] font-black uppercase tracking-wider block ${isLight ? 'text-zinc-400' : 'text-white/40'}`}>
+                              {lang === 'en' ? 'Completed' : 'Completado'}
+                            </span>
                           </div>
                         </div>
 
                         <div className="flex items-baseline gap-2 mb-6">
                           <span className="text-6xl font-black tracking-tighter">{activeChallenge.currentDay}</span>
-                          <span className={`text-xl font-bold ${isLight ? 'text-zinc-400' : 'text-white/40'}`}>/ {activeChallenge.duration} DÍAS</span>
+                          <span className={`text-xl font-bold ${isLight ? 'text-zinc-400' : 'text-white/40'}`}>/ {activeChallenge.duration} {lang === 'en' ? 'DAYS' : 'DÍAS'}</span>
                         </div>
 
                         {/* Progress Bar */}
                         <div className={`h-4 rounded-full overflow-hidden border mb-6 ${isLight ? 'bg-zinc-100 border-zinc-200' : 'bg-black/60 border-white/10'}`}>
-                          <div className={`h-full rounded-full transition-all duration-1000 ${isLight ? 'bg-gradient-to-r from-blue-600 to-indigo-600 shadow-sm' : 'bg-white shadow-[0_0_15px_rgba(255,255,255,0.8)]'}`} style={{ width: `${Math.max(3, (activeChallenge.currentDay / activeChallenge.duration) * 100)}%` }} />
+                          <div className={`h-full rounded-full transition-all duration-1000 ${isLight ? 'bg-gradient-to-r from-blue-600 to-indigo-600 shadow-sm' : 'bg-gradient-to-r from-sky-400 to-indigo-400 shadow-sm'}`} style={{ width: `${Math.max(3, (activeChallenge.currentDay / activeChallenge.duration) * 100)}%` }} />
                         </div>
 
                         <div className="flex gap-4">
                           <button
                             onClick={onOpenActiveChallenge}
-                            className={`flex-1 py-4 rounded-2xl font-black uppercase text-xs tracking-widest transition-all shadow-sm flex items-center justify-center gap-2 ${
+                            className={`flex-1 py-4 rounded-2xl font-black uppercase text-xs tracking-widest transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer ${
                               isLight ? 'bg-zinc-900 text-white hover:bg-zinc-800' : 'bg-white text-black hover:bg-white/90'
                             }`}
                           >
                             <Play size={16} fill="currentColor" />
-                            <span>Continuar Desafío Diario</span>
+                            <span>{lang === 'en' ? 'Continue Daily Quest' : 'Continuar Desafío Diario'}</span>
                           </button>
                           <button
                             onClick={onCompleteChallenge}
-                            className={`px-6 py-4 rounded-2xl border font-black uppercase text-xs tracking-widest transition-all ${
+                            className={`px-6 py-4 rounded-2xl border font-black uppercase text-xs tracking-widest transition-all cursor-pointer ${
                               isLight ? 'border-zinc-200 hover:bg-zinc-50 text-zinc-800' : 'border-white/20 hover:bg-white/10 text-white'
                             }`}
                           >
-                            Reclamar Fin
+                            {lang === 'en' ? 'Claim Completion' : 'Reclamar Fin'}
                           </button>
                         </div>
                       </div>
@@ -586,15 +913,19 @@ export const DesktopLayout = ({
                         <div className={`w-16 h-16 rounded-full border flex items-center justify-center mb-4 ${isLight ? 'border-zinc-200 bg-zinc-50' : 'border-white/10 bg-white/5'}`}>
                           <Clock size={28} className={isLight ? 'text-zinc-400' : 'text-white/40'} />
                         </div>
-                        <h3 className="text-2xl font-black uppercase tracking-tight">Sin Desafío Activo</h3>
-                        <p className={`text-xs max-w-md mt-1 mb-6 ${isLight ? 'text-zinc-500' : 'text-white/50'}`}>Selecciona un desafío de desintoxicación para empezar a forjar tu voluntad hoy mismo.</p>
+                        <h3 className="text-2xl font-black uppercase tracking-tight">
+                          {lang === 'en' ? 'No Active Challenge' : 'Sin Desafío Activo'}
+                        </h3>
+                        <p className={`text-xs max-w-md mt-1 mb-6 ${isLight ? 'text-zinc-500' : 'text-white/50'}`}>
+                          {lang === 'en' ? 'Select a digital detox challenge to forge your focus willpower today.' : 'Selecciona un desafío de desintoxicación para empezar a forjar tu voluntad hoy mismo.'}
+                        </p>
                         <button
                           onClick={onOpenAllChallenges}
-                          className={`px-8 py-3.5 rounded-full font-black uppercase text-xs tracking-widest transition-all shadow-sm ${
+                          className={`px-8 py-3.5 rounded-full font-black uppercase text-xs tracking-widest transition-all shadow-sm cursor-pointer ${
                             isLight ? 'bg-zinc-900 text-white hover:bg-zinc-800' : 'bg-white text-black hover:bg-white/90'
                           }`}
                         >
-                          Explorar Desafíos
+                          {lang === 'en' ? 'Explore Challenges' : 'Explorar Desafíos'}
                         </button>
                       </div>
                     )}
@@ -621,12 +952,12 @@ export const DesktopLayout = ({
                     </div>
                     <button
                       onClick={onOpenAICalendar}
-                      className={`mt-4 w-full py-3 rounded-xl border text-[11px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${
+                      className={`mt-4 w-full py-3 rounded-xl border text-[11px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer ${
                         isLight ? 'border-zinc-200 text-zinc-800 hover:bg-zinc-50 bg-white shadow-sm' : 'border-white/20 text-white hover:bg-white/10'
                       }`}
                     >
                       <Sparkles size={14} className={isLight ? 'text-indigo-600' : ''} />
-                      <span>Optimizar con IA</span>
+                      <span>{lang === 'en' ? 'Optimize with AI' : 'Optimizar con IA'}</span>
                     </button>
                   </div>
                 </div>
@@ -635,16 +966,20 @@ export const DesktopLayout = ({
                 <div>
                   <div className="flex justify-between items-center mb-6">
                     <div>
-                      <h3 className={`text-2xl font-black uppercase tracking-tight ${isLight ? 'text-zinc-900' : 'text-white'}`}>Desafíos Recomendados</h3>
-                      <p className={`text-xs uppercase tracking-wider mt-0.5 ${isLight ? 'text-zinc-500' : 'text-white/50'}`}>Metodologías comprobadas de desintoxicación digital</p>
+                      <h3 className={`text-2xl font-black uppercase tracking-tight ${isLight ? 'text-zinc-900' : 'text-white'}`}>
+                        {lang === 'en' ? 'Recommended Challenges' : 'Desafíos Recomendados'}
+                      </h3>
+                      <p className={`text-xs uppercase tracking-wider mt-0.5 ${isLight ? 'text-zinc-500' : 'text-white/50'}`}>
+                        {lang === 'en' ? 'Proven digital detox methodologies' : 'Metodologías comprobadas de desintoxicación digital'}
+                      </p>
                     </div>
                     <button
                       onClick={onOpenAllChallenges}
-                      className={`px-5 py-2.5 rounded-full border font-black text-xs uppercase tracking-widest transition-all ${
+                      className={`px-5 py-2.5 rounded-full border font-black text-xs uppercase tracking-widest transition-all cursor-pointer ${
                         isLight ? 'border-zinc-200 text-zinc-800 hover:bg-zinc-50 bg-white shadow-sm' : 'border-white/20 text-white hover:bg-white/10'
                       }`}
                     >
-                      Ver Todos
+                      {lang === 'en' ? 'View All' : 'Ver Todos'}
                     </button>
                   </div>
 
@@ -665,17 +1000,17 @@ export const DesktopLayout = ({
                               <BookOpen size={20} className={isLight ? 'text-zinc-800' : 'text-white'} />
                             )}
                           </div>
-                          <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black ${isLight ? 'bg-cyan-50 text-cyan-800 border border-cyan-200' : 'bg-white/10 text-white'}`}>
-                            <Gem size={12} className={isLight ? 'text-cyan-600' : 'text-cyan-400'} />
+                          <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold ${isLight ? 'bg-sky-50 text-sky-800 border border-sky-200' : 'bg-white/10 text-white'}`}>
+                            <Gem size={12} className={isLight ? 'text-sky-600' : 'text-sky-400'} />
                             <span>+{challenge.diamonds}</span>
                           </div>
                         </div>
                         <h4 className="text-lg font-black uppercase tracking-tight">{challenge.title}</h4>
-                        <p className={`text-xs uppercase font-bold tracking-wider mt-1 ${isLight ? 'text-zinc-500' : 'text-white/50'}`}>{challenge.duration} DÍAS • {challenge.subtitle}</p>
+                        <p className={`text-xs uppercase font-bold tracking-wider mt-1 ${isLight ? 'text-zinc-500' : 'text-white/50'}`}>{challenge.duration} {lang === 'en' ? 'DAYS' : 'DÍAS'} • {challenge.subtitle}</p>
                         <div className={`mt-6 pt-4 border-t flex items-center justify-between text-xs font-black uppercase tracking-widest transition-colors ${
                           isLight ? 'border-zinc-100 text-zinc-700 group-hover:text-zinc-900' : 'border-white/10 text-white/70 group-hover:text-white'
                         }`}>
-                          <span>Comenzar</span>
+                          <span>{lang === 'en' ? 'Start' : 'Comenzar'}</span>
                           <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                         </div>
                       </div>
@@ -686,8 +1021,12 @@ export const DesktopLayout = ({
                 {/* CENTRO DE PRUEBAS / MINIJUEGOS */}
                 <div className={`pt-4 border-t ${isLight ? 'border-zinc-200' : 'border-white/10'}`}>
                   <div className="mb-6">
-                    <h3 className={`text-2xl font-black uppercase tracking-tight ${isLight ? 'text-zinc-900' : 'text-white'}`}>Centro de Pruebas de Dopamina</h3>
-                    <p className={`text-xs uppercase tracking-wider mt-0.5 ${isLight ? 'text-zinc-500' : 'text-white/50'}`}>Minijuegos de entrenamiento cognitivo para reemplazar el scroll pasivo</p>
+                    <h3 className={`text-2xl font-black uppercase tracking-tight ${isLight ? 'text-zinc-900' : 'text-white'}`}>
+                      {lang === 'en' ? 'Dopamine Testing Lab' : 'Centro de Pruebas de Dopamina'}
+                    </h3>
+                    <p className={`text-xs uppercase tracking-wider mt-0.5 ${isLight ? 'text-zinc-500' : 'text-white/50'}`}>
+                      {lang === 'en' ? 'Cognitive training minigames to replace passive scrolling' : 'Minijuegos de entrenamiento cognitivo para reemplazar el scroll pasivo'}
+                    </p>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -711,7 +1050,7 @@ export const DesktopLayout = ({
                           <div className={`mt-6 flex items-center justify-between pt-4 border-t ${isLight ? 'border-zinc-100' : 'border-white/10'}`}>
                             <div className="flex gap-2">
                               <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded border ${isLight ? 'bg-zinc-50 text-zinc-700 border-zinc-200' : 'bg-white/10 text-white'}`}>+{game.rewardXP} XP</span>
-                              <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded flex items-center gap-1 border ${isLight ? 'bg-cyan-50 text-cyan-800 border-cyan-200' : 'bg-white/10 text-white'}`}><Gem size={8} className={isLight ? 'text-cyan-600' : ''} /> +{game.rewardDia}</span>
+                              <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded flex items-center gap-1 border ${isLight ? 'bg-sky-50 text-sky-800 border-sky-200' : 'bg-white/10 text-white'}`}><Gem size={8} className={isLight ? 'text-sky-600' : ''} /> +{game.rewardDia}</span>
                             </div>
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center shadow-sm ${isLight ? 'bg-zinc-900 text-white' : 'bg-white text-black'}`}>
                               <Play size={12} fill="currentColor" />
@@ -724,6 +1063,7 @@ export const DesktopLayout = ({
                 </div>
 
               </div>
+              </div>
             )}
 
             {/* ----------------- SUBTAB: ORGANÍZATE ----------------- */}
@@ -734,33 +1074,33 @@ export const DesktopLayout = ({
                 <div className={`flex gap-2 border-b pb-4 ${isLight ? 'border-zinc-200' : 'border-white/10'}`}>
                   <button
                     onClick={() => setOrganizeSubTab('habitos')}
-                    className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
+                    className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
                       organizeSubTab === 'habitos'
                         ? (isLight ? 'bg-white text-zinc-900 shadow-sm border border-zinc-200/80' : 'bg-white text-black shadow-md')
                         : (isLight ? 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100' : 'text-white/40 hover:text-white')
                     }`}
                   >
-                    Hábitos Diarios
+                    {lang === 'en' ? 'Daily Habits' : 'Hábitos Diarios'}
                   </button>
                   <button
                     onClick={() => setOrganizeSubTab('calendario')}
-                    className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
+                    className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
                       organizeSubTab === 'calendario'
                         ? (isLight ? 'bg-white text-zinc-900 shadow-sm border border-zinc-200/80' : 'bg-white text-black shadow-md')
                         : (isLight ? 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100' : 'text-white/40 hover:text-white')
                     }`}
                   >
-                    Calendario Interactivo
+                    {lang === 'en' ? 'Interactive Calendar' : 'Calendario Interactivo'}
                   </button>
                   <button
                     onClick={() => setOrganizeSubTab('bloqueador')}
-                    className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
+                    className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
                       organizeSubTab === 'bloqueador'
                         ? (isLight ? 'bg-white text-zinc-900 shadow-sm border border-zinc-200/80' : 'bg-white text-black shadow-md')
                         : (isLight ? 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100' : 'text-white/40 hover:text-white')
                     }`}
                   >
-                    Límites y Bloqueador
+                    {lang === 'en' ? 'Limits & Blocker' : 'Límites y Bloqueador'}
                   </button>
                 </div>
 
@@ -773,27 +1113,31 @@ export const DesktopLayout = ({
                       isLight ? 'bg-white border-zinc-200 shadow-sm text-zinc-900' : 'bg-[#0c0c0c] border-white/10 text-white'
                     }`}>
                       <div>
-                        <h3 className="text-2xl font-black uppercase tracking-tight">Gestor de Hábitos</h3>
-                        <p className={`text-xs uppercase tracking-wider mt-0.5 ${isLight ? 'text-zinc-500' : 'text-white/50'}`}>Construye consistencia día a día</p>
+                        <h3 className="text-2xl font-black uppercase tracking-tight">
+                          {lang === 'en' ? 'Habit Manager' : 'Gestor de Hábitos'}
+                        </h3>
+                        <p className={`text-xs uppercase tracking-wider mt-0.5 ${isLight ? 'text-zinc-500' : 'text-white/50'}`}>
+                          {lang === 'en' ? 'Build consistency day by day' : 'Construye consistencia día a día'}
+                        </p>
                       </div>
                       <div className="flex gap-3">
                         <button
                           onClick={onOpenAIHabit}
-                          className={`px-5 py-3 rounded-xl border font-black text-xs uppercase tracking-widest flex items-center gap-2 transition-all ${
+                          className={`px-5 py-3 rounded-xl border font-black text-xs uppercase tracking-widest flex items-center gap-2 transition-all cursor-pointer ${
                             isLight ? 'border-zinc-200 text-zinc-800 hover:bg-zinc-50 bg-white shadow-sm' : 'border-white/20 text-white hover:bg-white/10'
                           }`}
                         >
                           <Sparkles size={14} className={isLight ? 'text-indigo-600' : ''} />
-                          <span>Asistente IA</span>
+                          <span>{lang === 'en' ? 'AI Assistant' : 'Asistente IA'}</span>
                         </button>
                         <button
                           onClick={onOpenCreateHabit}
-                          className={`px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest flex items-center gap-2 transition-all shadow-sm ${
+                          className={`px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest flex items-center gap-2 transition-all shadow-sm cursor-pointer ${
                             isLight ? 'bg-zinc-900 text-white hover:bg-zinc-800' : 'bg-white text-black hover:bg-white/90'
                           }`}
                         >
                           <Plus size={16} />
-                          <span>Crear Hábito</span>
+                          <span>{lang === 'en' ? 'Create Habit' : 'Crear Hábito'}</span>
                         </button>
                       </div>
                     </div>
@@ -805,15 +1149,19 @@ export const DesktopLayout = ({
                           isLight ? 'bg-white border-zinc-200 text-zinc-900 shadow-sm' : 'bg-[#0c0c0c] border-white/10 text-white'
                         }`}>
                           <Target size={40} className={`mx-auto mb-3 ${isLight ? 'text-zinc-300' : 'text-white/20'}`} />
-                          <h4 className="text-base font-black uppercase">No tienes hábitos creados</h4>
-                          <p className={`text-xs mt-1 mb-6 ${isLight ? 'text-zinc-500' : 'text-white/50'}`}>Genera un plan con IA o añade tus primeros hábitos diarios.</p>
+                          <h4 className="text-base font-black uppercase">
+                            {lang === 'en' ? 'No habits created yet' : 'No tienes hábitos creados'}
+                          </h4>
+                          <p className={`text-xs mt-1 mb-6 ${isLight ? 'text-zinc-500' : 'text-white/50'}`}>
+                            {lang === 'en' ? 'Generate a plan with AI or add your first daily habits.' : 'Genera un plan con IA o añade tus primeros hábitos diarios.'}
+                          </p>
                           <button
                             onClick={onOpenCreateHabit}
-                            className={`px-6 py-3 rounded-full font-black text-xs uppercase tracking-widest shadow-sm ${
+                            className={`px-6 py-3 rounded-full font-black text-xs uppercase tracking-widest shadow-sm cursor-pointer ${
                               isLight ? 'bg-zinc-900 text-white hover:bg-zinc-800' : 'bg-white text-black hover:bg-white/90'
                             }`}
                           >
-                            Crear Primer Hábito
+                            {lang === 'en' ? 'Create First Habit' : 'Crear Primer Hábito'}
                           </button>
                         </div>
                       ) : (
@@ -850,9 +1198,9 @@ export const DesktopLayout = ({
                               <div className="flex items-center gap-4 min-w-0">
                                 <button
                                   onClick={handleToggle}
-                                  className={`w-11 h-11 rounded-full border flex items-center justify-center shrink-0 transition-all ${
+                                  className={`w-11 h-11 rounded-full border flex items-center justify-center shrink-0 transition-all cursor-pointer ${
                                     isCompletedToday 
-                                      ? (isLight ? 'bg-emerald-500 text-white border-emerald-500 shadow-sm' : 'bg-white text-black border-white shadow-lg')
+                                      ? (isLight ? 'bg-blue-600 text-white border-blue-600 shadow-sm' : 'bg-white text-black border-white shadow-lg')
                                       : (isLight ? 'border-zinc-300 text-zinc-300 hover:border-zinc-500 hover:text-zinc-600 bg-zinc-50' : 'border-white/20 text-white/30 hover:border-white/50 hover:text-white')
                                   }`}
                                 >
@@ -862,8 +1210,8 @@ export const DesktopLayout = ({
                                   <div className="flex items-center gap-2 mb-1">
                                     <span className={`text-[8px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full border ${
                                       isLight ? 'border-zinc-200 bg-zinc-50 text-zinc-700' : 'border-white/20 bg-white/10 text-white'
-                                    }`}>{habit.category || 'General'}</span>
-                                    <span className={`text-[8px] font-black uppercase tracking-widest ${isLight ? 'text-zinc-400' : 'text-white/40'}`}>🔥 {habit.streak || 0} DÍAS</span>
+                                    }`}>{habit.category || (lang === 'en' ? 'General' : 'General')}</span>
+                                    <span className={`text-[8px] font-black uppercase tracking-widest ${isLight ? 'text-zinc-400' : 'text-white/40'}`}>🔥 {habit.streak || 0} {lang === 'en' ? 'DAYS' : 'DÍAS'}</span>
                                   </div>
                                   <h4 className={`text-base font-black uppercase tracking-tight truncate ${
                                     isCompletedToday ? (isLight ? 'line-through text-zinc-400' : 'line-through text-white/40') : (isLight ? 'text-zinc-900' : 'text-white')
@@ -873,8 +1221,8 @@ export const DesktopLayout = ({
                               </div>
                               <button
                                 onClick={handleDelete}
-                                className={`p-2 rounded-full transition-colors ${isLight ? 'hover:bg-red-50 text-zinc-400 hover:text-red-600' : 'hover:bg-red-500/20 text-white/30 hover:text-red-400'}`}
-                                title="Eliminar Hábito"
+                                className={`p-2 rounded-full transition-colors cursor-pointer ${isLight ? 'hover:bg-red-50 text-zinc-400 hover:text-red-600' : 'hover:bg-red-500/20 text-white/30 hover:text-red-400'}`}
+                                title={lang === 'en' ? 'Delete Habit' : 'Eliminar Hábito'}
                               >
                                 <Trash2 size={16} />
                               </button>
@@ -893,17 +1241,21 @@ export const DesktopLayout = ({
                       isLight ? 'bg-white border-zinc-200 shadow-sm text-zinc-900' : 'bg-[#0c0c0c] border-white/10 text-white'
                     }`}>
                       <div>
-                        <h3 className="text-2xl font-black uppercase tracking-tight">Planificador Semanal</h3>
-                        <p className={`text-xs uppercase tracking-wider mt-0.5 ${isLight ? 'text-zinc-500' : 'text-white/50'}`}>Organiza tus sesiones de estudio y descansos activos</p>
+                        <h3 className="text-2xl font-black uppercase tracking-tight">
+                          {lang === 'en' ? 'Weekly Planner' : 'Planificador Semanal'}
+                        </h3>
+                        <p className={`text-xs uppercase tracking-wider mt-0.5 ${isLight ? 'text-zinc-500' : 'text-white/50'}`}>
+                          {lang === 'en' ? 'Organize your study sessions and active breaks' : 'Organiza tus sesiones de estudio y descansos activos'}
+                        </p>
                       </div>
                       <button
                         onClick={onOpenAICalendar}
-                        className={`px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest flex items-center gap-2 shadow-sm transition-all ${
+                        className={`px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest flex items-center gap-2 shadow-sm transition-all cursor-pointer ${
                           isLight ? 'bg-zinc-900 text-white hover:bg-zinc-800' : 'bg-white text-black hover:bg-white/90'
                         }`}
                       >
                         <Sparkles size={16} />
-                        <span>Organizar con IA</span>
+                        <span>{lang === 'en' ? 'Organize with AI' : 'Organizar con IA'}</span>
                       </button>
                     </div>
 
@@ -927,16 +1279,20 @@ export const DesktopLayout = ({
                       isLight ? 'bg-white border-zinc-200 shadow-sm text-zinc-900' : 'bg-[#0c0c0c] border-white/10 text-white'
                     }`}>
                       <div>
-                        <h3 className="text-2xl font-black uppercase tracking-tight">Límites de Uso Diario</h3>
-                        <p className={`text-xs uppercase tracking-wider mt-0.5 ${isLight ? 'text-zinc-500' : 'text-white/50'}`}>Control estricto de tiempo por aplicación</p>
+                        <h3 className="text-2xl font-black uppercase tracking-tight">
+                          {lang === 'en' ? 'Daily Usage Limits' : 'Límites de Uso Diario'}
+                        </h3>
+                        <p className={`text-xs uppercase tracking-wider mt-0.5 ${isLight ? 'text-zinc-500' : 'text-white/50'}`}>
+                          {lang === 'en' ? 'Strict screen time limits per application' : 'Control estricto de tiempo por aplicación'}
+                        </p>
                       </div>
                       <button
                         onClick={claimFocusRewards}
-                        className={`px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-sm transition-all ${
+                        className={`px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-sm transition-all cursor-pointer ${
                           isLight ? 'bg-zinc-900 text-white hover:bg-zinc-800' : 'bg-white text-black hover:bg-white/90'
                         }`}
                       >
-                        Reclamar Recompensas
+                        {lang === 'en' ? 'Claim Rewards' : 'Reclamar Recompensas'}
                       </button>
                     </div>
 
@@ -979,19 +1335,19 @@ export const DesktopLayout = ({
                               ) : (
                                 <button
                                   onClick={() => setEmergencyTimers(p => ({ ...p, [appId]: 300 }))}
-                                  className={`flex-1 py-2.5 rounded-xl border text-xs font-black uppercase tracking-wider transition-all ${
+                                  className={`flex-1 py-2.5 rounded-xl border text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
                                     isLight ? 'border-zinc-200 bg-zinc-50 text-zinc-800 hover:bg-zinc-100' : 'border-white/20 text-white hover:bg-white/10'
                                   }`}
                                 >
-                                  ⚡ Urgencia 5m
+                                  {lang === 'en' ? '⚡ Emergency 5m' : '⚡ Urgencia 5m'}
                                 </button>
                               )}
                               <button
                                 onClick={() => setBlockedAppsConfig(p => ({ ...p, [appId]: { ...config, usedToday: 0 } }))}
-                                className={`p-2.5 rounded-xl border transition-colors ${
+                                className={`p-2.5 rounded-xl border transition-colors cursor-pointer ${
                                   isLight ? 'border-zinc-200 bg-zinc-50 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100' : 'border-white/20 text-white/50 hover:text-white hover:bg-white/10'
                                 }`}
-                                title="Reiniciar uso"
+                                title={lang === 'en' ? 'Reset usage' : 'Reiniciar uso'}
                               >
                                 <RefreshCw size={14} />
                               </button>
@@ -1017,18 +1373,24 @@ export const DesktopLayout = ({
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => setHomeTab?.('desafiate')}
-                      className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-black uppercase tracking-wider transition-all shadow-sm ${
+                      className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-black uppercase tracking-wider transition-all shadow-sm cursor-pointer ${
                         isLight 
                           ? 'border-zinc-200 bg-zinc-50 text-zinc-800 hover:bg-zinc-100' 
                           : 'border-white/15 bg-white/5 text-white hover:bg-white/10'
                       }`}
                     >
                       <ArrowLeft size={16} />
-                      <span>Volver</span>
+                      <span>{lang === 'en' ? 'Back' : 'Volver'}</span>
                     </button>
                     <div>
-                      <h3 className="text-xl font-black uppercase tracking-tight">Academia de Crecimiento</h3>
-                      <p className={`text-xs ${isLight ? 'text-zinc-500' : 'text-white/50'}`}>Cursos de habilidades digitales, neurociencia del enfoque y coaches IA</p>
+                      <h3 className="text-xl font-black uppercase tracking-tight">
+                        {lang === 'en' ? 'Growth Academy' : 'Academia de Crecimiento'}
+                      </h3>
+                      <p className={`text-xs ${isLight ? 'text-zinc-500' : 'text-white/50'}`}>
+                        {lang === 'en'
+                          ? 'Digital skill courses, neuroscience of focus, and AI coaches'
+                          : 'Cursos de habilidades digitales, neurociencia del enfoque y coaches IA'}
+                      </p>
                     </div>
                   </div>
 
@@ -1045,7 +1407,7 @@ export const DesktopLayout = ({
                       }`}
                     >
                       <BookOpen size={14} />
-                      <span>Maestrías & Cursos</span>
+                      <span>{lang === 'en' ? 'Masteries & Courses' : 'Maestrías & Cursos'}</span>
                     </button>
                     <button
                       onClick={() => setCreceTab('coaches')}
@@ -1056,7 +1418,7 @@ export const DesktopLayout = ({
                       }`}
                     >
                       <Brain size={14} />
-                      <span>Coaches IA</span>
+                      <span>{lang === 'en' ? 'AI Coaches' : 'Coaches IA'}</span>
                     </button>
                     <button
                       onClick={() => setCreceTab('videos')}
@@ -1067,139 +1429,55 @@ export const DesktopLayout = ({
                       }`}
                     >
                       <Play size={14} />
-                      <span>Videos & Sabiduría</span>
+                      <span>{lang === 'en' ? 'Videos & Wisdom' : 'Videos & Sabiduría'}</span>
                     </button>
                   </div>
                 </div>
 
-                {/* TAB 1: MAESTRÍAS Y CURSOS COMPLETOS */}
+                {/* TAB 1: MAESTRÍAS Y CURSOS COMPLETOS (REDISEÑO MINIMALISTA FOCUSLY) */}
                 {creceTab === 'maestrias' && (
-                  <div className="space-y-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <div>
-                        <h3 className={`text-2xl font-black uppercase tracking-tight ${isLight ? 'text-zinc-900' : 'text-white'}`}>
-                          Maestrías de Productividad & Habilidades para Jóvenes
-                        </h3>
-                        <p className={`text-xs uppercase tracking-wider mt-0.5 ${isLight ? 'text-zinc-500' : 'text-white/50'}`}>
-                          Cursos completos estructurados con clases prácticas, atajos de teclado, IA y certificación con insignias
-                        </p>
-                      </div>
-                      <div className={`px-4 py-2 rounded-2xl border text-xs font-bold ${
-                        isLight ? 'bg-white border-zinc-200 text-zinc-800' : 'bg-white/5 border-white/10 text-white'
-                      }`}>
-                        <span>Completadas: </span>
-                        <strong className="text-emerald-500 font-black">
-                          {completedMasteryClasses.length} clases
-                        </strong>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {MASTERIES_DATA.map(mastery => {
-                        const totalCls = mastery.classes.length;
-                        const doneCount = mastery.classes.filter(c => completedMasteryClasses.includes(c.id)).length;
-                        const pct = Math.round((doneCount / totalCls) * 100);
-                        const isFinished = doneCount === totalCls;
-
-                        return (
-                          <div
-                            key={mastery.id}
-                            onClick={() => setSelectedMasteryCourse(mastery)}
-                            className={`p-7 rounded-[32px] border cursor-pointer group transition-all duration-300 flex flex-col justify-between relative overflow-hidden ${
-                              isLight 
-                                ? 'border-zinc-200 bg-white hover:border-zinc-300 hover:shadow-lg shadow-sm text-zinc-900' 
-                                : 'border-white/10 bg-[#0c0c0c] hover:border-white/30 text-white shadow-xl'
-                            }`}
-                          >
-                            {/* Decorative background glow */}
-                            <div className={`absolute -right-16 -top-16 w-40 h-40 rounded-full blur-3xl pointer-events-none opacity-20 bg-gradient-to-br ${mastery.color}`} />
-
-                            <div>
-                              <div className="flex items-start justify-between gap-4 mb-4">
-                                <div className={`w-16 h-16 rounded-2xl border flex items-center justify-center text-3xl group-hover:scale-110 transition-transform shadow-md ${
-                                  isLight ? 'bg-zinc-50 border-zinc-200 text-zinc-800' : 'bg-white/10 border-white/20 text-white'
-                                }`}>
-                                  {mastery.icon === 'Laptop' ? '💻' : mastery.icon === 'Brain' ? '🧠' : mastery.icon === 'BookOpen' ? '📖' : '💎'}
-                                </div>
-                                <div className="text-right">
-                                  <span className={`text-[9px] font-black uppercase px-3 py-1 rounded-full border inline-block ${
-                                    isLight ? 'border-zinc-200 bg-zinc-100 text-zinc-700' : 'border-white/20 bg-white/10 text-white'
-                                  }`}>
-                                    {mastery.category}
-                                  </span>
-                                  <div className="flex items-center gap-1 justify-end mt-2">
-                                    <span className="text-[10px] font-black text-amber-500 uppercase">+{mastery.xpPerClass} XP/clase</span>
-                                  </div>
-                                </div>
-                              </div>
-
-                              <h4 className="text-xl font-black uppercase tracking-tight group-hover:text-blue-500 transition-colors">
-                                {mastery.title}
-                              </h4>
-                              <p className={`text-xs font-semibold mt-1 leading-snug ${isLight ? 'text-zinc-600' : 'text-white/70'}`}>
-                                {mastery.subtitle}
-                              </p>
-                              <p className={`text-[11px] leading-relaxed mt-3 ${isLight ? 'text-zinc-500' : 'text-white/50'}`}>
-                                {mastery.description}
-                              </p>
-                            </div>
-
-                            {/* Progress bar and Action footer */}
-                            <div className="mt-8 pt-5 border-t border-white/10 space-y-4">
-                              <div>
-                                <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider mb-1.5">
-                                  <span className={isLight ? 'text-zinc-500' : 'text-white/40'}>Progreso del Curso</span>
-                                  <span className={isFinished ? 'text-emerald-500' : isLight ? 'text-zinc-700' : 'text-white'}>
-                                    {doneCount}/{totalCls} Clases ({pct}%)
-                                  </span>
-                                </div>
-                                <div className={`h-2 rounded-full overflow-hidden border ${isLight ? 'bg-zinc-100 border-zinc-200' : 'bg-black border-white/10'}`}>
-                                  <div 
-                                    className={`h-full rounded-full transition-all duration-500 ${isFinished ? 'bg-emerald-500' : 'bg-blue-500'}`} 
-                                    style={{ width: `${pct}%` }} 
-                                  />
-                                </div>
-                              </div>
-
-                              {/* Badge reward teaser */}
-                              {mastery.badgeReward && (
-                                <div className={`p-3 rounded-2xl border flex items-center justify-between gap-3 text-xs ${
-                                  isFinished
-                                    ? (isLight ? 'bg-emerald-50 border-emerald-200 text-emerald-950' : 'bg-emerald-500/15 border-emerald-500/30 text-emerald-200')
-                                    : (isLight ? 'bg-zinc-50 border-zinc-200 text-zinc-700' : 'bg-white/5 border-white/10 text-white/70')
-                                }`}>
-                                  <div className="flex items-center gap-2 min-w-0">
-                                    <Award size={16} className={isFinished ? 'text-emerald-500 shrink-0' : 'text-amber-500 shrink-0'} />
-                                    <span className="truncate font-bold text-[11px]">Medalla: {mastery.badgeReward.title}</span>
-                                  </div>
-                                  <span className="text-[10px] font-black uppercase bg-amber-500/20 text-amber-500 px-2 py-0.5 rounded border border-amber-500/30 shrink-0">
-                                    +{mastery.badgeReward.xpReward} XP
-                                  </span>
-                                </div>
-                              )}
-
-                              <button className={`w-full py-3.5 rounded-xl font-black uppercase text-xs tracking-widest transition-all shadow-sm flex items-center justify-center gap-2 ${
-                                isFinished
-                                  ? (isLight ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-emerald-500 text-black hover:bg-emerald-400')
-                                  : (isLight ? 'bg-zinc-900 text-white hover:bg-zinc-800' : 'bg-white text-black hover:bg-white/90')
-                              }`}>
-                                <Play size={14} fill="currentColor" />
-                                <span>{isFinished ? 'Repasar Clases del Curso' : 'Iniciar / Continuar Curso'}</span>
-                              </button>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+                  <MasteriesSectionView
+                    completedClasses={completedMasteryClasses}
+                    isLight={isLight}
+                    lang={lang}
+                    onLaunchClass={(cls, mastery) => {
+                      setSelectedMasteryInitialClass(cls);
+                      setSelectedMasteryInitialChallenge(null);
+                      setSelectedMasteryCourse(mastery);
+                    }}
+                    onLaunchChallenge={(unit, mastery) => {
+                      setSelectedMasteryInitialClass(null);
+                      setSelectedMasteryInitialChallenge(unit);
+                      setSelectedMasteryCourse(mastery);
+                    }}
+                    onOpenFullCourse={(mastery) => {
+                      setSelectedMasteryInitialClass(null);
+                      setSelectedMasteryInitialChallenge(null);
+                      setSelectedMasteryCourse(mastery);
+                    }}
+                    onConnectHabit={(habitTitle) => {
+                      if (onOpenCreateHabit) {
+                        onOpenCreateHabit();
+                      } else {
+                        setActiveTab('organizate');
+                      }
+                    }}
+                    onStartFocusSession={() => {
+                      setActiveTab('home');
+                    }}
+                  />
                 )}
 
                 {/* TAB 2: COACHES DE ENFOQUE */}
                 {creceTab === 'coaches' && (
                   <div>
                     <div className="mb-6">
-                      <h3 className={`text-2xl font-black uppercase tracking-tight ${isLight ? 'text-zinc-900' : 'text-white'}`}>Coaches de Enfoque con IA</h3>
-                      <p className={`text-xs uppercase tracking-wider mt-0.5 ${isLight ? 'text-zinc-500' : 'text-white/50'}`}>Elige un mentor personalizado según tu patrón de distracción</p>
+                      <h3 className={`text-2xl font-black uppercase tracking-tight ${isLight ? 'text-zinc-900' : 'text-white'}`}>
+                        {lang === 'en' ? 'AI Focus Coaches' : 'Coaches de Enfoque con IA'}
+                      </h3>
+                      <p className={`text-xs uppercase tracking-wider mt-0.5 ${isLight ? 'text-zinc-500' : 'text-white/50'}`}>
+                        {lang === 'en' ? 'Choose a personalized mentor for your distraction pattern' : 'Elige un mentor personalizado según tu patrón de distracción'}
+                      </p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -1220,15 +1498,17 @@ export const DesktopLayout = ({
                             }`}>
                               {coach.icon}
                             </div>
-                            <span className={`text-[9px] font-black uppercase tracking-widest block mb-1 ${isLight ? 'text-zinc-400' : 'text-white/40'}`}>COACH IA</span>
+                            <span className={`text-[9px] font-black uppercase tracking-widest block mb-1 ${isLight ? 'text-zinc-400' : 'text-white/40'}`}>
+                              {lang === 'en' ? 'AI COACH' : 'COACH IA'}
+                            </span>
                             <h4 className="text-xl font-black uppercase tracking-tight">{coach.name}</h4>
                             <p className={`text-xs font-semibold mt-1 ${isLight ? 'text-zinc-700' : 'text-white/70'}`}>{coach.type}</p>
                             <p className={`text-[11px] leading-relaxed mt-2 ${isLight ? 'text-zinc-500' : 'text-white/40'}`}>{coach.desc}</p>
                           </div>
-                          <button className={`mt-6 w-full py-3 rounded-xl font-black uppercase text-xs tracking-widest transition-all shadow-sm ${
+                          <button className={`mt-6 w-full py-3 rounded-xl font-black uppercase text-xs tracking-widest transition-all shadow-sm cursor-pointer ${
                             isLight ? 'bg-zinc-900 text-white hover:bg-zinc-800' : 'bg-white text-black hover:bg-white/90'
                           }`}>
-                            Hablar con {coach.name}
+                            {lang === 'en' ? `Talk to ${coach.name}` : `Hablar con ${coach.name}`}
                           </button>
                         </div>
                       ))}
@@ -1240,8 +1520,12 @@ export const DesktopLayout = ({
                 {creceTab === 'videos' && (
                   <div>
                     <div className="mb-6">
-                      <h3 className={`text-2xl font-black uppercase tracking-tight ${isLight ? 'text-zinc-900' : 'text-white'}`}>Píldoras de Sabiduría & Videos</h3>
-                      <p className={`text-xs uppercase tracking-wider mt-0.5 ${isLight ? 'text-zinc-500' : 'text-white/50'}`}>Consejos directos sobre neurociencia, dopamina y técnicas de estudio</p>
+                      <h3 className={`text-2xl font-black uppercase tracking-tight ${isLight ? 'text-zinc-900' : 'text-white'}`}>
+                        {lang === 'en' ? 'Wisdom Bites & Videos' : 'Píldoras de Sabiduría & Videos'}
+                      </h3>
+                      <p className={`text-xs uppercase tracking-wider mt-0.5 ${isLight ? 'text-zinc-500' : 'text-white/50'}`}>
+                        {lang === 'en' ? 'Direct insights on neuroscience, dopamine, and study techniques' : 'Consejos directos sobre neurociencia, dopamina y técnicas de estudio'}
+                      </p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1297,23 +1581,23 @@ export const DesktopLayout = ({
                 }`}>
                   <button
                     onClick={() => setForumTab('comunidad')}
-                    className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
+                    className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
                       forumTab === 'comunidad'
                         ? (isLight ? 'bg-white text-zinc-900 shadow-sm' : 'bg-white text-black shadow-md')
                         : (isLight ? 'text-zinc-500 hover:text-zinc-900' : 'text-white/40 hover:text-white')
                     }`}
                   >
-                    Comunidad
+                    {lang === 'en' ? 'Community' : 'Comunidad'}
                   </button>
                   <button
                     onClick={() => setForumTab('directos')}
-                    className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
+                    className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
                       forumTab === 'directos'
                         ? (isLight ? 'bg-white text-zinc-900 shadow-sm' : 'bg-white text-black shadow-md')
                         : (isLight ? 'text-zinc-500 hover:text-zinc-900' : 'text-white/40 hover:text-white')
                     }`}
                   >
-                    Directos (Chats)
+                    {lang === 'en' ? 'Live Study Rooms' : 'Directos (Chats)'}
                   </button>
                 </div>
               </div>
@@ -1321,12 +1605,12 @@ export const DesktopLayout = ({
               {forumTab === 'comunidad' && (
                 <button
                   onClick={() => setShowCreatePost(true)}
-                  className={`px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-sm flex items-center gap-2 ${
+                  className={`px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-sm flex items-center gap-2 cursor-pointer ${
                     isLight ? 'bg-zinc-900 text-white hover:bg-zinc-800' : 'bg-white text-black hover:bg-white/90'
                   }`}
                 >
                   <Plus size={16} />
-                  <span>Publicar</span>
+                  <span>{lang === 'en' ? 'Create Post' : 'Publicar'}</span>
                 </button>
               )}
             </div>
@@ -1339,20 +1623,30 @@ export const DesktopLayout = ({
                 <div className={`p-6 rounded-[28px] border h-max space-y-2 ${
                   isLight ? 'bg-white border-zinc-200 shadow-sm text-zinc-900' : 'bg-[#0c0c0c] border-white/10 text-white'
                 }`}>
-                  <h4 className={`text-xs font-black uppercase tracking-widest mb-4 ${isLight ? 'text-zinc-400' : 'text-white/40'}`}>Categorías</h4>
-                  {['todos', 'Estudio', 'Hábitos', 'Desahogo', 'Logros'].map(cat => (
-                    <button
-                      key={cat}
-                      onClick={() => setForumFilter(cat)}
-                      className={`w-full text-left px-4 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
-                        forumFilter === cat
-                          ? (isLight ? 'bg-zinc-900 text-white shadow-sm' : 'bg-white text-black shadow-md')
-                          : (isLight ? 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100' : 'text-white/50 hover:text-white hover:bg-white/5')
-                      }`}
-                    >
-                      {cat === 'todos' ? 'Todas las publicaciones' : cat}
-                    </button>
-                  ))}
+                  <h4 className={`text-xs font-black uppercase tracking-widest mb-4 ${isLight ? 'text-zinc-400' : 'text-white/40'}`}>
+                    {lang === 'en' ? 'Categories' : 'Categorías'}
+                  </h4>
+                  {['todos', 'Estudio', 'Hábitos', 'Desahogo', 'Logros'].map(cat => {
+                    const catLabel = cat === 'todos' 
+                      ? (lang === 'en' ? 'All Posts' : 'Todas las publicaciones')
+                      : (cat === 'Estudio' ? (lang === 'en' ? 'Study' : 'Estudio')
+                        : (cat === 'Hábitos' ? (lang === 'en' ? 'Habits' : 'Hábitos')
+                        : (cat === 'Desahogo' ? (lang === 'en' ? 'Vent / Support' : 'Desahogo')
+                        : (lang === 'en' ? 'Achievements' : 'Logros'))));
+                    return (
+                      <button
+                        key={cat}
+                        onClick={() => setForumFilter(cat)}
+                        className={`w-full text-left px-4 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
+                          forumFilter === cat
+                            ? (isLight ? 'bg-zinc-900 text-white shadow-sm' : 'bg-white text-black shadow-md')
+                            : (isLight ? 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100' : 'text-white/50 hover:text-white hover:bg-white/5')
+                        }`}
+                      >
+                        {catLabel}
+                      </button>
+                    );
+                  })}
                 </div>
 
                 {/* Posts Feed */}
@@ -1479,12 +1773,12 @@ export const DesktopLayout = ({
             : sortedRankings.filter(u => u.tier === selectedLeagueFilter);
 
           const LEAGUE_CATEGORIES = [
-            { id: 'all', name: 'Todas las Ligas', icon: '🏆', minXP: 0 },
-            { id: 'bronce', name: 'Liga Bronce', icon: '🥉', tierKey: 'bronce', minXP: '0 - 1,999 XP' },
-            { id: 'plata', name: 'Liga Plata', icon: '🥈', tierKey: 'plata', minXP: '2,000 - 4,999 XP' },
-            { id: 'oro', name: 'Liga Oro', icon: '🥇', tierKey: 'oro', minXP: '5,000 - 8,999 XP' },
-            { id: 'diamante', name: 'Liga Diamante', icon: '💎', tierKey: 'diamante', minXP: '9,000 - 13,999 XP' },
-            { id: 'mitico', name: 'Liga Mítica', icon: '👑', tierKey: 'mitico', minXP: '14,000+ XP' }
+            { id: 'all', name: lang === 'en' ? 'All Leagues' : 'Todas las Ligas', icon: '🏆', minXP: 0 },
+            { id: 'bronce', name: lang === 'en' ? 'Bronze League' : 'Liga Bronce', icon: '🥉', tierKey: 'bronce', minXP: '0 - 1,999 XP' },
+            { id: 'plata', name: lang === 'en' ? 'Silver League' : 'Liga Plata', icon: '🥈', tierKey: 'plata', minXP: '2,000 - 4,999 XP' },
+            { id: 'oro', name: lang === 'en' ? 'Gold League' : 'Liga Oro', icon: '🥇', tierKey: 'oro', minXP: '5,000 - 8,999 XP' },
+            { id: 'diamante', name: lang === 'en' ? 'Diamond League' : 'Liga Diamante', icon: '💎', tierKey: 'diamante', minXP: '9,000 - 13,999 XP' },
+            { id: 'mitico', name: lang === 'en' ? 'Mythic League' : 'Liga Mítica', icon: '👑', tierKey: 'mitico', minXP: '14,000+ XP' }
           ];
 
           const userCurrentTierObj = BADGE_TIERS[userLeagueKey] || BADGE_TIERS.bronce;
@@ -1496,24 +1790,26 @@ export const DesktopLayout = ({
               <div className="text-center max-w-2xl mx-auto space-y-3">
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-xs font-black uppercase tracking-widest shadow-sm bg-gradient-to-r from-amber-500/10 via-yellow-500/10 to-purple-500/10 border-yellow-500/30 text-yellow-500">
                   <Trophy size={14} />
-                  <span>Temporada Competitiva de Enfoque</span>
+                  <span>{lang === 'en' ? 'Competitive Focus Season' : 'Temporada Competitiva de Enfoque'}</span>
                 </div>
                 <h3 className={`text-4xl font-black uppercase tracking-tighter ${isLight ? 'text-zinc-900' : 'text-white'}`}>
-                  Ligas & Clasificación Global
+                  {lang === 'en' ? 'Leagues & Global Leaderboard' : 'Ligas & Clasificación Global'}
                 </h3>
                 <p className={`text-xs uppercase tracking-wider ${isLight ? 'text-zinc-500' : 'text-white/50'}`}>
-                  Asciende de Bronce a Mítico sumando XP con tus sesiones de estudio y desintoxicación
+                  {lang === 'en' 
+                    ? 'Climb from Bronze to Mythic by earning XP with study and focus sessions' 
+                    : 'Asciende de Bronce a Mítico sumando XP con tus sesiones de estudio y desintoxicación'}
                 </p>
               </div>
 
               {/* USER STATS LEAGUE CARD */}
-              <div className={`p-6 rounded-[32px] border max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden shadow-lg ${
+              <div className={`p-6 2xl:p-8 rounded-[32px] 2xl:rounded-[40px] border max-w-5xl 2xl:max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden shadow-lg ${
                 isLight ? 'bg-white border-zinc-200 text-zinc-900' : 'bg-[#0c0c0c] border-white/15 text-white'
               }`}>
                 <div className="flex items-center gap-5 z-10">
                   <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-3xl border shadow-md relative ${
                     userLeagueKey === 'mitico' ? 'bg-purple-500/20 border-purple-500/50' :
-                    userLeagueKey === 'diamante' ? 'bg-cyan-500/20 border-cyan-500/50' :
+                    userLeagueKey === 'diamante' ? 'bg-sky-500/20 border-sky-500/50' :
                     userLeagueKey === 'oro' ? 'bg-yellow-500/20 border-yellow-500/50' :
                     userLeagueKey === 'plata' ? 'bg-slate-300/20 border-slate-300/50' :
                     'bg-amber-700/20 border-amber-600/50'
@@ -1526,13 +1822,15 @@ export const DesktopLayout = ({
                   <div>
                     <div className="flex items-center gap-2">
                       <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full border ${userCurrentTierObj.badgeClass}`}>
-                        LIGA {userCurrentTierObj.name.toUpperCase()}
+                        {lang === 'en' ? 'LEAGUE' : 'LIGA'} {userCurrentTierObj.name.toUpperCase()}
                       </span>
-                      <span className="text-[10px] font-black uppercase text-emerald-500">● ACTIVA</span>
+                      <span className="text-[10px] font-black uppercase text-emerald-500">
+                        {lang === 'en' ? '● ACTIVE' : '● ACTIVA'}
+                      </span>
                     </div>
-                    <h4 className="text-xl font-black uppercase tracking-tight mt-1">{username || 'Tu Perfil'}</h4>
+                    <h4 className="text-xl font-black uppercase tracking-tight mt-1">{username || (lang === 'en' ? 'Your Profile' : 'Tu Perfil')}</h4>
                     <p className={`text-xs ${isLight ? 'text-zinc-500' : 'text-white/50'}`}>
-                      Tienes <strong className="text-amber-500 font-black">{userXP} XP</strong> acumulados • Racha de <strong>{loginStreak || 1} días</strong>
+                      {lang === 'en' ? 'You have' : 'Tienes'} <strong className="text-amber-500 font-black">{userXP} XP</strong> {lang === 'en' ? 'accumulated • Streak of' : 'acumulados • Racha de'} <strong>{loginStreak || 1} {lang === 'en' ? 'days' : 'días'}</strong>
                     </p>
                   </div>
                 </div>
@@ -1541,13 +1839,17 @@ export const DesktopLayout = ({
                   <div className={`text-center px-5 py-3 rounded-2xl border ${
                     isLight ? 'bg-zinc-50 border-zinc-200' : 'bg-white/5 border-white/10'
                   }`}>
-                    <span className={`text-[9px] font-black uppercase tracking-widest block ${isLight ? 'text-zinc-400' : 'text-white/40'}`}>Nivel</span>
+                    <span className={`text-[9px] font-black uppercase tracking-widest block ${isLight ? 'text-zinc-400' : 'text-white/40'}`}>
+                      {lang === 'en' ? 'Level' : 'Nivel'}
+                    </span>
                     <span className="text-lg font-black">{currentLevel}</span>
                   </div>
                   <div className={`text-center px-5 py-3 rounded-2xl border ${
                     isLight ? 'bg-zinc-50 border-zinc-200' : 'bg-white/5 border-white/10'
                   }`}>
-                    <span className={`text-[9px] font-black uppercase tracking-widest block ${isLight ? 'text-zinc-400' : 'text-white/40'}`}>Posición</span>
+                    <span className={`text-[9px] font-black uppercase tracking-widest block ${isLight ? 'text-zinc-400' : 'text-white/40'}`}>
+                      {lang === 'en' ? 'Rank' : 'Posición'}
+                    </span>
                     <span className="text-lg font-black text-amber-500">
                       #{sortedRankings.find(u => u.isMe)?.rank || 5}
                     </span>
@@ -1556,7 +1858,7 @@ export const DesktopLayout = ({
               </div>
 
               {/* LEAGUE SELECTOR TABS (Bronce, Plata, Oro, Diamante, Mítico) */}
-              <div className="flex justify-center flex-wrap gap-2 max-w-4xl mx-auto">
+              <div className="flex justify-center flex-wrap gap-2 max-w-5xl 2xl:max-w-6xl mx-auto">
                 {LEAGUE_CATEGORIES.map(cat => {
                   const isSelected = selectedLeagueFilter === cat.id;
                   const tierData = cat.tierKey ? BADGE_TIERS[cat.tierKey] : null;
@@ -1583,7 +1885,7 @@ export const DesktopLayout = ({
 
               {/* PODIUM TOP 3 WITH TIER BADGES */}
               {selectedLeagueFilter === 'all' && (
-                <div className="grid grid-cols-3 gap-4 max-w-3xl mx-auto items-end pt-4">
+                <div className="grid grid-cols-3 gap-4 2xl:gap-6 max-w-3xl 2xl:max-w-4xl mx-auto items-end pt-4">
                   
                   {/* TOP 2 */}
                   <div className={`p-6 rounded-[28px] border flex flex-col items-center text-center space-y-3 relative ${
@@ -1599,7 +1901,7 @@ export const DesktopLayout = ({
                     </div>
                     <h4 className="text-sm font-black uppercase">Ignacio M.</h4>
                     <span className={`text-xs font-black ${isLight ? 'text-zinc-600' : 'text-white/60'}`}>9,850 XP</span>
-                    <span className="text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full border bg-cyan-500/20 text-cyan-400 border-cyan-500/30">
+                    <span className="text-[9px] font-bold uppercase px-2.5 py-0.5 rounded-full border bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/30">
                       💎 DIAMANTE
                     </span>
                   </div>
@@ -1646,14 +1948,14 @@ export const DesktopLayout = ({
               )}
 
               {/* LEADERBOARD TABLE WITH LEAGUE TIERS */}
-              <div className={`max-w-4xl mx-auto rounded-[28px] border overflow-hidden shadow-sm ${
+              <div className={`max-w-5xl 2xl:max-w-6xl mx-auto rounded-[28px] 2xl:rounded-[36px] border overflow-hidden shadow-sm ${
                 isLight ? 'border-zinc-200 bg-white text-zinc-900' : 'border-white/10 bg-[#0c0c0c] text-white'
               }`}>
                 <div className={`p-4 border-b flex justify-between items-center text-[10px] font-black uppercase tracking-widest px-6 ${
                   isLight ? 'border-zinc-200 text-zinc-400 bg-zinc-50' : 'border-white/10 text-white/40'
                 }`}>
-                  <span>Rango, Usuario & Liga</span>
-                  <span>Puntos de Enfoque (XP)</span>
+                  <span>{lang === 'en' ? 'Rank, User & League' : 'Rango, Usuario & Liga'}</span>
+                  <span>{lang === 'en' ? 'Focus Points (XP)' : 'Puntos de Enfoque (XP)'}</span>
                 </div>
                 <div className={`divide-y ${isLight ? 'divide-zinc-100' : 'divide-white/5'}`}>
                   {filteredRankings.map((row, rIdx) => {
@@ -1735,127 +2037,17 @@ export const DesktopLayout = ({
         {/* 4. TIENDA (SHOP) VIEW */}
         {/* ======================================================== */}
         {activeTab === 'shop' && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-            
-            {/* Header + Diamond Balance */}
-            <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border p-6 rounded-[28px] ${
-              isLight ? 'bg-white border-zinc-200 shadow-sm text-zinc-900' : 'bg-[#0c0c0c] border-white/10 text-white'
-            }`}>
-              <div>
-                <h3 className="text-2xl font-black uppercase tracking-tight">Tienda de Enfoque</h3>
-                <p className={`text-xs uppercase tracking-wider mt-0.5 ${isLight ? 'text-zinc-500' : 'text-white/50'}`}>Canjea tus diamantes por avatares, fondos y títulos</p>
-              </div>
-              <div className={`flex items-center gap-3 px-6 py-3 rounded-2xl font-black text-sm shadow-sm ${
-                isLight ? 'bg-zinc-900 text-white' : 'bg-white text-black'
-              }`}>
-                <Gem size={20} className="fill-cyan-400 text-cyan-400" />
-                <span>{userDiamonds || 0} Diamantes Disponibles</span>
-              </div>
-            </div>
-
-            {/* Category Filter Pills */}
-            <div className="flex gap-2 overflow-x-auto pb-2">
-              {['all', 'avatar', 'background', 'title', 'effect'].map(cat => (
-                <button
-                  key={cat}
-                  onClick={() => setShopFilter(cat)}
-                  className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap ${
-                    shopFilter === cat
-                      ? (isLight ? 'bg-zinc-900 text-white shadow-sm' : 'bg-white text-black shadow-md')
-                      : (isLight ? 'border border-zinc-200 text-zinc-600 hover:text-zinc-900 bg-white hover:bg-zinc-50' : 'border border-white/10 text-white/50 hover:text-white bg-[#0c0c0c]')
-                  }`}
-                >
-                  {cat === 'all' ? 'Todos los Artículos' : cat === 'avatar' ? 'Avatares' : cat === 'background' ? 'Fondos' : cat === 'title' ? 'Títulos' : 'Efectos'}
-                </button>
-              ))}
-            </div>
-
-            {/* Shop Items Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {(shopItemsList || [])
-                .filter(item => shopFilter === 'all' || item.type === shopFilter || (shopFilter === 'avatar' && (item.type === 'avatar' || item.category === 'avatar')) || (shopFilter === 'background' && (item.type === 'background' || item.category === 'background')) || (shopFilter === 'title' && (item.type === 'title' || item.category === 'title')) || (shopFilter === 'effect' && (item.type === 'effect' || item.category === 'effect')))
-                .map((item, itemIdx) => {
-                  const isEquipped = inventory?.equippedAvatar === item.id || inventory?.equippedBg === item.id || inventory?.equippedTitle === item.id;
-                  const isOwned = (inventory?.ownedItems || []).includes(item.id);
-                  const canAfford = userDiamonds >= item.price;
-                  const itemType = item.type || item.category;
-
-                  return (
-                    <div
-                      key={`shop-item-${item.id || itemIdx}-${itemIdx}`}
-                      onClick={() => onOpenShopItem?.(item)}
-                      className={`p-6 rounded-[28px] border flex flex-col justify-between group cursor-pointer transition-all duration-300 hover:scale-[1.02] ${
-                        isLight ? 'bg-white border-zinc-200 hover:border-zinc-300 shadow-sm hover:shadow-md text-zinc-900' : 'bg-[#0c0c0c] border-white/10 hover:border-white/30 text-white'
-                      }`}
-                    >
-                      <div>
-                        <div className={`w-full aspect-square rounded-2xl border flex items-center justify-center text-4xl mb-4 relative overflow-hidden p-2 ${
-                          isLight ? 'bg-zinc-50 border-zinc-200' : 'bg-white/5 border-white/10'
-                        }`}>
-                          {itemType === 'avatar' && AvatarDisplay ? (
-                            <AvatarDisplay avatarId={item.id} className="w-full h-full object-contain" />
-                          ) : itemType === 'background' && backgroundsData?.[item.id]?.css ? (
-                            <div className={`w-full h-full rounded-xl ${backgroundsData[item.id].css} flex items-center justify-center border border-white/20`}>
-                              <Sparkles size={24} className="text-white/60" />
-                            </div>
-                          ) : item.icon ? (
-                            <span className="text-5xl">{item.icon}</span>
-                          ) : (
-                            <Shield size={48} className={isLight ? 'text-zinc-300' : 'text-white/40'} />
-                          )}
-                          <span className={`absolute top-2 right-2 text-[8px] font-black uppercase px-2 py-0.5 rounded border ${
-                            isLight ? 'bg-white text-zinc-700 border-zinc-200' : 'bg-white/10 text-white border-white/20'
-                          }`}>{item.rarity || 'Común'}</span>
-                        </div>
-                        <h4 className="text-base font-black uppercase tracking-tight">{item.name}</h4>
-                        <p className={`text-xs line-clamp-2 mt-1 ${isLight ? 'text-zinc-500' : 'text-white/50'}`}>{item.desc}</p>
-                      </div>
-
-                      <div className={`mt-6 pt-4 border-t ${isLight ? 'border-zinc-100' : 'border-white/10'}`} onClick={(e) => e.stopPropagation()}>
-                        {isEquipped ? (
-                          <div className={`w-full py-3 rounded-xl text-center text-xs font-black uppercase tracking-widest border ${
-                            isLight ? 'bg-zinc-50 text-zinc-700 border-zinc-200' : 'bg-white/10 text-white border-white/20'
-                          }`}>
-                            Equipado
-                          </div>
-                        ) : isOwned ? (
-                          <button
-                            onClick={() => {
-                              if (itemType === 'avatar') setInventory(p => ({ ...p, equippedAvatar: item.id }));
-                              if (itemType === 'background') setInventory(p => ({ ...p, equippedBg: item.id }));
-                              if (itemType === 'title') setInventory(p => ({ ...p, equippedTitle: item.id }));
-                            }}
-                            className={`w-full py-3 rounded-xl border text-xs font-black uppercase tracking-widest transition-all ${
-                              isLight ? 'border-zinc-200 text-zinc-800 hover:bg-zinc-50 bg-white' : 'border-white/20 text-white hover:bg-white/10'
-                            }`}
-                          >
-                            Equipar
-                          </button>
-                        ) : (
-                          <button
-                            disabled={!canAfford}
-                            onClick={() => {
-                              if (canAfford) {
-                                setUserDiamonds(p => p - item.price);
-                                setInventory(p => ({ ...p, ownedItems: [...(p.ownedItems || []), item.id] }));
-                              }
-                            }}
-                            className={`w-full py-3 rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-sm ${
-                              canAfford
-                                ? (isLight ? 'bg-zinc-900 text-white hover:bg-zinc-800' : 'bg-white text-black hover:bg-white/90')
-                                : (isLight ? 'bg-zinc-100 text-zinc-400 cursor-not-allowed border border-zinc-200' : 'bg-white/10 text-white/30 cursor-not-allowed')
-                            }`}
-                          >
-                            <Gem size={14} className="text-cyan-400" />
-                            <span>Comprar {item.price} 💎</span>
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-            </div>
-
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+            <FocuslyShopExpanded
+              userDiamonds={userDiamonds}
+              setUserDiamonds={setUserDiamonds}
+              inventory={inventory}
+              setInventory={setInventory}
+              shopItemsList={shopItemsList}
+              onOpenShopItem={onOpenShopItem}
+              isLight={isLight}
+              lang={lang}
+            />
           </motion.div>
         )}
 
@@ -1866,101 +2058,127 @@ export const DesktopLayout = ({
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
             
             {/* USER HERO PROFILE CARD */}
-            <div className={`p-8 rounded-[32px] border flex flex-col md:flex-row items-center md:items-start justify-between gap-6 shadow-sm ${
+            <div className={`p-8 2xl:p-12 rounded-[36px] 2xl:rounded-[44px] border flex flex-col md:flex-row items-center md:items-start justify-between gap-8 shadow-sm ${
               isLight ? 'bg-white border-zinc-200 text-zinc-900' : 'bg-[#0c0c0c] border-white/10 text-white'
             }`}>
-              <div className="flex flex-col md:flex-row items-center gap-6">
-                <div className={`w-24 h-24 rounded-3xl border-2 flex items-center justify-center text-4xl shadow-sm overflow-hidden p-2 ${
-                  isLight ? 'border-zinc-200 bg-zinc-50' : 'border-white bg-white/10'
-                }`}>
-                  {AvatarDisplay && inventory?.equippedAvatar ? (
-                    <AvatarDisplay avatarId={inventory.equippedAvatar} className="w-full h-full object-contain" />
-                  ) : (
-                    <span>{equippedAvatarItem?.icon || '👤'}</span>
-                  )}
-                </div>
-                <div className="text-center md:text-left">
-                  <div className="flex items-center justify-center md:justify-start gap-2">
-                    <h3 className="text-2xl font-black uppercase tracking-tight">{username || 'Estudiante'}</h3>
-                    <span className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full border ${
-                      isLight ? 'border-zinc-200 bg-zinc-50 text-zinc-700' : 'border-white/20 bg-white/10 text-white'
-                    }`}>NIVEL {currentLevel}</span>
+              <div className="flex flex-col md:flex-row items-center gap-8">
+                <div className="flex flex-col items-center">
+                  <div className="my-1">
+                    <FocuslyAvatar3D
+                      avatarId={inventory?.equippedAvatar || 'a_base'}
+                      outfitId={inventory?.equippedOutfit || 'outfit_base'}
+                      accessoryId={inventory?.equippedAccessory || 'acc_none'}
+                      size="lg"
+                      showPedestal={true}
+                      interactive={true}
+                      className="scale-105 2xl:scale-115"
+                    />
                   </div>
-                  <p className={`text-xs uppercase font-bold tracking-wider mt-1 ${isLight ? 'text-zinc-500' : 'text-white/50'}`}>{userEmail || 'Cuenta Anónima'}</p>
+                  <span className="text-[10px] 2xl:text-xs font-black uppercase text-amber-500 mt-3 px-3 py-1 rounded-full border border-amber-500/30 bg-amber-500/10 shadow-sm">
+                    {TITLES.find(t => t.id === inventory?.equippedTitle)?.name || 'Guardián del Enfoque'}
+                  </span>
+                </div>
+                <div className="text-center md:text-left space-y-1">
+                  <div className="flex items-center justify-center md:justify-start gap-3">
+                    <h3 className="text-2xl 2xl:text-3xl font-black uppercase tracking-tight">{username || (lang === 'en' ? 'Focus Student' : 'Estudiante')}</h3>
+                    <span className={`text-[10px] 2xl:text-xs font-black uppercase px-3 py-0.5 rounded-full border ${
+                      isLight ? 'border-zinc-200 bg-zinc-50 text-zinc-700' : 'border-white/20 bg-white/10 text-white'
+                    }`}>{lang === 'en' ? 'LEVEL' : 'NIVEL'} {currentLevel}</span>
+                  </div>
+                  <p className={`text-xs 2xl:text-sm uppercase font-bold tracking-wider ${isLight ? 'text-zinc-500' : 'text-white/50'}`}>{userEmail || (lang === 'en' ? 'Anonymous Account' : 'Cuenta Anónima')}</p>
                   
                   {/* XP Bar */}
-                  <div className="mt-4 flex items-center gap-3">
-                    <div className={`w-48 h-2 rounded-full overflow-hidden border ${isLight ? 'bg-zinc-100 border-zinc-200' : 'bg-black border-white/10'}`}>
+                  <div className="pt-3 flex items-center gap-3">
+                    <div className={`w-48 2xl:w-64 h-2.5 rounded-full overflow-hidden border ${isLight ? 'bg-zinc-100 border-zinc-200' : 'bg-black border-white/10'}`}>
                       <div className={`h-full rounded-full transition-all ${isLight ? 'bg-zinc-900' : 'bg-white'}`} style={{ width: `${levelProgress}%` }} />
                     </div>
-                    <span className="text-xs font-black">{currentLevelXP} / 1000 XP</span>
+                    <span className="text-xs 2xl:text-sm font-black">{currentLevelXP} / 1000 XP</span>
                   </div>
                 </div>
               </div>
 
               {/* Profile stats badges */}
-              <div className="flex gap-4">
-                <div className={`p-4 rounded-2xl border text-center min-w-[100px] ${
+              <div className="flex flex-wrap items-center justify-center gap-3 2xl:gap-4">
+                <div className={`p-4 2xl:p-6 rounded-2xl 2xl:rounded-3xl border text-center min-w-[105px] 2xl:min-w-[130px] shadow-sm ${
                   isLight ? 'border-zinc-200 bg-zinc-50' : 'border-white/10 bg-white/5'
                 }`}>
-                  <span className="text-2xl font-black">{loginStreak || 1}</span>
-                  <span className={`text-[9px] font-black uppercase tracking-wider block mt-0.5 ${isLight ? 'text-zinc-400' : 'text-white/40'}`}>Días Racha</span>
+                  <span className="text-2xl 2xl:text-3xl font-black">{loginStreak || 1}</span>
+                  <span className={`text-[9px] 2xl:text-[10px] font-black uppercase tracking-wider block mt-1 ${isLight ? 'text-zinc-400' : 'text-white/40'}`}>
+                    {lang === 'en' ? 'Day Streak' : 'Días Racha'}
+                  </span>
                 </div>
-                <div className={`p-4 rounded-2xl border text-center min-w-[100px] ${
+                <div className={`p-4 2xl:p-6 rounded-2xl 2xl:rounded-3xl border text-center min-w-[105px] 2xl:min-w-[130px] shadow-sm ${
                   isLight ? 'border-zinc-200 bg-zinc-50' : 'border-white/10 bg-white/5'
                 }`}>
-                  <span className="text-2xl font-black">{completedCount || 0}</span>
-                  <span className={`text-[9px] font-black uppercase tracking-wider block mt-0.5 ${isLight ? 'text-zinc-400' : 'text-white/40'}`}>Retos Listos</span>
+                  <span className="text-2xl 2xl:text-3xl font-black">{completedCount || 0}</span>
+                  <span className={`text-[9px] 2xl:text-[10px] font-black uppercase tracking-wider block mt-1 ${isLight ? 'text-zinc-400' : 'text-white/40'}`}>
+                    {lang === 'en' ? 'Completed' : 'Retos Listos'}
+                  </span>
                 </div>
-                <div className={`p-4 rounded-2xl border text-center min-w-[100px] ${
+                <div className={`p-4 2xl:p-6 rounded-2xl 2xl:rounded-3xl border text-center min-w-[105px] 2xl:min-w-[130px] shadow-sm ${
                   isLight ? 'border-zinc-200 bg-zinc-50' : 'border-white/10 bg-white/5'
                 }`}>
-                  <span className="text-2xl font-black">{userDiamonds || 0}</span>
-                  <span className={`text-[9px] font-black uppercase tracking-wider block mt-0.5 ${isLight ? 'text-zinc-400' : 'text-white/40'}`}>Diamantes</span>
+                  <span className={`text-2xl 2xl:text-3xl font-black ${isLight ? 'text-sky-600' : 'text-sky-400'}`}>{userDiamonds || 0}</span>
+                  <span className={`text-[9px] 2xl:text-[10px] font-black uppercase tracking-wider block mt-1 ${isLight ? 'text-zinc-400' : 'text-white/40'}`}>
+                    {lang === 'en' ? 'Diamonds' : 'Diamantes'}
+                  </span>
                 </div>
                 <div 
                   onClick={() => setProfileSubView('insignias')}
-                  className={`p-4 rounded-2xl border text-center min-w-[100px] cursor-pointer hover:scale-105 transition-all ${
+                  className={`p-4 2xl:p-6 rounded-2xl 2xl:rounded-3xl border text-center min-w-[105px] 2xl:min-w-[130px] cursor-pointer hover:scale-105 transition-all shadow-sm ${
                     profileSubView === 'insignias'
                       ? (isLight ? 'border-amber-500 bg-amber-50 text-amber-900 shadow-sm' : 'border-amber-400/50 bg-amber-500/15 text-amber-300')
                       : (isLight ? 'border-zinc-200 bg-zinc-50 hover:border-zinc-300' : 'border-white/10 bg-white/5 hover:border-white/20')
                   }`}
-                  title="Ver Insignias"
+                  title={lang === 'en' ? 'View Badges' : 'Ver Insignias'}
                 >
-                  <span className="text-2xl font-black text-amber-500 flex items-center justify-center gap-1">
-                    <Award size={18} />
+                  <span className="text-2xl 2xl:text-3xl font-black text-amber-500 flex items-center justify-center gap-1">
+                    <Award size={20} />
                     {BADGES.filter(b => (inventory?.unlockedBadges || []).includes(b.id) || (b.check && b.check({ userXP, completedCount, loginStreak, activityLog, selectedApps, calendarTasks }).unlocked)).length}
                   </span>
-                  <span className={`text-[9px] font-black uppercase tracking-wider block mt-0.5 ${isLight ? 'text-zinc-400' : 'text-white/40'}`}>Insignias</span>
+                  <span className={`text-[9px] 2xl:text-[10px] font-black uppercase tracking-wider block mt-1 ${isLight ? 'text-zinc-400' : 'text-white/40'}`}>
+                    {lang === 'en' ? 'Badges' : 'Insignias'}
+                  </span>
                 </div>
               </div>
             </div>
 
-            {/* PROFILE SUB-VIEW TOGGLE: OBJETOS VS INSIGNIAS */}
+            {/* PROFILE SUB-VIEW TOGGLE: OBJETOS VS INSIGNIAS VS CAMINO DE TROFEOS */}
             <div className="flex justify-center">
               <div className={`inline-flex items-center gap-2 p-1.5 rounded-full border backdrop-blur-md shadow-sm ${
                 isLight ? 'bg-zinc-100 border-zinc-200/80' : 'bg-black/80 border-white/10'
               }`}>
                 <button
                   onClick={() => setProfileSubView('inventario')}
-                  className={`px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-200 ${
+                  className={`px-7 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-200 cursor-pointer ${
                     profileSubView === 'inventario'
                       ? (isLight ? 'bg-white text-zinc-900 shadow-sm border border-zinc-200/80' : 'bg-white text-black shadow-lg shadow-white/10')
                       : (isLight ? 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200/40' : 'text-white/40 hover:text-white hover:bg-white/5')
                   }`}
                 >
-                  Objetos & Inventario
+                  {lang === 'en' ? 'Items & Inventory' : 'Objetos & Inventario'}
                 </button>
                 <button
                   onClick={() => setProfileSubView('insignias')}
-                  className={`px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-200 flex items-center gap-2 ${
+                  className={`px-7 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-200 flex items-center gap-2 cursor-pointer ${
                     profileSubView === 'insignias'
                       ? (isLight ? 'bg-white text-zinc-900 shadow-sm border border-zinc-200/80' : 'bg-white text-black shadow-lg shadow-white/10')
                       : (isLight ? 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200/40' : 'text-white/40 hover:text-white hover:bg-white/5')
                   }`}
                 >
                   <Award size={14} className="text-amber-500" />
-                  <span>Insignias & Retos</span>
+                  <span>{lang === 'en' ? 'Badges & Quests' : 'Insignias & Retos'}</span>
+                </button>
+                <button
+                  onClick={() => setProfileSubView('progression')}
+                  className={`px-7 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-200 flex items-center gap-2 cursor-pointer ${
+                    profileSubView === 'progression'
+                      ? (isLight ? 'bg-white text-zinc-900 shadow-sm border border-zinc-200/80' : 'bg-white text-black shadow-lg shadow-white/10')
+                      : (isLight ? 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200/40' : 'text-white/40 hover:text-white hover:bg-white/5')
+                  }`}
+                >
+                  <Sparkles size={14} className="text-amber-500" />
+                  <span>{lang === 'en' ? 'Trophy Road' : 'Camino de Trofeos'}</span>
                 </button>
               </div>
             </div>
@@ -1979,6 +2197,8 @@ export const DesktopLayout = ({
                   }}
                   unlockedBadgeIds={inventory?.unlockedBadges || []}
                   isLight={isLight}
+                  lang={lang}
+                  onNavigateCrece={() => setActiveTab('crece')}
                 />
               </motion.div>
             )}
@@ -1992,50 +2212,84 @@ export const DesktopLayout = ({
                 isLight ? 'bg-white border-zinc-200 shadow-sm text-zinc-900' : 'bg-[#0c0c0c] border-white/10 text-white'
               }`}>
                 <div className="flex justify-between items-center">
-                  <h4 className="text-lg font-black uppercase tracking-tight">Inventario de Objetos</h4>
-                  <div className={`flex gap-2 p-1 rounded-xl border ${
+                  <h4 className="text-lg font-black uppercase tracking-tight">
+                    {lang === 'en' ? 'Item Inventory' : 'Inventario de Objetos'}
+                  </h4>
+                  <div className={`flex flex-wrap gap-1.5 p-1 rounded-xl border ${
                     isLight ? 'bg-zinc-100 border-zinc-200' : 'bg-black border-white/10'
                   }`}>
                     <button
                       onClick={() => setInventoryTab('avatar')}
-                      className={`px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${
+                      className={`px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${
                         inventoryTab === 'avatar'
                           ? (isLight ? 'bg-white text-zinc-900 shadow-sm' : 'bg-white text-black')
                           : (isLight ? 'text-zinc-500 hover:text-zinc-900' : 'text-white/40')
                       }`}
                     >
-                      Avatares
+                      {lang === 'en' ? 'Avatars' : 'Avatares'}
+                    </button>
+                    <button
+                      onClick={() => setInventoryTab('outfit')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${
+                        inventoryTab === 'outfit'
+                          ? (isLight ? 'bg-white text-zinc-900 shadow-sm' : 'bg-white text-black')
+                          : (isLight ? 'text-zinc-500 hover:text-zinc-900' : 'text-white/40')
+                      }`}
+                    >
+                      {lang === 'en' ? 'Outfits' : 'Trajes'}
+                    </button>
+                    <button
+                      onClick={() => setInventoryTab('accessory')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${
+                        inventoryTab === 'accessory'
+                          ? (isLight ? 'bg-white text-zinc-900 shadow-sm' : 'bg-white text-black')
+                          : (isLight ? 'text-zinc-500 hover:text-zinc-900' : 'text-white/40')
+                      }`}
+                    >
+                      {lang === 'en' ? 'Accessories' : 'Accesorios'}
                     </button>
                     <button
                       onClick={() => setInventoryTab('background')}
-                      className={`px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${
+                      className={`px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${
                         inventoryTab === 'background'
                           ? (isLight ? 'bg-white text-zinc-900 shadow-sm' : 'bg-white text-black')
                           : (isLight ? 'text-zinc-500 hover:text-zinc-900' : 'text-white/40')
                       }`}
                     >
-                      Fondos
+                      {lang === 'en' ? 'Backgrounds' : 'Fondos'}
                     </button>
                     <button
                       onClick={() => setInventoryTab('title')}
-                      className={`px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${
+                      className={`px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${
                         inventoryTab === 'title'
                           ? (isLight ? 'bg-white text-zinc-900 shadow-sm' : 'bg-white text-black')
                           : (isLight ? 'text-zinc-500 hover:text-zinc-900' : 'text-white/40')
                       }`}
                     >
-                      Títulos
+                      {lang === 'en' ? 'Titles' : 'Títulos'}
                     </button>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 2xl:grid-cols-4 gap-4">
                   {(shopItemsList || [])
                     .filter(item => (item.type || item.category) === inventoryTab)
                     .map((item, itemIdx) => {
-                      const isEquipped = inventory?.equippedAvatar === item.id || inventory?.equippedBg === item.id || inventory?.equippedTitle === item.id;
-                      const isOwned = item.price === 0 || (inventory?.ownedItems || []).includes(item.id);
                       const itemType = item.type || item.category;
+                      const isEquipped = 
+                        (itemType === 'avatar' && inventory?.equippedAvatar === item.id) ||
+                        (itemType === 'outfit' && inventory?.equippedOutfit === item.id) ||
+                        (itemType === 'accessory' && inventory?.equippedAccessory === item.id) ||
+                        ((itemType === 'background' || itemType === 'environment') && inventory?.equippedBg === item.id) ||
+                        (itemType === 'title' && inventory?.equippedTitle === item.id);
+
+                      const isOwned = item.price === 0 || 
+                        (itemType === 'avatar' && (inventory?.avatars || ['a_base']).includes(item.id)) ||
+                        (itemType === 'outfit' && ((inventory?.unlockedOutfits || []).includes(item.id) || (inventory?.outfits || []).includes(item.id))) ||
+                        (itemType === 'accessory' && ((inventory?.unlockedAccessories || []).includes(item.id) || (inventory?.accessories || []).includes(item.id))) ||
+                        (itemType === 'title' && ((inventory?.unlockedTitles || []).includes(item.id) || (inventory?.titles || []).includes(item.id))) ||
+                        ((itemType === 'background' || itemType === 'environment') && (inventory?.backgrounds || []).includes(item.id)) ||
+                        (inventory?.ownedItems || []).includes(item.id);
 
                       return (
                         <div
@@ -2051,34 +2305,49 @@ export const DesktopLayout = ({
                             <div className="w-16 h-16 rounded-xl flex items-center justify-center mb-2 overflow-hidden">
                               {itemType === 'avatar' && AvatarDisplay ? (
                                 <AvatarDisplay avatarId={item.id} className="w-full h-full object-contain" />
+                              ) : itemType === 'background' && AvatarDisplay ? (
+                                <div className="w-full h-full rounded-xl overflow-hidden relative">
+                                  <AvatarDisplay id={item.id} className="w-full h-full object-cover" />
+                                </div>
                               ) : itemType === 'background' && backgroundsData?.[item.id]?.css ? (
                                 <div className={`w-full h-full rounded-xl ${backgroundsData[item.id].css} flex items-center justify-center border border-white/20`}>
                                   <Sparkles size={16} className="text-white/60" />
                                 </div>
                               ) : (
-                                <span className="text-3xl">{item.icon || '🛡️'}</span>
+                                <span className="text-3xl">{item.icon || (itemType === 'outfit' ? '🥋' : itemType === 'accessory' ? '✨' : itemType === 'title' ? '🏷️' : '🛡️')}</span>
                               )}
                             </div>
                             <h5 className="text-xs font-black uppercase mt-1 line-clamp-1">{item.name}</h5>
                           </div>
                           <div onClick={(e) => e.stopPropagation()} className="mt-2">
                             {isEquipped ? (
-                              <span className={`text-[10px] font-black uppercase text-center block py-2 ${isLight ? 'text-zinc-600' : 'text-white/60'}`}>Equipado</span>
+                              <span className={`text-[10px] font-black uppercase text-center block py-2 ${isLight ? 'text-zinc-600' : 'text-white/60'}`}>
+                                {lang === 'en' ? '✓ Equipped' : '✓ Equipado'}
+                              </span>
                             ) : isOwned ? (
                               <button
                                 onClick={() => {
                                   if (itemType === 'avatar') setInventory(p => ({ ...p, equippedAvatar: item.id }));
-                                  if (itemType === 'background') setInventory(p => ({ ...p, equippedBg: item.id }));
+                                  if (itemType === 'outfit') setInventory(p => ({ ...p, equippedOutfit: item.id }));
+                                  if (itemType === 'accessory') setInventory(p => ({ ...p, equippedAccessory: item.id }));
+                                  if (itemType === 'background' || itemType === 'environment') setInventory(p => ({ ...p, equippedBg: item.id }));
                                   if (itemType === 'title') setInventory(p => ({ ...p, equippedTitle: item.id }));
                                 }}
-                                className={`w-full py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all shadow-sm ${
+                                className={`w-full py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all shadow-sm cursor-pointer ${
                                   isLight ? 'bg-zinc-900 text-white hover:bg-zinc-800' : 'bg-white text-black hover:bg-white/90'
                                 }`}
                               >
-                                Equipar
+                                {lang === 'en' ? 'Equip' : 'Equipar'}
                               </button>
                             ) : (
-                              <span className={`text-[10px] font-black uppercase text-center block py-2 ${isLight ? 'text-zinc-300' : 'text-white/30'}`}>Bloqueado</span>
+                              <button
+                                onClick={() => onOpenInventoryItem?.(item)}
+                                className={`w-full py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider text-center block border transition-all cursor-pointer ${
+                                  isLight ? 'border-zinc-300 text-zinc-600 hover:bg-zinc-100' : 'border-white/10 text-white/50 hover:bg-white/5 hover:text-white'
+                                }`}
+                              >
+                                {lang === 'en' ? 'Unlock' : 'Desbloquear'}
+                              </button>
                             )}
                           </div>
                         </div>
@@ -2091,7 +2360,9 @@ export const DesktopLayout = ({
               <div className={`p-6 rounded-[28px] border space-y-6 ${
                 isLight ? 'bg-white border-zinc-200 shadow-sm text-zinc-900' : 'bg-[#0c0c0c] border-white/10 text-white'
               }`}>
-                <h4 className="text-lg font-black uppercase tracking-tight">Configuración</h4>
+                <h4 className="text-lg font-black uppercase tracking-tight">
+                  {lang === 'en' ? 'Settings' : 'Configuración'}
+                </h4>
 
                 <div className="space-y-4">
                   {/* Language */}
@@ -2099,7 +2370,9 @@ export const DesktopLayout = ({
                     isLight ? 'border-zinc-200 bg-zinc-50' : 'border-white/10 bg-white/5'
                   }`}>
                     <div>
-                      <h5 className="text-xs font-black uppercase">Idioma</h5>
+                      <h5 className="text-xs font-black uppercase">
+                        {lang === 'en' ? 'Language' : 'Idioma'}
+                      </h5>
                       <span className={`text-[10px] ${isLight ? 'text-zinc-400' : 'text-white/40'}`}>{lang === 'es' ? 'Español' : 'English'}</span>
                     </div>
                     <button
@@ -2108,7 +2381,7 @@ export const DesktopLayout = ({
                         isLight ? 'border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-100 shadow-sm' : 'border-white/20 text-white hover:bg-white/10'
                       }`}
                     >
-                      {lang === 'es' ? 'Cambiar a EN' : 'Cambiar a ES'}
+                      {lang === 'es' ? 'Switch to EN' : 'Cambiar a ES'}
                     </button>
                   </div>
 
@@ -2117,8 +2390,14 @@ export const DesktopLayout = ({
                     isLight ? 'border-zinc-200 bg-zinc-50' : 'border-white/10 bg-white/5'
                   }`}>
                     <div>
-                      <h5 className="text-xs font-black uppercase">Tema Visual</h5>
-                      <span className={`text-[10px] ${isLight ? 'text-zinc-400' : 'text-white/40'}`}>{isLight ? 'Modo Claro' : 'Modo Oscuro'}</span>
+                      <h5 className="text-xs font-black uppercase">
+                        {lang === 'en' ? 'Visual Theme' : 'Tema Visual'}
+                      </h5>
+                      <span className={`text-[10px] ${isLight ? 'text-zinc-400' : 'text-white/40'}`}>
+                        {isLight 
+                          ? (lang === 'en' ? 'Light Mode' : 'Modo Claro') 
+                          : (lang === 'en' ? 'Dark Mode' : 'Modo Oscuro')}
+                      </span>
                     </div>
                     <button
                       onClick={toggleMode}
@@ -2126,7 +2405,9 @@ export const DesktopLayout = ({
                         isLight ? 'border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-100 shadow-sm' : 'border-white/20 text-white hover:bg-white/10'
                       }`}
                     >
-                      {isLight ? 'Activar Oscuro' : 'Activar Claro'}
+                      {isLight 
+                        ? (lang === 'en' ? 'Switch to Dark' : 'Activar Oscuro') 
+                        : (lang === 'en' ? 'Switch to Light' : 'Activar Claro')}
                     </button>
                   </div>
 
@@ -2138,7 +2419,7 @@ export const DesktopLayout = ({
                         isLight ? 'bg-zinc-900 text-white hover:bg-zinc-800' : 'bg-white text-black hover:bg-white/90'
                       }`}
                     >
-                      Guardar Progreso / Crear Cuenta
+                      {lang === 'en' ? 'Save Progress / Create Account' : 'Guardar Progreso / Crear Cuenta'}
                     </button>
                   ) : (
                     <button
@@ -2146,7 +2427,7 @@ export const DesktopLayout = ({
                       className="w-full py-3.5 rounded-2xl border border-red-500/30 text-red-500 hover:bg-red-500/10 font-black uppercase text-xs tracking-widest transition-all flex items-center justify-center gap-2"
                     >
                       <LogOut size={16} />
-                      <span>Cerrar Sesión</span>
+                      <span>{lang === 'en' ? 'Sign Out' : 'Cerrar Sesión'}</span>
                     </button>
                   )}
 
@@ -2159,7 +2440,7 @@ export const DesktopLayout = ({
                           isLight ? 'border-zinc-200 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 bg-white' : 'border-white/10 text-white/60 hover:text-white hover:bg-white/5'
                         }`}
                       >
-                        Privacidad
+                        {lang === 'en' ? 'Privacy' : 'Privacidad'}
                       </button>
                     )}
                     {onOpenTerms && (
@@ -2169,7 +2450,7 @@ export const DesktopLayout = ({
                           isLight ? 'border-zinc-200 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 bg-white' : 'border-white/10 text-white/60 hover:text-white hover:bg-white/5'
                         }`}
                       >
-                        Términos
+                        {lang === 'en' ? 'Terms' : 'Términos'}
                       </button>
                     )}
                   </div>
@@ -2180,12 +2461,24 @@ export const DesktopLayout = ({
                       isLight ? 'border-zinc-200 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 bg-white shadow-sm' : 'border-white/10 text-white/50 hover:text-white hover:bg-white/5'
                     }`}
                   >
-                    Ver Página Informativa
+                    {lang === 'en' ? 'View Landing Page' : 'Ver Página Informativa'}
                   </button>
                 </div>
               </div>
 
             </div>
+            )}
+
+            {/* SUB-VIEW 3: CAMINO DE TROFEOS & PROGRESIÓN */}
+            {profileSubView === 'progression' && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                <FocuslyProgressionRoad
+                  userXP={userXP}
+                  userDiamonds={userDiamonds}
+                  isLight={isLight}
+                  lang={lang}
+                />
+              </motion.div>
             )}
 
           </motion.div>
@@ -2226,12 +2519,16 @@ export const DesktopLayout = ({
                     className="w-full h-full"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-white/40">Video no disponible</div>
+                  <div className="w-full h-full flex items-center justify-center text-white/40">
+                    {lang === 'en' ? 'Video unavailable' : 'Video no disponible'}
+                  </div>
                 )}
               </div>
 
               <div className="space-y-3">
-                <h4 className={`text-xs font-black uppercase tracking-widest ${isLight ? 'text-zinc-400' : 'text-white/40'}`}>Ideas Clave</h4>
+                <h4 className={`text-xs font-black uppercase tracking-widest ${isLight ? 'text-zinc-400' : 'text-white/40'}`}>
+                  {lang === 'en' ? 'Key Insights' : 'Ideas Clave'}
+                </h4>
                 <ul className="space-y-2">
                   {(selectedVideo.points || []).map((point, idx) => (
                     <li key={`vid-pt-${idx}`} className={`text-xs flex items-start gap-2.5 ${isLight ? 'text-zinc-700' : 'text-white/80'}`}>
@@ -2246,11 +2543,11 @@ export const DesktopLayout = ({
 
               <button
                 onClick={() => setSelectedVideo(null)}
-                className={`w-full py-4 rounded-2xl font-black uppercase text-xs tracking-widest transition-all shadow-sm ${
+                className={`w-full py-4 rounded-2xl font-black uppercase text-xs tracking-widest transition-all shadow-sm cursor-pointer ${
                   isLight ? 'bg-zinc-900 text-white hover:bg-zinc-800' : 'bg-white text-black hover:bg-white/90'
                 }`}
               >
-                Cerrar y Aplicar Consejo
+                {lang === 'en' ? 'Close & Apply Insight' : 'Cerrar y Aplicar Consejo'}
               </button>
             </div>
           </motion.div>
@@ -2265,39 +2562,52 @@ export const DesktopLayout = ({
               isLight ? 'bg-white border-zinc-200 text-zinc-900' : 'bg-[#0c0c0c] border-white/20 text-white'
             }`}>
               <div className="flex justify-between items-center">
-                <h3 className="text-xl font-black uppercase tracking-tight">Nueva Publicación</h3>
-                <button onClick={() => setShowCreatePost(false)} className={`p-2 rounded-full ${isLight ? 'hover:bg-zinc-100 text-zinc-500' : 'hover:bg-white/10 text-white'}`}>
+                <h3 className="text-xl font-black uppercase tracking-tight">
+                  {lang === 'en' ? 'New Post' : 'Nueva Publicación'}
+                </h3>
+                <button onClick={() => setShowCreatePost(false)} className={`p-2 rounded-full cursor-pointer ${isLight ? 'hover:bg-zinc-100 text-zinc-500' : 'hover:bg-white/10 text-white'}`}>
                   <X size={18} />
                 </button>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <label className={`text-[10px] font-black uppercase tracking-widest block mb-2 ${isLight ? 'text-zinc-400' : 'text-white/40'}`}>Categoría</label>
+                  <label className={`text-[10px] font-black uppercase tracking-widest block mb-2 ${isLight ? 'text-zinc-400' : 'text-white/40'}`}>
+                    {lang === 'en' ? 'Category' : 'Categoría'}
+                  </label>
                   <div className="flex gap-2 flex-wrap">
-                    {['Estudio', 'Hábitos', 'Desahogo', 'Logros'].map(tag => (
-                      <button
-                        key={tag}
-                        onClick={() => setNewPostTag(tag)}
-                        className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
-                          newPostTag === tag
-                            ? (isLight ? 'bg-zinc-900 text-white shadow-sm' : 'bg-white text-black')
-                            : (isLight ? 'border border-zinc-200 text-zinc-600 hover:bg-zinc-50' : 'border border-white/10 text-white/50')
-                        }`}
-                      >
-                        {tag}
-                      </button>
-                    ))}
+                    {['Estudio', 'Hábitos', 'Desahogo', 'Logros'].map(tag => {
+                      const tagLabel = tag === 'Estudio' 
+                        ? (lang === 'en' ? 'Study' : 'Estudio') 
+                        : (tag === 'Hábitos' ? (lang === 'en' ? 'Habits' : 'Hábitos')
+                          : (tag === 'Desahogo' ? (lang === 'en' ? 'Vent / Support' : 'Desahogo')
+                            : (lang === 'en' ? 'Achievements' : 'Logros')));
+                      return (
+                        <button
+                          key={tag}
+                          onClick={() => setNewPostTag(tag)}
+                          className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
+                            newPostTag === tag
+                              ? (isLight ? 'bg-zinc-900 text-white shadow-sm' : 'bg-white text-black')
+                              : (isLight ? 'border border-zinc-200 text-zinc-600 hover:bg-zinc-50' : 'border border-white/10 text-white/50')
+                          }`}
+                        >
+                          {tagLabel}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
                 <div>
-                  <label className={`text-[10px] font-black uppercase tracking-widest block mb-2 ${isLight ? 'text-zinc-400' : 'text-white/40'}`}>Contenido</label>
+                  <label className={`text-[10px] font-black uppercase tracking-widest block mb-2 ${isLight ? 'text-zinc-400' : 'text-white/40'}`}>
+                    {lang === 'en' ? 'Content' : 'Contenido'}
+                  </label>
                   <textarea
                     rows={4}
                     value={newPostContent}
                     onChange={e => setNewPostContent(e.target.value)}
-                    placeholder="Comparte tu experiencia, un logro o un consejo con la comunidad..."
+                    placeholder={lang === 'en' ? 'Share your experience, an achievement, or advice with the community...' : 'Comparte tu experiencia, un logro o un consejo con la comunidad...'}
                     className={`w-full p-4 rounded-2xl border text-sm font-medium focus:outline-none transition-colors resize-none ${
                       isLight
                         ? 'bg-zinc-50 border-zinc-200 text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-400'
@@ -2310,11 +2620,11 @@ export const DesktopLayout = ({
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowCreatePost(false)}
-                  className={`flex-1 py-3.5 rounded-xl border font-black uppercase text-xs tracking-widest ${
+                  className={`flex-1 py-3.5 rounded-xl border font-black uppercase text-xs tracking-widest cursor-pointer ${
                     isLight ? 'border-zinc-200 text-zinc-700 hover:bg-zinc-50' : 'border-white/20 text-white hover:bg-white/10'
                   }`}
                 >
-                  Cancelar
+                  {lang === 'en' ? 'Cancel' : 'Cancelar'}
                 </button>
                 <button
                   disabled={!newPostContent.trim()}
@@ -2323,12 +2633,12 @@ export const DesktopLayout = ({
                       setForumPosts(p => [
                         {
                           id: `p_${Date.now()}`,
-                          user: username || 'Tú',
+                          user: username || (lang === 'en' ? 'You' : 'Tú'),
                           tag: newPostTag,
                           content: newPostContent.trim(),
                           likes: 0,
                           comments: [],
-                          time: 'Justo ahora'
+                          time: lang === 'en' ? 'Just now' : 'Justo ahora'
                         },
                         ...(p || [])
                       ]);
@@ -2336,11 +2646,11 @@ export const DesktopLayout = ({
                       setShowCreatePost(false);
                     }
                   }}
-                  className={`flex-1 py-3.5 rounded-xl font-black uppercase text-xs tracking-widest disabled:opacity-30 disabled:cursor-not-allowed shadow-sm ${
+                  className={`flex-1 py-3.5 rounded-xl font-black uppercase text-xs tracking-widest disabled:opacity-30 disabled:cursor-not-allowed shadow-sm cursor-pointer ${
                     isLight ? 'bg-zinc-900 text-white hover:bg-zinc-800' : 'bg-white text-black hover:bg-white/90'
                   }`}
                 >
-                  Publicar
+                  {lang === 'en' ? 'Publish' : 'Publicar'}
                 </button>
               </div>
             </div>
@@ -2356,11 +2666,30 @@ export const DesktopLayout = ({
             mastery={selectedMasteryCourse}
             completedClasses={completedMasteryClasses}
             onCompleteClass={handleCompleteMasteryClass}
-            onClose={() => setSelectedMasteryCourse(null)}
+            onClose={() => {
+              setSelectedMasteryCourse(null);
+              setSelectedMasteryInitialClass(null);
+              setSelectedMasteryInitialChallenge(null);
+            }}
+            initialClass={selectedMasteryInitialClass}
+            initialUnitChallenge={selectedMasteryInitialChallenge}
             isLight={isLight}
           />
         )}
       </AnimatePresence>
+
+      {/* FOCUSLY CELEBRATION REWARD MODAL */}
+      <FocuslyCelebrationModal
+        isOpen={!!celebrationData}
+        onClose={() => setCelebrationData(null)}
+        title={celebrationData?.title}
+        subtitle={celebrationData?.subtitle}
+        xpGained={celebrationData?.xpGained}
+        diamondsGained={celebrationData?.diamondsGained}
+        unlockedItem={celebrationData?.unlockedItem}
+        badge={celebrationData?.badge}
+        isLight={isLight}
+      />
 
     </div>
   );

@@ -37,10 +37,16 @@ export const IMPORTANCE_CONFIG = {
   baja: { label: 'Baja', color: '#10B981', badge: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30', dot: 'bg-emerald-500', icon: '🌱' }
 };
 
-const DAYS_NAMES_SHORT = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
-const MONTHS_NAMES = [
+const DAYS_NAMES_SHORT_ES = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+const DAYS_NAMES_SHORT_EN = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+const MONTHS_NAMES_ES = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+];
+const MONTHS_NAMES_EN = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
 export const InteractiveCalendar = ({
@@ -48,8 +54,12 @@ export const InteractiveCalendar = ({
   setTasks,
   onOpenAICalendar,
   isLight = false,
-  onModalOpenChange
+  onModalOpenChange,
+  lang = 'es'
 }) => {
+  const isEn = lang === 'en';
+  const daysShort = isEn ? DAYS_NAMES_SHORT_EN : DAYS_NAMES_SHORT_ES;
+  const monthsNames = isEn ? MONTHS_NAMES_EN : MONTHS_NAMES_ES;
   // Principal: Vista por día con selector para ver mes
   const [viewMode, setViewMode] = useState('dia'); // 'dia' | 'mes' | 'lista'
   const [currentDate, setCurrentDate] = useState(() => new Date());
@@ -177,14 +187,14 @@ export const InteractiveCalendar = ({
       strip.push({
         dateStr,
         dayNumber: d.getDate(),
-        dayName: DAYS_NAMES_SHORT[dayOfWeekIndex],
+        dayName: daysShort[dayOfWeekIndex],
         isToday,
         isSelected: selectedDateStr === dateStr,
         taskCount: count
       });
     }
     return strip;
-  }, [selectedDateStr, filteredTasks]);
+  }, [selectedDateStr, filteredTasks, daysShort]);
 
   // Month Grid calculation
   const monthGridDays = useMemo(() => {
@@ -344,7 +354,7 @@ export const InteractiveCalendar = ({
   }, [filteredTasks, selectedDateStr]);
 
   const selectedDateObject = getParsedDate(selectedDateStr);
-  const formattedDayTitle = selectedDateObject.toLocaleDateString('es-ES', {
+  const formattedDayTitle = selectedDateObject.toLocaleDateString(isEn ? 'en-US' : 'es-ES', {
     weekday: 'long',
     day: 'numeric',
     month: 'long'
@@ -392,23 +402,23 @@ export const InteractiveCalendar = ({
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5 mb-0.5">
                 <span className="text-[7px] sm:text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-full bg-white/20 text-white truncate">
-                  IA Planner
+                  {isEn ? 'AI Planner' : 'IA Planner'}
                 </span>
                 <span className="text-[9px] sm:text-[10px] font-bold text-yellow-300 flex items-center gap-1 shrink-0">
-                  <Sparkles size={9} /> Auto-Agendado
+                  <Sparkles size={9} /> {isEn ? 'Auto-Schedule' : 'Auto-Agendado'}
                 </span>
               </div>
               <h3 className="text-xs sm:text-sm font-black uppercase tracking-tight truncate">
-                Asistente de Calendario Focusly
+                {isEn ? 'Focusly Calendar AI Assistant' : 'Asistente de Calendario Focusly'}
               </h3>
               <p className="text-[10px] text-white/70 truncate hidden sm:block">
-                Escribe en lenguaje natural y creamos tus bloques de tareas
+                {isEn ? 'Type naturally to generate and organize task blocks automatically' : 'Escribe en lenguaje natural y creamos tus bloques de tareas'}
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-1 bg-white/20 hover:bg-white/30 text-white text-[10px] sm:text-[11px] font-black uppercase tracking-wider px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl shrink-0 transition-colors">
-            <span>Abrir</span>
+            <span>{isEn ? 'Open' : 'Abrir'}</span>
             <ArrowRight size={13} />
           </div>
         </div>
@@ -435,7 +445,7 @@ export const InteractiveCalendar = ({
               }`}
             >
               <Clock size={12} className="shrink-0" />
-              <span className="truncate">Por Día</span>
+              <span className="truncate">{isEn ? 'By Day' : 'Por Día'}</span>
             </button>
 
             <button
@@ -447,7 +457,7 @@ export const InteractiveCalendar = ({
               }`}
             >
               <CalendarDays size={12} className="shrink-0" />
-              <span className="truncate">Ver Mes</span>
+              <span className="truncate">{isEn ? 'Month View' : 'Ver Mes'}</span>
             </button>
 
             <button
@@ -459,7 +469,7 @@ export const InteractiveCalendar = ({
               }`}
             >
               <ListTodo size={12} className="shrink-0" />
-              <span className="truncate">Todas</span>
+              <span className="truncate">{isEn ? 'All Tasks' : 'Todas'}</span>
             </button>
           </div>
 
@@ -472,10 +482,10 @@ export const InteractiveCalendar = ({
                   ? 'bg-neutral-100 hover:bg-neutral-200 border-neutral-200 text-neutral-700' 
                   : 'bg-white/5 hover:bg-white/10 border-white/10 text-white/80'
               }`}
-              title="Administrar Categorías"
+              title={isEn ? "Manage Categories" : "Administrar Categorías"}
             >
               <Tag size={13} className="shrink-0 text-indigo-400" />
-              <span className="truncate">Categorías ({categories.length})</span>
+              <span className="truncate">{isEn ? 'Categories' : 'Categorías'} ({categories.length})</span>
             </button>
 
             <button
@@ -487,7 +497,7 @@ export const InteractiveCalendar = ({
               }`}
             >
               <Plus size={14} className="shrink-0" />
-              <span className="truncate">Nueva Tarea</span>
+              <span className="truncate">{isEn ? 'New Task' : 'Nueva Tarea'}</span>
             </button>
           </div>
         </div>
@@ -505,7 +515,7 @@ export const InteractiveCalendar = ({
                   <button 
                     onClick={() => handleStepDay(-1)} 
                     className="p-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-white/10 text-neutral-700 dark:text-white transition-colors"
-                    title="Día anterior"
+                    title={isEn ? "Previous day" : "Día anterior"}
                   >
                     <ChevronLeft size={15} />
                   </button>
@@ -517,12 +527,12 @@ export const InteractiveCalendar = ({
                         : 'text-neutral-700 dark:text-white hover:bg-neutral-100 dark:hover:bg-white/10'
                     }`}
                   >
-                    Hoy
+                    {isEn ? 'Today' : 'Hoy'}
                   </button>
                   <button 
                     onClick={() => handleStepDay(1)} 
                     className="p-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-white/10 text-neutral-700 dark:text-white transition-colors"
-                    title="Día siguiente"
+                    title={isEn ? "Next day" : "Día siguiente"}
                   >
                     <ChevronRight size={15} />
                   </button>
@@ -530,7 +540,7 @@ export const InteractiveCalendar = ({
 
                 <div className="min-w-0 flex-1 pl-1">
                   <span className="text-[9px] font-black uppercase tracking-widest text-indigo-500 block truncate">
-                    {isSelectedDateToday ? '• Día de Hoy' : 'Día Seleccionado'}
+                    {isSelectedDateToday ? (isEn ? '• Today' : '• Día de Hoy') : (isEn ? 'Selected Day' : 'Día Seleccionado')}
                   </span>
                   <h4 className={`text-xs sm:text-sm font-black capitalize tracking-tight truncate ${isLight ? 'text-neutral-900' : 'text-white'}`}>
                     {formattedDayTitle}
@@ -545,13 +555,13 @@ export const InteractiveCalendar = ({
                     ? isLight ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30'
                     : 'bg-neutral-200/50 dark:bg-white/5 text-neutral-400 border-transparent'
                 }`}>
-                  {selectedDayTasks.length} {selectedDayTasks.length === 1 ? 'tarea' : 'tareas'}
+                  {selectedDayTasks.length} {isEn ? (selectedDayTasks.length === 1 ? 'task' : 'tasks') : (selectedDayTasks.length === 1 ? 'tarea' : 'tareas')}
                 </span>
                 
                 <button
                   onClick={() => handleOpenCreateForDate(selectedDateStr)}
                   className="p-1 rounded-xl bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500 hover:text-white transition-all shrink-0"
-                  title="Agregar tarea hoy"
+                  title={isEn ? "Add task for today" : "Agregar tarea hoy"}
                 >
                   <Plus size={14} />
                 </button>
@@ -722,30 +732,30 @@ export const InteractiveCalendar = ({
                     onClick={handleGoToday}
                     className="px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-neutral-700 dark:text-white hover:bg-neutral-100 dark:hover:bg-white/10 rounded-lg"
                   >
-                    Hoy
+                    {isEn ? 'Today' : 'Hoy'}
                   </button>
                   <button 
                     onClick={handleNextMonth} 
                     className="p-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-white/10 text-neutral-700 dark:text-white"
-                    title="Mes siguiente"
+                    title={isEn ? "Next month" : "Mes siguiente"}
                   >
                     <ChevronRight size={15} />
                   </button>
                 </div>
 
                 <h3 className={`text-xs sm:text-sm font-black capitalize truncate ${isLight ? 'text-neutral-900' : 'text-white'}`}>
-                  {MONTHS_NAMES[month]} <span className="text-indigo-500">{year}</span>
+                  {monthsNames[month]} <span className="text-indigo-500">{year}</span>
                 </h3>
               </div>
 
               <div className="text-[10px] font-bold text-neutral-400 truncate hidden xs:block">
-                Toca un día para ver o agendar
+                {isEn ? 'Tap a day to view or schedule' : 'Toca un día para ver o agendar'}
               </div>
             </div>
 
             {/* Day name headers */}
             <div className="grid grid-cols-7 gap-1 text-center w-full">
-              {DAYS_NAMES_SHORT.map((name, i) => (
+              {daysShort.map((name, i) => (
                 <div 
                   key={name} 
                   className={`text-[8px] sm:text-[10px] font-black uppercase tracking-wider py-0.5 truncate ${

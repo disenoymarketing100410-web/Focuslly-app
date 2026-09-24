@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 100" width="800" height="100">
+  <text x="400" y="62" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="32" font-weight="700" letter-spacing="5" fill="#A1A1AA" text-anchor="middle">
+    MORE ACTION <tspan fill="#FFFFFF" font-size="24" dy="-2">•</tspan><tspan dy="2"> LESS DISTRACTION</tspan>
+  </text>
+</svg>

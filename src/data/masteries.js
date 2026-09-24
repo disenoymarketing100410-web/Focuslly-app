@@ -1,7 +1,8 @@
 // src/data/masteries.js
 // Cursos y Maestrías de Productividad, Computación, Neurociencia, IA y Aprendizaje para Jóvenes
+import { ALL_MASTERIES } from './masteryCatalog';
 
-export const MASTERIES_DATA = [
+const EXISTING_MASTERIES = [
   {
     id: 'mastery_digital_productivity',
     title: 'Maestría en Computación & Productividad Digital',
@@ -824,4 +825,9 @@ Lo mismo aplica para el ahorro: guardar pequeñas cantidades constantes desde lo
       }
     ]
   }
+];
+
+export const MASTERIES_DATA = [
+  ...ALL_MASTERIES,
+  ...EXISTING_MASTERIES.filter(em => !ALL_MASTERIES.some(am => am.id === em.id))
 ];
